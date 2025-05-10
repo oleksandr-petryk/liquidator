@@ -4,7 +4,7 @@ import * as t from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 
 export const picture = pgTable('pictures', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: t.uuid().defaultRandom(),
   picture: t.varchar().notNull(),
   ...timestamps,
 });

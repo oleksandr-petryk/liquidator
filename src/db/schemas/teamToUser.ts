@@ -9,8 +9,8 @@ import { user } from './user';
 export const teamToUser = pgTable(
   'team-to-user',
   {
-    userId: t.integer('user-id').notNull(),
-    teamId: t.integer('team-id').notNull(),
+    userId: t.uuid('user-id').notNull(),
+    teamId: t.uuid('team-id').notNull(),
     role: roleEnum().default(role.Member),
     isFavorite: t.boolean('is-favorite').default(false).notNull(),
     isDefault: t.boolean('is-default').default(false).notNull(),

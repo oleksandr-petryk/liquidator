@@ -8,7 +8,7 @@ import { picture } from './picture';
 import { teamToUser } from './teamToUser';
 
 export const team = pgTable('team', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: t.uuid().defaultRandom(),
   status: statusEnum().default(status.Published),
   name: t.varchar({ length: 30 }).notNull(),
   pictureId: t.integer('picture-id'),

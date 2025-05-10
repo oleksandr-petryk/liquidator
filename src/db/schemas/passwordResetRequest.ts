@@ -6,8 +6,8 @@ import { timestamps } from './timestamps';
 import { user } from './user';
 
 export const passwordResetRequest = pgTable('password-reset-request', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: t.integer('user_id').notNull(),
+  id: t.uuid().defaultRandom(),
+  userId: t.uuid('user_id').notNull(),
   code: t.varchar({ length: 6 }).notNull(),
   expiresIn: t.timestamp('updated-at').notNull(),
   ...timestamps,
