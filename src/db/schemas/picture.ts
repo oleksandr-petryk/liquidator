@@ -5,6 +5,6 @@ import { timestamps } from './timestamps';
 
 export const picture = pgTable('pictures', {
   id: t.uuid().defaultRandom(),
-  picture: t.varchar().notNull(),
+  picture: t.varchar({ length: 256 }).notNull(),
   ...timestamps,
 });
