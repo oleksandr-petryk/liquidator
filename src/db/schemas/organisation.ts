@@ -11,7 +11,7 @@ export const organization = pgTable('organization', {
   status: statusEnum().default(status.Published),
   name: t.varchar({ length: 30 }).notNull().unique(),
   slug: t.varchar({ length: 30 }).notNull().unique(),
-  pictureId: t.integer('picture-id'),
+  pictureId: t.integer('picture_id'),
   ...timestamps,
 });
 

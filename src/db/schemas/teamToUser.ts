@@ -7,13 +7,13 @@ import { team } from './team';
 import { user } from './user';
 
 export const teamToUser = pgTable(
-  'team-to-user',
+  'team_to_user',
   {
-    userId: t.uuid('user-id').notNull(),
-    teamId: t.uuid('team-id').notNull(),
+    userId: t.uuid('user_id').notNull(),
+    teamId: t.uuid('team_id').notNull(),
     role: roleEnum().default(role.Member),
-    isFavorite: t.boolean('is-favorite').default(false).notNull(),
-    isDefault: t.boolean('is-default').default(false).notNull(),
+    isFavorite: t.boolean('is_favorite').default(false).notNull(),
+    isDefault: t.boolean('is_default').default(false).notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.teamId] })],
 );

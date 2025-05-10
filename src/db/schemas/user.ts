@@ -8,20 +8,20 @@ import { passwordResetRequest } from './passwordResetRequest';
 import { picture } from './picture';
 import { teamToUser } from './teamToUser';
 
-export const user = pgTable('pictures', {
+export const user = pgTable('user', {
   id: t.uuid().defaultRandom(),
   status: statusEnum().default(status.Published),
   email: t.varchar({ length: 320 }).notNull().unique(),
-  phoneNumber: t.varchar('phone-number', { length: 15 }).notNull().unique(),
+  phoneNumber: t.varchar('phone_number', { length: 15 }).notNull().unique(),
   username: t.varchar({ length: 15 }).notNull().unique(),
-  firstName: t.varchar('first-name', { length: 35 }).notNull(),
-  lastName: t.varchar('last-name', { length: 35 }).notNull(),
-  dateOfBirth: t.timestamp('date-of-birth').notNull(),
+  firstName: t.varchar('first_name', { length: 35 }).notNull(),
+  lastName: t.varchar('last_name', { length: 35 }).notNull(),
+  dateOfBirth: t.timestamp('date_of_birth').notNull(),
   gender: genderEnum(),
-  pictureId: t.integer('picture-id'),
+  pictureId: t.integer('picture_id'),
   password: t.varchar({ length: 128 }).notNull(),
   recoveryEmailAddress: t
-    .varchar('recovery-email-address', { length: 320 })
+    .varchar('recovery_email_address', { length: 320 })
     .notNull(),
   ...timestamps,
 });

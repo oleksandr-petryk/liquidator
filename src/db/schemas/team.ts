@@ -11,8 +11,8 @@ export const team = pgTable('team', {
   id: t.uuid().defaultRandom(),
   status: statusEnum().default(status.Published),
   name: t.varchar({ length: 30 }).notNull(),
-  pictureId: t.integer('picture-id'),
-  isDefault: t.boolean('is-default').default(false).notNull(),
+  pictureId: t.integer('picture_id'),
+  isDefault: t.boolean('is_default').default(false).notNull(),
   ...timestamps,
 });
 
