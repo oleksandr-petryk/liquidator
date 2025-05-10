@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 import { pgTable, primaryKey } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
-import { roleEnum } from './enums';
+import { role, roleEnum } from './enums';
 import { team } from './team';
 import { user } from './user';
 
@@ -11,7 +11,7 @@ export const teamToUser = pgTable(
   {
     userId: t.integer('user-id').notNull(),
     teamId: t.integer('team-id').notNull(),
-    role: roleEnum().default('member'),
+    role: roleEnum().default(role.Member),
     isFavorite: t.boolean('is-favorite').default(false).notNull(),
     isDefault: t.boolean('is-default').default(false).notNull(),
   },

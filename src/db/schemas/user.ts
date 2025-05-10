@@ -3,14 +3,14 @@ import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
 import { timestamps } from './timestamps';
-import { genderEnum, statusEnum } from './enums';
+import { genderEnum, status, statusEnum } from './enums';
 import { passwordResetRequest } from './passwordResetRequest';
 import { picture } from './picture';
 import { teamToUser } from './teamToUser';
 
 export const user = pgTable('pictures', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  status: statusEnum().default('published'),
+  status: statusEnum().default(status.Published),
   email: t.varchar({ length: 320 }).notNull().unique(),
   phoneNumber: t.varchar('phone-number', { length: 15 }).notNull().unique(),
   username: t.varchar({ length: 15 }).notNull().unique(),
