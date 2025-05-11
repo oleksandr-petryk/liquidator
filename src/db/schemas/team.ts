@@ -3,13 +3,14 @@ import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
 import { timestamps } from './timestamps';
-import { status, statusEnum } from './enums';
+import { Status, StatusEnum } from './enums';
 import { picture } from './picture';
 import { teamToUser } from './teamToUser';
+import { id } from './id';
 
 export const team = pgTable('team', {
-  id: t.uuid().defaultRandom(),
-  status: statusEnum().default(status.Published),
+  ...id,
+  status: StatusEnum().default(Status.Published),
   name: t.varchar({ length: 30 }).notNull(),
   pictureId: t.integer('picture_id'),
   isDefault: t.boolean('is_default').default(false).notNull(),
