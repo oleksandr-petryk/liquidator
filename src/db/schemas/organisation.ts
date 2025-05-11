@@ -5,10 +5,10 @@ import { Status, StatusEnum } from './enums';
 import { relations } from 'drizzle-orm';
 import { picture } from './picture';
 import { timestamps } from './timestamps';
-import { id } from './id';
+import { primaryKey } from './primaryKey';
 
 export const organization = pgTable('organization', {
-  ...id,
+  ...primaryKey,
   status: StatusEnum().default(Status.Published),
   name: t.varchar({ length: 30 }).notNull().unique(),
   slug: t.varchar({ length: 30 }).notNull().unique(),

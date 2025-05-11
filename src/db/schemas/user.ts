@@ -7,10 +7,10 @@ import { GenderEnum, Status, StatusEnum } from './enums';
 import { passwordResetRequest } from './passwordResetRequest';
 import { picture } from './picture';
 import { teamToUser } from './teamToUser';
-import { id } from './id';
+import { primaryKey } from './primaryKey';
 
 export const user = pgTable('user', {
-  ...id,
+  ...primaryKey,
   status: StatusEnum().default(Status.Published),
   email: t.varchar({ length: 320 }).notNull().unique(),
   phoneNumber: t.varchar('phone_number', { length: 15 }).notNull().unique(),

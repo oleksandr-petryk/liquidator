@@ -6,10 +6,10 @@ import { timestamps } from './timestamps';
 import { Status, StatusEnum } from './enums';
 import { picture } from './picture';
 import { teamToUser } from './teamToUser';
-import { id } from './id';
+import { primaryKey } from './primaryKey';
 
 export const team = pgTable('team', {
-  ...id,
+  ...primaryKey,
   status: StatusEnum().default(Status.Published),
   name: t.varchar({ length: 30 }).notNull(),
   pictureId: t.integer('picture_id'),

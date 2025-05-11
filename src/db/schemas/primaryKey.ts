@@ -1,5 +1,5 @@
 import { uuid } from 'drizzle-orm/pg-core';
 
-export const id = {
+export const primaryKey = {
   id: uuid().defaultRandom(),
 };

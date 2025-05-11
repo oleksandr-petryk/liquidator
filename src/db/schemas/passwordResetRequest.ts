@@ -4,10 +4,10 @@ import * as t from 'drizzle-orm/pg-core';
 
 import { timestamps } from './timestamps';
 import { user } from './user';
-import { id } from './id';
+import { primaryKey } from './primaryKey';
 
 export const passwordResetRequest = pgTable('password_reset_request', {
-  ...id,
+  ...primaryKey,
   userId: t.uuid('user_id').notNull(),
   code: t.varchar({ length: 6 }).notNull(),
   expiresIn: t.timestamp('updated_at').notNull(),
