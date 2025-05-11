@@ -1,11 +1,11 @@
+import { relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
 import { Status, StatusEnum } from './enums';
-import { relations } from 'drizzle-orm';
 import { picture } from './picture';
-import { timestamps } from './timestamps';
 import { primaryKey } from './primaryKey';
+import { timestamps } from './timestamps';
 
 export const organization = pgTable('organization', {
   ...primaryKey,
