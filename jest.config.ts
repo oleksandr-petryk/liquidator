@@ -5,7 +5,6 @@ const config: Config.InitialOptions = {
   forceExit: true,
   detectOpenHandles: false,
   preset: 'ts-jest',
-  testEnvironment: './jest/custom-environment.ts',
   globalTeardown: './jest/global-teardown.ts',
   setupFilesAfterEnv: [
     './jest/jestDefaultTimeout.ts',
