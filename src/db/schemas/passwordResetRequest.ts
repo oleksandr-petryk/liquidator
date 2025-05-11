@@ -2,9 +2,9 @@ import { relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
+import { primaryKey } from './primaryKey';
 import { timestamps } from './timestamps';
 import { user } from './user';
-import { primaryKey } from './primaryKey';
 
 export const passwordResetRequest = pgTable('password_reset_request', {
   ...primaryKey,
