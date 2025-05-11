@@ -1321,23 +1321,23 @@
   integrity sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==
 
 "@types/node@*":
-  version "22.15.12"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.12.tgz#9ce54e51e09536faa94e4ec300c4728ee83bfa85"
-  integrity sha512-K0fpC/ZVeb8G9rm7bH7vI0KAec4XHEhBam616nVJCV51bKzJ6oA3luG4WdKoaztxe70QaNjS/xBmcDLmr4PiGw==
+  version "22.15.17"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.17.tgz#355ccec95f705b664e4332bb64a7f07db30b7055"
+  integrity sha512-wIX2aSZL5FE+MR0JlvF87BNVrtFWf6AE6rxSE9X7OwnVvoyCQjpzSRJ+M87se/4QCkCiebQAqrJ0y6fwIyi7nw==
   dependencies:
     undici-types "~6.21.0"
 
 "@types/node@^20.3.1":
-  version "20.17.41"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.17.41.tgz#2bdeac7818c371afab1eeb5f5d5225860feb313d"
-  integrity sha512-bOB0a6u/e7Ey/Gyc+ghRg+xoXFGYug4I7pdvwxudh+Ewmk93Z4wTudn4NIKiIRYQyujf9jm2uTBzQK8tg8oUeQ==
+  version "20.17.46"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.17.46.tgz#75f805dfbbf21ca41fd2324ca7b485b459df51bc"
+  integrity sha512-0PQHLhZPWOxGW4auogW0eOQAuNIlCYvibIpG67ja0TOJ6/sehu+1en7sfceUn+QQtx4Rk3GxbLNwPh0Cav7TWw==
   dependencies:
     undici-types "~6.19.2"
 
 "@types/pg@^8.12.0":
-  version "8.12.0"
-  resolved "https://registry.yarnpkg.com/@types/pg/-/pg-8.12.0.tgz#d0f3bf131ae3ee54c510fb3c9cfcedb493b5106c"
-  integrity sha512-a9Z11ecnpNPFu2iT4Qo9SSYgM2r1l4UqLIQ454zhCDRzxqOh/vsi57FFovbc64oBGPBotXw5cRhUQtJEHCb/OA==
+  version "8.15.1"
+  resolved "https://registry.yarnpkg.com/@types/pg/-/pg-8.15.1.tgz#ee6fad7608d2348f55226a5fb5118efdab97ecf9"
+  integrity sha512-YKHrkGWBX5+ivzvOQ66I0fdqsQTsvxqM0AGP2i0XrVZ9DP5VA/deEbTf7VuLPGpY7fJB9uGbkZ6KjVhuHcrTkQ==
   dependencies:
     "@types/node" "*"
     pg-protocol "*"
@@ -2600,9 +2600,9 @@ ejs@^3.1.10:
     jake "^10.8.5"
 
 electron-to-chromium@^1.5.149:
-  version "1.5.150"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.150.tgz#3120bf34453a7a82cb4d9335df20680b2bb40649"
-  integrity sha512-rOOkP2ZUMx1yL4fCxXQKDHQ8ZXwisb2OycOQVKHgvB3ZI4CvehOd4y2tfnnLDieJ3Zs1RL1Dlp3cMkyIn7nnXA==
+  version "1.5.151"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.151.tgz#5edd6c17e1b2f14b4662c41b9379f96cc8c2bb7c"
+  integrity sha512-Rl6uugut2l9sLojjS4H4SAr3A4IgACMLgpuEMPYCVcKydzfyPrn5absNRju38IhQOf/NwjJY8OGWjlteqYeBCA==
 
 emittery@^0.13.1:
   version "0.13.1"
