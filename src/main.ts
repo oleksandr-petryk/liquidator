@@ -16,7 +16,7 @@ import {
 import { ValidationError } from 'class-validator';
 import { randomUUID } from 'crypto';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import * as path from 'path';
 
 import { AppModule } from './app.module';
 import type { EnvConfig } from './shared/config/configuration';
@@ -78,7 +78,7 @@ async function bootstrap(): Promise<void> {
   // Read swagger-dark-mode.css file for Swagger UI dark mode
   logger.log('Read swagger-dark-mode.css');
   const darkModeCSS = readFileSync(
-    join(process.cwd(), 'misc', 'swagger-dark-mode.css'),
+    path.join(process.cwd(), 'src', 'misc', 'swagger-dark-mode.css'),
     'utf-8',
   );
 
@@ -126,9 +126,9 @@ async function bootstrap(): Promise<void> {
     '0.0.0.0',
   );
 
-  logger.log(`Swagger UI http://localhost:${PORT}/${APP_OPENAPI_JSON_URL}`);
+  logger.log(`Swagger UI http://localhost:${PORT}/${APP_SWAGGER_URL}`);
   logger.log(
-    `Application started on http://localhost:${PORT}/${APP_GLOBAL_URL_PREFIX}`,
+    `App started on http://localhost:${PORT}/${APP_GLOBAL_URL_PREFIX}`,
   );
 }
 
