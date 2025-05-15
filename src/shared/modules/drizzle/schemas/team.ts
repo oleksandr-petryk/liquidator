@@ -2,11 +2,11 @@ import { relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
+import { drizzlePrimaryKey } from './consts/primaryKey';
+import { drizzleTimestamps } from './consts/timestamps';
 import { Status, StatusEnum } from './enums';
 import { picture } from './picture';
-import { drizzlePrimaryKey } from './consts/primaryKey';
 import { teamToUser } from './teamToUser';
-import { drizzleTimestamps } from './consts/timestamps';
 
 export const team = pgTable('team', {
   ...drizzlePrimaryKey,
