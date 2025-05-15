@@ -41,7 +41,7 @@ export class KafkaService {
     this.fromBeginning = this.configService.getOrThrow('KAFKA_FROM_BEGINNING');
     this.kafka = new Kafka({
       clientId: this.clientId,
-      brokers: this.configService.getOrThrow('KAFKA_BROKERS').split(','),
+      brokers: this.configService.getOrThrow('KAFKA_BROKERS'),
       connectionTimeout: 5_000,
       // enforceRequestTimeout: false,
       // logLevel: 1,
