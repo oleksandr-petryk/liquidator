@@ -4,17 +4,17 @@ import * as t from 'drizzle-orm/pg-core';
 
 import { Status, StatusEnum } from './enums';
 import { picture } from './picture';
-import { primaryKey } from './primaryKey';
+import { drizzlePrimaryKey } from './consts/primaryKey';
 import { teamToUser } from './teamToUser';
-import { timestamps } from './timestamps';
+import { drizzleTimestamps } from './consts/timestamps';
 
 export const team = pgTable('team', {
-  ...primaryKey,
+  ...drizzlePrimaryKey,
   status: StatusEnum().default(Status.Published),
   name: t.varchar({ length: 30 }).notNull(),
   pictureId: t.integer('picture_id'),
   isDefault: t.boolean('is_default').default(false).notNull(),
-  ...timestamps,
+  ...drizzleTimestamps,
 });
 
 export const teamToPicture = relations(team, ({ one }) => ({
