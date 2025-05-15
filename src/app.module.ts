@@ -8,6 +8,7 @@ import { DrizzleModule } from './shared/modules/drizzle/drizzle.module';
 import { KafkaModule } from './shared/modules/kafka/kafka.module';
 import { PgModule } from './shared/modules/pg/pg.module';
 import { RedisModule } from './shared/modules/redis/redis.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RedisModule } from './shared/modules/redis/redis.module';
       load: [configuration],
       envFilePath: '.env',
     }),
+    AuthModule,
     DrizzleModule,
     KafkaModule,
     PgModule,
