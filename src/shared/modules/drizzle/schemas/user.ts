@@ -2,15 +2,15 @@ import { relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
+import { drizzlePrimaryKey } from './consts/primaryKey';
+import { drizzleTimestamps } from './consts/timestamps';
 import { GenderEnum, Status, StatusEnum } from './enums';
 import { passwordResetRequest } from './passwordResetRequest';
 import { picture } from './picture';
-import { primaryKey } from './primaryKey';
 import { teamToUser } from './teamToUser';
-import { timestamps } from './timestamps';
 
 export const user = pgTable('user', {
-  ...primaryKey,
+  ...drizzlePrimaryKey,
   status: StatusEnum().default(Status.Published),
   email: t.varchar({ length: 320 }).notNull().unique(),
   phoneNumber: t.varchar('phone_number', { length: 15 }).notNull().unique(),
@@ -24,7 +24,7 @@ export const user = pgTable('user', {
   recoveryEmailAddress: t
     .varchar('recovery_email_address', { length: 320 })
     .notNull(),
-  ...timestamps,
+  ...drizzleTimestamps,
 });
 
 export const userToPicture = relations(user, ({ one }) => ({

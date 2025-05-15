@@ -2,16 +2,16 @@ import { relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
-import { primaryKey } from './primaryKey';
-import { timestamps } from './timestamps';
+import { drizzlePrimaryKey } from './consts/primaryKey';
+import { drizzleTimestamps } from './consts/timestamps';
 import { user } from './user';
 
 export const passwordResetRequest = pgTable('password_reset_request', {
-  ...primaryKey,
+  ...drizzlePrimaryKey,
   userId: t.uuid('user_id').notNull(),
   code: t.varchar({ length: 6 }).notNull(),
   expiresIn: t.timestamp('updated_at').notNull(),
-  ...timestamps,
+  ...drizzleTimestamps,
 });
 
 export const passwordResetRequestRelations = relations(
