@@ -43,7 +43,7 @@ export const EnvConfigZ = z.object({
 
 export type EnvConfig = z.infer<typeof EnvConfigZ>;
 
-export default (): EnvConfig => {
+export function configurationLoader(): EnvConfig {
   const envConfig = EnvConfigZ.parse({
     ...process.env,
 
@@ -70,4 +70,4 @@ export default (): EnvConfig => {
   });
 
   return envConfig;
-};
+}
