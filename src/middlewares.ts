@@ -73,6 +73,10 @@ export function applyMiddlewares({
     new ValidationPipe({
       transform: true,
       whitelist: true,
+      validationError: {
+        value: true,
+      },
+      validateCustomDecorators: true,
       disableErrorMessages: false,
       exceptionFactory: (
         validationErrors: ValidationError[] = [],
