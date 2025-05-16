@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { eq, InferSelectModel } from 'drizzle-orm';
-import { QueryResult } from 'pg';
+import { InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { user } from '../modules/drizzle/schemas';
@@ -42,24 +41,6 @@ export class UserDao extends BaseDao<typeof user> {
     } catch (error) {
       this.logger.error(
         `Could not find ${this.options.entityName.plural}: ${error}`,
-      );
-      throw error;
-    }
-  }
-
-  async delete({
-    db = this.postgresDatabase,
-    id,
-  }: {
-    db?: Drizzle;
-    id?: any;
-  } = {}): Promise<QueryResult<never>> {
-    try {
-      const deletedUser = await db.delete(user).where(eq(user.id, id));
-      return deletedUser;
-    } catch (error) {
-      this.logger.error(
-        `Could not deleted ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }

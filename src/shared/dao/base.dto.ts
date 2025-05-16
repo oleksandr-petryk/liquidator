@@ -13,7 +13,7 @@ import { Drizzle } from '../modules/drizzle/drizzle.module';
 import { user } from '../modules/drizzle/schemas';
 
 export class BaseDao<T extends Table<any>> {
-  readonly baseLogger = new Logger(BaseDao.name);
+  private readonly baseLogger = new Logger(BaseDao.name);
 
   constructor(
     protected readonly daoInstance: T,
@@ -108,6 +108,24 @@ export class BaseDao<T extends Table<any>> {
     } catch (error) {
       this.baseLogger.error(
         `Could not updated ${this.options.entityName.plural}: ${error}`,
+      );
+      throw error;
+    }
+  }
+
+  async delete({
+    db = this.postgres,
+    id,
+  }: {
+    db?: Drizzle;
+    id?: any;
+  } = {}): Promise<QueryResult<never>> {
+    try {
+      const deletedUser = await db.delete(user).where(eq(user.id, id));
+      return deletedUser;
+    } catch (error) {
+      this.baseLogger.error(
+        `Could not deleted ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }
