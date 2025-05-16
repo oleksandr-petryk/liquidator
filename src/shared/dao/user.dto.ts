@@ -1,29 +1,17 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { eq, InferSelectModel } from 'drizzle-orm';
 import { QueryResult } from 'pg';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { user } from '../modules/drizzle/schemas';
 import { BaseDao } from './base.dto';
 
-type userClass = {
-  id: string;
-  status: string | null;
-  email: string;
-  phoneNumber: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: Date;
-  gender: string | null;
-  pictureId: number | null;
-  recoveryEmailAddress: string;
-  createdAt: Date;
-  updatedAt: Date | null;
-}; // its temporarily
+type ContactSelectModel = InferSelectModel<typeof user>;
 
 @Injectable()
 export class UserDao extends BaseDao<typeof user> {
+  readonly logger = new Logger(UserDao.name);
+
   constructor(
     @Inject(DRIZZLE_CONNECTION)
     private readonly postgresDatabase: Drizzle,
@@ -46,7 +34,7 @@ export class UserDao extends BaseDao<typeof user> {
   }: {
     db?: Drizzle;
     id?: any;
-  } = {}): Promise<userClass | undefined> {
+  } = {}): Promise<ContactSelectModel | undefined> {
     try {
       const user = await db.query.user.findFirst({ where: id });
 
@@ -65,7 +53,7 @@ export class UserDao extends BaseDao<typeof user> {
   }: {
     db?: Drizzle;
     value?: any;
-  } = {}): Promise<userClass[]> {
+  } = {}): Promise<ContactSelectModel[]> {
     try {
       const createdUser = await db.insert(user).values(value).returning();
       return createdUser;
@@ -77,7 +65,7 @@ export class UserDao extends BaseDao<typeof user> {
     }
   }
 
-  async updateById({
+  async update({
     db = this.postgresDatabase,
     value,
     id,
@@ -100,7 +88,7 @@ export class UserDao extends BaseDao<typeof user> {
     }
   }
 
-  async deleteById({
+  async delete({
     db = this.postgresDatabase,
     id,
   }: {

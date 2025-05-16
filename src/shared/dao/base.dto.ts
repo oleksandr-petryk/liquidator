@@ -1,11 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { InferInsertModel, InferSelectModel, sql, Table } from 'drizzle-orm';
 
-import { DEFAULT_DB_BATCH_SIZE } from '../const/app';
+import { DEFAULT_DB_BATCH_SIZE } from '../../db/db';
 import { Drizzle } from '../modules/drizzle/drizzle.module';
 
 export class BaseDao<T extends Table<any>> {
-  readonly logger = new Logger(BaseDao.name);
+  readonly baseLogger = new Logger(BaseDao.name);
 
   constructor(
     protected readonly daoInstance: T,
@@ -75,7 +75,7 @@ export class BaseDao<T extends Table<any>> {
         .returning();
       return inserted as InferSelectModel<T>;
     } catch (error) {
-      this.logger.error(
+      this.baseLogger.error(
         `Could not create ${this.options.entityName.singular}: ${error}`,
       );
       throw error;
