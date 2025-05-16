@@ -47,24 +47,6 @@ export class UserDao extends BaseDao<typeof user> {
     }
   }
 
-  async createUser({
-    db = this.postgresDatabase,
-    value,
-  }: {
-    db?: Drizzle;
-    value?: any;
-  } = {}): Promise<ContactSelectModel[]> {
-    try {
-      const createdUser = await db.insert(user).values(value).returning();
-      return createdUser;
-    } catch (error) {
-      this.logger.error(
-        `Could not created ${this.options.entityName.plural}: ${error}`,
-      );
-      throw error;
-    }
-  }
-
   async update({
     db = this.postgresDatabase,
     value,
