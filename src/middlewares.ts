@@ -1,5 +1,6 @@
 import fastifyCookie, { FastifyCookieOptions } from '@fastify/cookie';
 import fastifyCors, { FastifyCorsOptions } from '@fastify/cors';
+import fastifyMultipart, { FastifyMultipartOptions } from '@fastify/multipart';
 import fastifySession, { FastifySessionOptions } from '@fastify/session';
 import {
   BadRequestException,
@@ -58,6 +59,11 @@ export function applyMiddlewares({
       maxAge: 1000 * 60, // Session expiration (1 minute in this example)
     },
   } satisfies FastifySessionOptions);
+  app.register(fastifyMultipart, {
+    limits: {
+      fileSize: 100 * 1024 * 1024, // TODO: move it to const and env config
+    },
+  } satisfies FastifyMultipartOptions);
 
   // Interceptors
   app.useGlobalInterceptors(new AbstractResponseInterceptor());
