@@ -6,8 +6,8 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 
+import { AppModule } from './app.module';
 import { applyMiddlewares } from './middlewares';
-import { AppModule } from './modules/app/app.module';
 import type { EnvConfig } from './shared/config/configuration';
 import { setupSwagger } from './swagger';
 

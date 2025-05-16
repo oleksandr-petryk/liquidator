@@ -9,10 +9,10 @@ import type {
 } from '../../shared/dto/app/response.dto';
 
 /**
- * Application service
+ * Platform service
  */
 @Injectable()
-export class AppService {
+export class PlatformService {
   constructor(private readonly configService: ConfigService<EnvConfig>) {}
 
   /**
