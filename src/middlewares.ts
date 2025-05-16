@@ -1,5 +1,6 @@
-import fastifyCookie from '@fastify/cookie';
-import fastifySession from '@fastify/session';
+import fastifyCookie, { FastifyCookieOptions } from '@fastify/cookie';
+import fastifyCors, { FastifyCorsOptions } from '@fastify/cors';
+import fastifySession, { FastifySessionOptions } from '@fastify/session';
 import {
   BadRequestException,
   Logger,
@@ -37,8 +38,18 @@ export function applyMiddlewares({
     'APP_GLOBAL_URL_PREFIX',
   );
 
+  // Global URL prefix
   app.setGlobalPrefix(APP_GLOBAL_URL_PREFIX);
-  app.register(fastifyCookie, { parseOptions: {} });
+
+  // Fastify middlewares
+  app.register(fastifyCors, {
+    origin: '*',
+    credentials: false, // must be false when origin is '*'
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  } satisfies FastifyCorsOptions);
+  app.register(fastifyCookie, {
+    parseOptions: {},
+  } satisfies FastifyCookieOptions);
   app.register(fastifySession, {
     secret: randomUUID(), // TODO: research how to safely manage secret
     saveUninitialized: false, // TODO: research it (Don't save uninitialized session)
@@ -46,9 +57,12 @@ export function applyMiddlewares({
       secure: false, // TODO: research it (Use `true` in production with HTTPS)
       maxAge: 1000 * 60, // Session expiration (1 minute in this example)
     },
-  });
-  app.enableCors();
+  } satisfies FastifySessionOptions);
+
+  // Interceptors
   app.useGlobalInterceptors(new AbstractResponseInterceptor());
+
+  // Pipes
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
