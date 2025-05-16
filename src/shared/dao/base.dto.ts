@@ -1,8 +1,16 @@
 import { Logger } from '@nestjs/common';
-import { InferInsertModel, InferSelectModel, sql, Table } from 'drizzle-orm';
+import {
+  eq,
+  InferInsertModel,
+  InferSelectModel,
+  sql,
+  Table,
+} from 'drizzle-orm';
+import { QueryResult } from 'pg';
 
-import { DEFAULT_DB_BATCH_SIZE } from '../../db/db';
+import { DEFAULT_DB_BATCH_SIZE } from '../const/db';
 import { Drizzle } from '../modules/drizzle/drizzle.module';
+import { user } from '../modules/drizzle/schemas';
 
 export class BaseDao<T extends Table<any>> {
   readonly baseLogger = new Logger(BaseDao.name);
@@ -77,6 +85,29 @@ export class BaseDao<T extends Table<any>> {
     } catch (error) {
       this.baseLogger.error(
         `Could not create ${this.options.entityName.singular}: ${error}`,
+      );
+      throw error;
+    }
+  }
+
+  public async update({
+    db = this.postgres,
+    value,
+    id,
+  }: {
+    db?: Drizzle;
+    value?: any;
+    id?: any;
+  } = {}): Promise<QueryResult<never>> {
+    try {
+      const updatedUser = await db
+        .update(user)
+        .set(value)
+        .where(eq(user.id, id));
+      return updatedUser;
+    } catch (error) {
+      this.baseLogger.error(
+        `Could not updated ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }

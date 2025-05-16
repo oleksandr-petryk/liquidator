@@ -47,29 +47,6 @@ export class UserDao extends BaseDao<typeof user> {
     }
   }
 
-  async update({
-    db = this.postgresDatabase,
-    value,
-    id,
-  }: {
-    db?: Drizzle;
-    value?: any;
-    id?: any;
-  } = {}): Promise<QueryResult<never>> {
-    try {
-      const updatedUser = await db
-        .update(user)
-        .set(value)
-        .where(eq(user.id, id));
-      return updatedUser;
-    } catch (error) {
-      this.logger.error(
-        `Could not updated ${this.options.entityName.plural}: ${error}`,
-      );
-      throw error;
-    }
-  }
-
   async delete({
     db = this.postgresDatabase,
     id,
