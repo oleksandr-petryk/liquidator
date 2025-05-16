@@ -90,4 +90,7 @@ export function applyMiddlewares({
       },
     }),
   );
+
+  // Others
+  app.enableShutdownHooks();
 }
