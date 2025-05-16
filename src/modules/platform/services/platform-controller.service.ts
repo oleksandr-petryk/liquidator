@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import type { EnvConfig } from '../../shared/config/configuration';
-import { APP_HEALTH_LIVE } from '../../shared/const/app.const';
+import type { EnvConfig } from '../../../shared/config/configuration';
+import { APP_HEALTH_LIVE } from '../../../shared/const/app.const';
 import type {
   GetAppVersionResponseBodyDto,
   GetHealthResponseBodyDto,
-} from '../../shared/dto/app/response.dto';
+} from '../../../shared/dto/app/response.dto';
 
 /**
  * Platform service
  */
 @Injectable()
-export class PlatformService {
+export class PlatformControllerService {
   constructor(private readonly configService: ConfigService<EnvConfig>) {}
 
   /**

@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { PlatformController } from './platform.controller';
-import { PlatformService } from './platform.service';
+import { PlatformControllerService } from './services/platform-controller.service';
 
 @Module({
   controllers: [PlatformController],
-  providers: [PlatformService],
+  providers: [PlatformControllerService],
   imports: [ConfigModule],
 })
 export class PlatformModule {}

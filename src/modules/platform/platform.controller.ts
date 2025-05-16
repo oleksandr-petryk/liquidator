@@ -7,7 +7,7 @@ import {
   GetAppVersionResponseBodyDto,
   GetHealthResponseBodyDto,
 } from '../../shared/dto/app/response.dto';
-import { PlatformService } from './platform.service';
+import { PlatformControllerService } from './services/platform-controller.service';
 
 /**
  * Basic platform endpoints
@@ -18,7 +18,7 @@ import { PlatformService } from './platform.service';
 @ApiTags(SWAGGER_TAGS.platform.title)
 @Controller()
 export class PlatformController {
-  constructor(private readonly appService: PlatformService) {}
+  constructor(private readonly appService: PlatformControllerService) {}
 
   /**
    * Get application health status
