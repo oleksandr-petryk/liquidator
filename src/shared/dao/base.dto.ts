@@ -6,7 +6,6 @@ import {
   sql,
   Table,
 } from 'drizzle-orm';
-import { QueryResult } from 'pg';
 
 import { DEFAULT_DB_BATCH_SIZE } from '../const/db';
 import { Drizzle } from '../modules/drizzle/drizzle.module';
@@ -72,14 +71,41 @@ export class BaseDao<T extends Table<any>> {
     } while (hasRecords);
   }
 
-  public async create(
-    insert: InferInsertModel<T>,
-    db: Drizzle = this.postgres,
-  ): Promise<InferSelectModel<T>> {
+  async findById({
+    db = this.postgres,
+    id,
+  }: {
+    db?: Drizzle;
+    id: string;
+  }): Promise<InferSelectModel<T>> {
+    try {
+      const table: any = this.daoInstance;
+
+      const find = await db
+        .select()
+        .from(table as any)
+        .where(eq(table.id, id));
+
+      return find as InferSelectModel<T>;
+    } catch (error) {
+      this.baseLogger.error(
+        `Could not find ${this.options.entityName.plural}: ${error}`,
+      );
+      throw error;
+    }
+  }
+
+  public async create({
+    db = this.postgres,
+    data,
+  }: {
+    db?: Drizzle;
+    data?: InferInsertModel<T>;
+  } = {}): Promise<InferSelectModel<T>> {
     try {
       const [inserted] = await db
         .insert(this.daoInstance)
-        .values(insert)
+        .values(data as InferInsertModel<T>)
         .returning();
       return inserted as InferSelectModel<T>;
     } catch (error) {
@@ -92,19 +118,19 @@ export class BaseDao<T extends Table<any>> {
 
   public async update({
     db = this.postgres,
-    value,
+    data,
     id,
   }: {
     db?: Drizzle;
-    value?: any;
-    id?: any;
-  } = {}): Promise<QueryResult<never>> {
+    data?: InferInsertModel<T>;
+    id: string;
+  }): Promise<InferSelectModel<T>> {
     try {
-      const updatedUser = await db
-        .update(user)
-        .set(value)
+      const updated = await db
+        .update(this.daoInstance)
+        .set(data as InferInsertModel<T>)
         .where(eq(user.id, id));
-      return updatedUser;
+      return updated as InferSelectModel<T>;
     } catch (error) {
       this.baseLogger.error(
         `Could not updated ${this.options.entityName.plural}: ${error}`,
@@ -118,11 +144,11 @@ export class BaseDao<T extends Table<any>> {
     id,
   }: {
     db?: Drizzle;
-    id?: any;
-  } = {}): Promise<QueryResult<never>> {
+    id: string;
+  }): Promise<InferSelectModel<T>> {
     try {
-      const deletedUser = await db.delete(user).where(eq(user.id, id));
-      return deletedUser;
+      const deleted = await db.delete(user).where(eq(user.id, id));
+      return deleted as InferSelectModel<T>;
     } catch (error) {
       this.baseLogger.error(
         `Could not deleted ${this.options.entityName.plural}: ${error}`,
