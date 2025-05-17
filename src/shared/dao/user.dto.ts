@@ -6,7 +6,7 @@ import { BaseDao } from './base.dto';
 
 @Injectable()
 export class UserDao extends BaseDao<typeof user> {
-  readonly logger = new Logger(UserDao.name);
+  private readonly logger = new Logger(UserDao.name);
 
   constructor(
     @Inject(DRIZZLE_CONNECTION)

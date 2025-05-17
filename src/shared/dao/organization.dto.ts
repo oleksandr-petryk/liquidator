@@ -5,8 +5,8 @@ import { organization } from '../modules/drizzle/schemas';
 import { BaseDao } from './base.dto';
 
 @Injectable()
-export class UserDao extends BaseDao<typeof organization> {
-  readonly logger = new Logger(UserDao.name);
+export class OrganizationDao extends BaseDao<typeof organization> {
+  private readonly logger = new Logger(OrganizationDao.name);
 
   constructor(
     @Inject(DRIZZLE_CONNECTION)

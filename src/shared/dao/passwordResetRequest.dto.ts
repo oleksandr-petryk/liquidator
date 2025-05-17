@@ -5,8 +5,10 @@ import { passwordResetRequest } from '../modules/drizzle/schemas';
 import { BaseDao } from './base.dto';
 
 @Injectable()
-export class UserDao extends BaseDao<typeof passwordResetRequest> {
-  readonly logger = new Logger(UserDao.name);
+export class PasswordResetRequestDao extends BaseDao<
+  typeof passwordResetRequest
+> {
+  private readonly logger = new Logger(PasswordResetRequestDao.name);
 
   constructor(
     @Inject(DRIZZLE_CONNECTION)
