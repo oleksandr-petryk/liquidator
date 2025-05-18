@@ -18,25 +18,25 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install packages
-        run: yarn docker:ci:start
+      # - name: Install packages
+      #   run: yarn docker:ci:start
 
       - name: Install packages
         run: yarn install --frozen-lockfile
 
-      - name: Prepare .env file
-        run: cp .env.local.example .env
+      # - name: Prepare .env file
+      #   run: cp .env.local.example .env
 
-      - name: Run Nest.js server
-        run: yarn build && yarn start:prod &
+      # - name: Run Nest.js server
+      #   run: yarn build && yarn start:prod &
 
-      - name: Wait for services to be ready
-        run: |
-          docker ps
-          until nc -z localhost 5432; do echo "Waiting for Postgres..."; sleep 2; done
-          until nc -z localhost 29092; do echo "Waiting for Kafka..."; sleep 2; done
-          until curl -s http://localhost:9000/minio/health/live; do echo "Waiting for Minio..."; sleep 2; done
-          until curl -s localhost:8888/api/liquidator/health; do echo "Waiting for Liquidator..."; sleep 2; done
+      # - name: Wait for services to be ready
+      #   run: |
+      #     docker ps
+      #     until nc -z localhost 5432; do echo "Waiting for Postgres..."; sleep 2; done
+      #     until nc -z localhost 29092; do echo "Waiting for Kafka..."; sleep 2; done
+      #     until curl -s http://localhost:9000/minio/health/live; do echo "Waiting for Minio..."; sleep 2; done
+      #     until curl -s localhost:8888/api/liquidator/health; do echo "Waiting for Liquidator..."; sleep 2; done
 
       - name: Load tests for health endpoint
         uses: artilleryio/action-cli@v1
