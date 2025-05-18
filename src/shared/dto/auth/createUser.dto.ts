@@ -10,7 +10,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import { Gender, Status } from '../modules/drizzle/schemas';
+import { Gender, Status } from '../../modules/drizzle/schemas';
 
 export class CreateUserDto {
   @IsOptional()

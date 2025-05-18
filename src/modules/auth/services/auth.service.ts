@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { UserDao } from '../../../shared/dao/user.dto';
-import { CreateUserDto } from '../../../shared/dto/createUser.dto';
+import { CreateUserDto } from '../../../shared/dto/auth/createUser.dto';
 import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
 
 @Injectable()

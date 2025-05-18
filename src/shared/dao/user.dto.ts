@@ -21,6 +21,6 @@ export class UserDao extends BaseDao<typeof user> {
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact found');
+    throw new NotFoundException(message || 'Contact not found');
   }
 }

@@ -21,6 +21,6 @@ export class TeamToUserDao extends BaseDao<typeof teamToUser> {
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact found');
+    throw new NotFoundException(message || 'team to user relation not found');
   }
 }

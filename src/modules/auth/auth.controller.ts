@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
-import { CreateUserDto } from '../../shared/dto/createUser.dto';
+import { CreateUserDto } from '../../shared/dto/auth/createUser.dto';
 import { UserInsertModel } from '../../shared/modules/drizzle/schemas';
 import { AuthControllerService } from './services/auth-controller.service';
 

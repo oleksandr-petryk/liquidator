@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { CreateUserDto } from '../../../shared/dto/createUser.dto';
+import { CreateUserDto } from '../../../shared/dto/auth/createUser.dto';
 import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
 import { AuthService } from './auth.service';
 
