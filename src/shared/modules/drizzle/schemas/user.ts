@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
@@ -38,3 +38,6 @@ export const userRelations = relations(user, ({ many }) => ({
   passwordResetRequest: many(passwordResetRequest),
   teamToUser: many(teamToUser),
 }));
+
+export type UserInsertModel = InferInsertModel<typeof user>;
+export type UserSelectModel = InferSelectModel<typeof user>;

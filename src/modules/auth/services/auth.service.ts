@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { InferInsertModel } from 'drizzle-orm';
 
 import { UserDao } from '../../../shared/dao/user.dto';
 import { CreateUserDto } from '../../../shared/dto/createUser.dto';
-import { user } from '../../../shared/modules/drizzle/schemas';
+import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
 
 @Injectable()
 export class AuthService {
   constructor(private userDao: UserDao) {}
 
-  register(dto: CreateUserDto): Promise<InferInsertModel<typeof user>> {
+  register(dto: CreateUserDto): Promise<UserInsertModel> {
     const newUser = this.userDao.create({ data: dto });
 
     return newUser;

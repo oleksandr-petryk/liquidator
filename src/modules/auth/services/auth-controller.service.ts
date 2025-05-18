@@ -1,15 +1,14 @@
-import { Body, Injectable } from '@nestjs/common';
-import { InferInsertModel } from 'drizzle-orm';
+import { Injectable } from '@nestjs/common';
 
 import { CreateUserDto } from '../../../shared/dto/createUser.dto';
-import { user } from '../../../shared/modules/drizzle/schemas';
+import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthControllerService {
   constructor(private readonly authService: AuthService) {}
 
-  register(@Body() dto: CreateUserDto): Promise<InferInsertModel<typeof user>> {
+  register(dto: CreateUserDto): Promise<UserInsertModel> {
     return this.authService.register(dto);
   }
 

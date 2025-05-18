@@ -1,5 +1,7 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 
+import { CreateUserDto } from '../../shared/dto/createUser.dto';
+import { UserInsertModel } from '../../shared/modules/drizzle/schemas';
 import { AuthControllerService } from './services/auth-controller.service';
 
 @Controller('api/auth/v1/auth')
@@ -7,8 +9,8 @@ export class AuthController {
   constructor(private readonly AuthControllerService: AuthControllerService) {}
 
   @Post('register')
-  register(): void {
-    return this.AuthControllerService.register();
+  register(@Body() dto: CreateUserDto): Promise<UserInsertModel> {
+    return this.AuthControllerService.register(dto);
   }
 
   @Get('log-in')
