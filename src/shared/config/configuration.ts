@@ -1,10 +1,20 @@
-import { Logger } from '@nestjs/common';
 import { z } from 'zod';
 
+import {
+  APP_DEFAULT_GLOBAL_URL_PREFIX,
+  APP_DEFAULT_OPENAPI_JSON_URL,
+  APP_DEFAULT_SWAGGER_URL,
+  APP_DEFAULT_VERSION,
+} from '../const/app.const';
 import { NodeEnvEnum } from '../enums/app.enum';
 
 export const EnvConfigZ = z.object({
   NODE_ENV: z.nativeEnum(NodeEnvEnum).default(NodeEnvEnum.prod),
+
+  APP_VERSION: z.string(),
+  APP_GLOBAL_URL_PREFIX: z.string(),
+  APP_SWAGGER_URL: z.string(),
+  APP_OPENAPI_JSON_URL: z.string(),
 
   PORT: z.number().transform((value) => +value),
 
@@ -33,13 +43,16 @@ export const EnvConfigZ = z.object({
 
 export type EnvConfig = z.infer<typeof EnvConfigZ>;
 
-export default (): EnvConfig => {
-  const logger = new Logger('EnvConfig');
-
-  console.log(process.env, '<<< env');
-
+export function configurationLoader(): EnvConfig {
   const envConfig = EnvConfigZ.parse({
     ...process.env,
+
+    APP_VERSION: process.env.APP_VERSION || APP_DEFAULT_VERSION,
+    APP_GLOBAL_URL_PREFIX:
+      process.env.APP_GLOBAL_URL_PREFIX || APP_DEFAULT_GLOBAL_URL_PREFIX,
+    APP_SWAGGER_URL: process.env.APP_SWAGGER_URL || APP_DEFAULT_SWAGGER_URL,
+    APP_OPENAPI_JSON_URL:
+      process.env.APP_OPENAPI_JSON_URL || APP_DEFAULT_OPENAPI_JSON_URL,
 
     PORT: +process.env.PORT!,
 
@@ -56,7 +69,5 @@ export default (): EnvConfig => {
     MINIO_PORT: +process.env.MINIO_PORT!,
   });
 
-  logger.log('Application configuration', envConfig);
-
   return envConfig;
-};
+}

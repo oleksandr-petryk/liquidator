@@ -22,7 +22,7 @@ export interface KafkaServiceMessageHandlerOptions {
 @Injectable()
 export class KafkaService {
   private readonly logger = new Logger(KafkaService.name);
-  private readonly clientId = 'nestjs-admin-app';
+  private readonly clientId = 'liquidator';
   private kafka: Kafka;
   readonly fromBeginning: boolean;
   readonly consumer: Consumer;

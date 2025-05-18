@@ -1,8 +1,11 @@
 import { Controller, Get, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
+import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
 import { AuthControllerService } from './services/auth-controller.service';
 
-@Controller('api/auth/v1/auth')
+@ApiTags(SWAGGER_TAGS.auth.title)
+@Controller('auth')
 export class AuthController {
   constructor(private readonly AuthControllerService: AuthControllerService) {}
 
