@@ -1,4 +1,4 @@
-name: Load tests for health endpoint
+name: CI
 
 on:
   push:
@@ -6,7 +6,27 @@ on:
   pull_request:
 
 jobs:
-  artillery:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run linter
+        run: yarn lint
+
+      - name: Run Prettier
+        run: yarn format
+
+  load-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,9 +60,8 @@ jobs:
 
       - name: Load tests for health endpoint
         uses: artilleryio/action-cli@v1
-        timeout-minutes: 1
-        # 15
+        timeout-minutes: 15
         with:
-          command: run-fargate ./test/performance/health.yml --count 5 --output ./report.json --record --tags ci:true,owner:qa,type:baseline,repo:liquidator,commit:`git rev-parse --short HEAD`
+          command: run-fargate ./test/performance/health.yml --count 5 --output ./report.json --record
         env:
           ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
