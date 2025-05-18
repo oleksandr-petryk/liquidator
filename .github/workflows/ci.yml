@@ -62,6 +62,6 @@ jobs:
         uses: artilleryio/action-cli@v1
         timeout-minutes: 15
         with:
-          command: run-fargate ./test/performance/health.yml --count 5 --output ./report.json --record
+          command: run-fargate ./test/performance/health.yml --count 5 --output ./report.json --record --key $ARTILLERY_CLOUD_API_KEY
         env:
           ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
