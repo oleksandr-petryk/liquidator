@@ -1,29 +1,16 @@
 import { Body, Injectable } from '@nestjs/common';
 import { InferInsertModel } from 'drizzle-orm';
 
-import { Gender, user } from '../../../shared/modules/drizzle/schemas';
+import { CreateUserDto } from '../../../shared/dto/createUser.dto';
+import { user } from '../../../shared/modules/drizzle/schemas';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthControllerService {
   constructor(private readonly authService: AuthService) {}
 
-  register(
-    @Body()
-    userData: {
-      email: string;
-      phoneNumber: string;
-      username: string;
-      firstName: string;
-      lastName: string;
-      dateOfBirth: Date;
-      gender: Gender | null | undefined;
-      pictureId: number | null;
-      password: string;
-      recoveryEmailAddress: string;
-    },
-  ): Promise<InferInsertModel<typeof user>> {
-    return this.authService.register(userData);
+  register(@Body() dto: CreateUserDto): Promise<InferInsertModel<typeof user>> {
+    return this.authService.register(dto);
   }
 
   login(): void {
