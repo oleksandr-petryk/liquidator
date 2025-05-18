@@ -45,7 +45,7 @@ jobs:
 
       - name: Load tests for health endpoint
         uses: artilleryio/action-cli@v1
-        with:
-          command: run ./test/performance/health.yml --record --key $ARTILLERY_CLOUD_KEY
         env:
           ARTILLERY_CLOUD_KEY: ${{ secrets.ARTILLERY_CLOUD_KEY }}
+        with:
+          command: run ./test/performance/health.yml --record --key $ARTILLERY_CLOUD_KEY
