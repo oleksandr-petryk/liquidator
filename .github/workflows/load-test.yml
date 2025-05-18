@@ -18,7 +18,10 @@ jobs:
         with:
           node-version: '22'
 
-      - run: echo "${{ secrets.ARTILLERY_CLOUD_KEY }}" | head -c 8
+      - name: Test
+        run: echo "${{ secrets.ARTILLERY_CLOUD_KEY }}" | head -c 8
+        env:
+          ARTILLERY_CLOUD_KEY: ${{ secrets.ARTILLERY_CLOUD_KEY }}
 
       # - name: Install packages
       #   run: yarn docker:ci:start
