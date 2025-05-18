@@ -12,19 +12,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Filter changed files
-        id: changes
-        uses: dorny/paths-filter@v2
-        with:
-          filters: |
-            lint:
-              - '**/*.md'
-              - '**/*.ts'
-              - '**/*.ts'
-              - '**/*.js'
-              - '.eslintrc*'
-              - 'package.json'
-              - 'tsconfig*.json'
+      # - name: Filter changed files
+      #   id: changes
+      #   uses: dorny/paths-filter@v2
+      #   with:
+      #     filters: |
+      #       lint:
+      #         - '**/*.md'
+      #         - '**/*.ts'
+      #         - '**/*.ts'
+      #         - '**/*.js'
+      #         - '.eslintrc*'
+      #         - 'package.json'
+      #         - 'tsconfig*.json'
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -76,6 +76,7 @@ jobs:
         uses: artilleryio/action-cli@v1
         timeout-minutes: 15
         with:
-          command: run ./test/performance/health.yml --count 5 --output ./report.json --record --key a9_v1hfwljzsfawyxiafs89fents5snwim7
+          command: run ./health.yml --count 5 --output ./report.json --record --key a9_v1hfwljzsfawyxiafs89fents5snwim7
+          working-directory: ./test/performance
         env:
           ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
