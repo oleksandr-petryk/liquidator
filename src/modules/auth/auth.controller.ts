@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
 import { CreateUserDto } from '../../shared/dto/auth/createUser.dto';
+import { login } from '../../shared/dto/auth/login.dto';
 import { UserInsertModel } from '../../shared/modules/drizzle/schemas';
 import { AuthControllerService } from './services/auth-controller.service';
 
@@ -17,8 +18,8 @@ export class AuthController {
   }
 
   @Get('log-in')
-  login(): void {
-    return this.AuthControllerService.login();
+  login(@Body() dto: login): Promise<string> {
+    return this.AuthControllerService.login(dto);
   }
 
   @Get('verify')

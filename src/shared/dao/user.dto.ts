@@ -45,4 +45,46 @@ export class UserDao extends BaseDao<typeof user> {
       throw error;
     }
   }
+
+  public async findByUsername({
+    db = this.postgres,
+    username,
+  }: {
+    db?: Drizzle;
+    username: string;
+  }): Promise<UserSelectModel> {
+    try {
+      const find = await db.query.user.findFirst({
+        where: eq(user.username, username),
+      });
+
+      return find as UserSelectModel;
+    } catch (error) {
+      this.logger.error(
+        `Could not find ${this.options.entityName.plural}: ${error}`,
+      );
+      throw error;
+    }
+  }
+
+  public async findByPhoneNumber({
+    db = this.postgres,
+    phoneNumber,
+  }: {
+    db?: Drizzle;
+    phoneNumber: string;
+  }): Promise<UserSelectModel> {
+    try {
+      const find = await db.query.user.findFirst({
+        where: eq(user.phoneNumber, phoneNumber),
+      });
+
+      return find as UserSelectModel;
+    } catch (error) {
+      this.logger.error(
+        `Could not find ${this.options.entityName.plural}: ${error}`,
+      );
+      throw error;
+    }
+  }
 }
