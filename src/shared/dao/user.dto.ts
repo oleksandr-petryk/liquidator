@@ -22,7 +22,7 @@ export class UserDao extends BaseDao<typeof user> {
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact not found');
+    throw new NotFoundException(message || 'User not found');
   }
 
   public async findByEmail({
@@ -40,7 +40,7 @@ export class UserDao extends BaseDao<typeof user> {
       return find as UserSelectModel;
     } catch (error) {
       this.logger.error(
-        `Could not find ${this.options.entityName.plural}: ${error}`,
+        `Email not found ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }
@@ -61,7 +61,7 @@ export class UserDao extends BaseDao<typeof user> {
       return find as UserSelectModel;
     } catch (error) {
       this.logger.error(
-        `Could not find ${this.options.entityName.plural}: ${error}`,
+        `Username not found ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }
@@ -82,7 +82,7 @@ export class UserDao extends BaseDao<typeof user> {
       return find as UserSelectModel;
     } catch (error) {
       this.logger.error(
-        `Could not find ${this.options.entityName.plural}: ${error}`,
+        `Phone number not found ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }

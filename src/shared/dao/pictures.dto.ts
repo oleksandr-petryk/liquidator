@@ -21,6 +21,6 @@ export class PictureDao extends BaseDao<typeof picture> {
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact not found');
+    throw new NotFoundException(message || 'Picture not found');
   }
 }

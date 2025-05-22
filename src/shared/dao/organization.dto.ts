@@ -21,6 +21,6 @@ export class OrganizationDao extends BaseDao<typeof organization> {
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact not found');
+    throw new NotFoundException(message || 'Organization not found');
   }
 }

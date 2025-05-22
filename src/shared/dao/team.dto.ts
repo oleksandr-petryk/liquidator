@@ -21,6 +21,6 @@ export class TeamDao extends BaseDao<typeof team> {
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact not found');
+    throw new NotFoundException(message || 'Team not found');
   }
 }

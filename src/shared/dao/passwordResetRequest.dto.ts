@@ -23,6 +23,6 @@ export class PasswordResetRequestDao extends BaseDao<
   }
 
   private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Contact not found');
+    throw new NotFoundException(message || 'Password reset request not found');
   }
 }
