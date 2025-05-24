@@ -59,6 +59,4 @@ jobs:
           until curl -s localhost:8888/api/liquidator/health; do echo "Waiting for Liquidator..."; sleep 2; done
 
       - name: Load tests for health endpoint
-        run: npx artillery run ./test/performance/health.yml --record --key ${ARTILLERY_CLOUD_API_KEY}
-        env:
-          ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
+        run: npx artillery run ./test/performance/health.yml --record
