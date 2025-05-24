@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDate,
   IsEmail,
@@ -17,6 +18,14 @@ export class CreateUserDto {
   @IsEnum(Status)
   status?: Status;
 
+  // TODO: all this for each field
+  @ApiProperty({
+    description: 'User email',
+    type: String,
+    example: 'example@mail.com',
+    maxLength: 320,
+    minLength: 5,
+  })
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(320)

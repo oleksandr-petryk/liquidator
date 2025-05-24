@@ -9,6 +9,18 @@ import { AuthService } from './auth.service';
 export class AuthControllerService {
   constructor(private readonly authService: AuthService) {}
 
+  /**
+   * Register a new user
+   *
+   * Logic:
+   * 1. Check if user with email already exists
+   * 2. Check if user with phone number already exists
+   * 3. Check if user with username already exists
+   * 4. Hash password
+   * 5. Create new user in DB
+   *
+   * @returns new user
+   */
   register(dto: CreateUserDto): Promise<UserInsertModel> {
     return this.authService.register(dto);
   }
