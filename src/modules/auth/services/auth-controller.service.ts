@@ -1,17 +1,42 @@
 import { Injectable } from '@nestjs/common';
 
+import { CreateUserDto } from '../../../shared/dto/auth/createUser.dto';
+import { login } from '../../../shared/dto/auth/login.dto';
+import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthControllerService {
   constructor(private readonly authService: AuthService) {}
 
-  register(): void {
-    return this.authService.register();
+  /**
+   * Register a new user
+   *
+   * Logic:
+   * 1. Check if user with email already exists
+   * 2. Check if user with phone number already exists
+   * 3. Check if user with username already exists
+   * 4. Hash password
+   * 5. Create new user in DB
+   *
+   * @returns new user
+   */
+  register(dto: CreateUserDto): Promise<UserInsertModel> {
+    return this.authService.register(dto);
   }
 
-  login(): void {
-    return this.authService.login();
+  /**
+   * Loging
+   *
+   * Logic:
+   * 1. Chech if user exist
+   * 2. Chech password is correct
+   * 3. Make token
+   *
+   * @returns token
+   */
+  login(dto: login): Promise<string> {
+    return this.authService.login(dto);
   }
 
   verify(): void {
