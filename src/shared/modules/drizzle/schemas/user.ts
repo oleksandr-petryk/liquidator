@@ -1,13 +1,14 @@
-import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
-import { GenderEnum, Status, StatusEnum } from './enums';
-import { passwordResetRequest } from './passwordResetRequest';
+import { GenderEnum, StatusEnum } from './enums';
+import { Status } from 'src/shared/enums/db.enum';
+import { passwordResetRequest } from './password-reset-request';
 import { picture } from './picture';
-import { teamToUser } from './teamToUser';
+import { teamToUser } from './team-to-user';
 
 export const user = pgTable('user', {
   ...drizzlePrimaryKey,
@@ -36,6 +37,3 @@ export const userRelations = relations(user, ({ many }) => ({
   passwordResetRequest: many(passwordResetRequest),
   teamToUser: many(teamToUser),
 }));
-
-export type UserInsertModel = InferInsertModel<typeof user>;
-export type UserSelectModel = InferSelectModel<typeof user>;

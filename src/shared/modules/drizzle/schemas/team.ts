@@ -4,9 +4,10 @@ import * as t from 'drizzle-orm/pg-core';
 
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
-import { Status, StatusEnum } from './enums';
+import { StatusEnum } from './enums';
+import { Status } from 'src/shared/enums/db.enum';
 import { picture } from './picture';
-import { teamToUser } from './teamToUser';
+import { teamToUser } from './team-to-user';
 
 export const team = pgTable('team', {
   ...drizzlePrimaryKey,

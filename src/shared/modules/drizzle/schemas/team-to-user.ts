@@ -2,7 +2,8 @@ import { relations } from 'drizzle-orm';
 import { pgTable, primaryKey } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
-import { Role, RoleEnum } from './enums';
+import { RoleEnum } from './enums';
+import { Role } from 'src/shared/enums/db.enum';
 import { team } from './team';
 import { user } from './user';
 
