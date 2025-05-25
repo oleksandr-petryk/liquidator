@@ -3,8 +3,6 @@ name: CI
 env:
   NODE_VERSION: '22'
 
-
-
 on:
   push:
     branches: [main]
@@ -82,7 +80,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Prepare .env file
-        run: cp .env.local.example .env
+        run: ./scripts/ci/prepare-ci-env-file.sh
 
       - name: Run Nest.js server
         run: yarn build && yarn start:prod &
