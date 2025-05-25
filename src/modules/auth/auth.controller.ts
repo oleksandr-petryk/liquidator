@@ -1,36 +1,46 @@
-import { Controller, Get, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
+import { CreateUserDto } from '../../shared/dto/auth/createUser.dto';
+import { login } from '../../shared/dto/auth/login.dto';
+import { UserInsertModel } from '../../shared/modules/drizzle/schemas';
 import { AuthControllerService } from './services/auth-controller.service';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly AuthControllerService: AuthControllerService) {}
+  constructor(private readonly authControllerService: AuthControllerService) {}
 
+  // TODO: all this for each endpoint
+  @ApiOperation({
+    summary: 'Register a new user',
+  })
   @Post('register')
-  register(): void {
-    return this.AuthControllerService.register();
+  register(@Body() dto: CreateUserDto): Promise<UserInsertModel | undefined> {
+    return this.authControllerService.register(dto);
   }
 
-  @Get('log-in')
-  login(): void {
-    return this.AuthControllerService.login();
+  @ApiOperation({
+    summary: 'Log-in',
+  })
+  @Post('log-in')
+  login(@Body() dto: login): Promise<string | undefined> {
+    return this.authControllerService.login(dto);
   }
 
   @Get('verify')
   verify(): void {
-    return this.AuthControllerService.verify();
+    return this.authControllerService.verify();
   }
 
   @Get('google')
   google(): void {
-    return this.AuthControllerService.google();
+    return this.authControllerService.google();
   }
 
   @Get('google/callback')
   googleCallback(): void {
-    return this.AuthControllerService.googleCallback();
+    return this.authControllerService.googleCallback();
   }
 }

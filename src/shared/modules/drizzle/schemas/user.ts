@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm';
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
@@ -13,17 +13,15 @@ export const user = pgTable('user', {
   ...drizzlePrimaryKey,
   status: StatusEnum().default(Status.Published),
   email: t.varchar({ length: 320 }).notNull().unique(),
-  phoneNumber: t.varchar('phone_number', { length: 15 }).notNull().unique(),
+  phoneNumber: t.varchar('phone_number', { length: 15 }).unique(),
   username: t.varchar({ length: 15 }).notNull().unique(),
-  firstName: t.varchar('first_name', { length: 35 }).notNull(),
-  lastName: t.varchar('last_name', { length: 35 }).notNull(),
-  dateOfBirth: t.timestamp('date_of_birth').notNull(),
+  firstName: t.varchar('first_name', { length: 35 }),
+  lastName: t.varchar('last_name', { length: 35 }),
+  dateOfBirth: t.timestamp('date_of_birth'),
   gender: GenderEnum(),
   pictureId: t.integer('picture_id'),
   password: t.varchar({ length: 128 }).notNull(),
-  recoveryEmailAddress: t
-    .varchar('recovery_email_address', { length: 320 })
-    .notNull(),
+  recoveryEmailAddress: t.varchar('recovery_email_address', { length: 320 }),
   ...drizzleTimestamps,
 });
 
@@ -38,3 +36,6 @@ export const userRelations = relations(user, ({ many }) => ({
   passwordResetRequest: many(passwordResetRequest),
   teamToUser: many(teamToUser),
 }));
+
+export type UserInsertModel = InferInsertModel<typeof user>;
+export type UserSelectModel = InferSelectModel<typeof user>;
