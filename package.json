@@ -12,11 +12,13 @@
     "lint:fix": "eslint \"{src,apps,libs,test,jest}/**/*.ts\" --fix",
     "lint": "eslint \"{src,apps,libs,test,jest}/**/*.ts\"",
     "start:dev": "nest start --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "test": "jest --config ./jest.config.ts",
+    "test:load:health": "artillery run ./test/performance/health.yml",
     "db:migrations:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "dotenv -e .env -- drizzle-kit migrate --config ./drizzle.config.ts",
-    "docker:local:start": "docker compose --project-name liquidator-local -f ./docker/local/docker-compose.yml up -d"
+    "docker:local:start": "docker compose --project-name liquidator-local -f ./docker/local/docker-compose.yml up -d",
+    "docker:ci:start": "docker compose --project-name liquidator-ci -f ./docker/ci/docker-compose.yml up -d"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -61,6 +63,7 @@
     "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "artillery": "^2.0.23",
     "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.26.0",
