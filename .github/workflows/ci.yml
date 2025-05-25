@@ -40,7 +40,7 @@ jobs:
       - name: Run Prettier
         run: yarn format
 
-  load-test:
+  test-load:
     runs-on: ubuntu-latest
     name: Load test
     services:
@@ -91,7 +91,12 @@ jobs:
         run: ./scripts/ci/wait-for-docker-compose.sh
 
       - name: Load tests for health endpoint
-        run: npx artillery run ./test/performance/health.yml
+        # run: npx artillery run ./test/performance/health.yml
+        uses: artilleryio/action-cli@v1
+        with:
+          command: artillery run ./test/performance/health.yml --record --key=${ARTILLERY_CLOUD_API_KEY}
+        env:
+          ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
 
   test-unit:
     runs-on: ubuntu-latest
