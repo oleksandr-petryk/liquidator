@@ -32,56 +32,16 @@ jobs:
         run: yarn lint
       - name: Run Prettier
         run: yarn format
-
-  test-load:
-    runs-on: ubuntu-latest
-    name: Load test
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: admin
-          POSTGRES_DB: db-test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install packages
-        run: yarn docker:ci:start
-      - name: Install packages
-        run: yarn install --frozen-lockfile
-      - name: Prepare .env file
-        run: ./scripts/ci/prepare-ci-env-file.sh
-      - name: Run Nest.js server
-        run: yarn build && yarn start:prod &
-      - name: Wait for services to be ready
-        run: ./scripts/ci/wait-for-docker-compose.sh
-      - name: Load tests for health endpoint
-        run: npx artillery run ./test/performance/health.yml
+      - name: Test build
+        run: yarn build
 
   test-unit:
     runs-on: ubuntu-latest
     name: Unit tests
-
+    needs: lint
+    concurrency:
+      group: Tests
+      cancel-in-progress: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -109,6 +69,10 @@ jobs:
   test-e2e:
     runs-on: ubuntu-latest
     name: E2E tests
+    needs: lint
+    concurrency:
+      group: Tests
+      cancel-in-progress: true
     services:
       postgres:
         image: postgres:13
@@ -150,3 +114,49 @@ jobs:
         run: ./scripts/ci/wait-for-docker-compose.sh
       - name: Run E2E tests
         run: yarn test:e2e
+
+  test-load:
+    runs-on: ubuntu-latest
+    name: Load test
+    needs: [test-unit, test-e2e]
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: db-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install packages
+        run: yarn docker:ci:start
+      - name: Install packages
+        run: yarn install --frozen-lockfile
+      - name: Prepare .env file
+        run: ./scripts/ci/prepare-ci-env-file.sh
+      - name: Run Nest.js server
+        run: yarn build && yarn start:prod &
+      - name: Wait for services to be ready
+        run: ./scripts/ci/wait-for-docker-compose.sh
+      - name: Load tests for health endpoint
+        run: npx artillery run ./test/performance/health.yml
