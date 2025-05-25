@@ -17,12 +17,12 @@ export class AuthController {
     summary: 'Register a new user',
   })
   @Post('register')
-  register(@Body() dto: CreateUserDto): Promise<UserInsertModel> {
+  register(@Body() dto: CreateUserDto): Promise<UserInsertModel | undefined> {
     return this.authControllerService.register(dto);
   }
 
-  @Get('log-in')
-  login(@Body() dto: login): Promise<string> {
+  @Post('log-in')
+  login(@Body() dto: login): Promise<string | undefined> {
     return this.authControllerService.login(dto);
   }
 

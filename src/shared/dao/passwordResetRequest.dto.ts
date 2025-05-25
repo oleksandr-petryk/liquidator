@@ -16,8 +16,8 @@ export class PasswordResetRequestDao extends BaseDao<
   ) {
     super(passwordResetRequest, postgresDatabase, {
       entityName: {
-        singular: 'contact',
-        plural: 'contacts',
+        singular: 'password-reset-request',
+        plural: 'password-reset-request',
       },
     });
   }

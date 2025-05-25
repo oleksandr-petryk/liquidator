@@ -15,8 +15,8 @@ export class UserDao extends BaseDao<typeof user> {
   ) {
     super(user, postgresDatabase, {
       entityName: {
-        singular: 'contact',
-        plural: 'contacts',
+        singular: 'user',
+        plural: 'user',
       },
     });
   }
@@ -31,17 +31,15 @@ export class UserDao extends BaseDao<typeof user> {
   }: {
     db?: Drizzle;
     email: string;
-  }): Promise<UserSelectModel> {
+  }): Promise<UserSelectModel | undefined> {
     try {
       const find = await db.query.user.findFirst({
-        where: eq(user.email, email),
+        where: eq(user.email, email.toLowerCase()),
       });
 
-      return find as UserSelectModel;
+      return find;
     } catch (error) {
-      this.logger.error(
-        `Email not found ${this.options.entityName.plural}: ${error}`,
-      );
+      this.logger.error(`An error occurred when trying to findByEmail`);
       throw error;
     }
   }
@@ -52,17 +50,15 @@ export class UserDao extends BaseDao<typeof user> {
   }: {
     db?: Drizzle;
     username: string;
-  }): Promise<UserSelectModel> {
+  }): Promise<UserSelectModel | undefined> {
     try {
       const find = await db.query.user.findFirst({
-        where: eq(user.username, username),
+        where: eq(user.username, username.toLowerCase()),
       });
 
       return find as UserSelectModel;
     } catch (error) {
-      this.logger.error(
-        `Username not found ${this.options.entityName.plural}: ${error}`,
-      );
+      this.logger.error(`An error occurred when trying to findByUsername`);
       throw error;
     }
   }
@@ -73,7 +69,7 @@ export class UserDao extends BaseDao<typeof user> {
   }: {
     db?: Drizzle;
     phoneNumber: string;
-  }): Promise<UserSelectModel> {
+  }): Promise<UserSelectModel | undefined> {
     try {
       const find = await db.query.user.findFirst({
         where: eq(user.phoneNumber, phoneNumber),
@@ -81,9 +77,7 @@ export class UserDao extends BaseDao<typeof user> {
 
       return find as UserSelectModel;
     } catch (error) {
-      this.logger.error(
-        `Phone number not found ${this.options.entityName.plural}: ${error}`,
-      );
+      this.logger.error(`An error occurred when trying to findByPhoneNumber`);
       throw error;
     }
   }

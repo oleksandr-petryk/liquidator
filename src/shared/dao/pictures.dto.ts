@@ -14,8 +14,8 @@ export class PictureDao extends BaseDao<typeof picture> {
   ) {
     super(picture, postgresDatabase, {
       entityName: {
-        singular: 'contact',
-        plural: 'contacts',
+        singular: 'picture',
+        plural: 'picture',
       },
     });
   }

@@ -21,11 +21,21 @@ export class AuthControllerService {
    *
    * @returns new user
    */
-  register(dto: CreateUserDto): Promise<UserInsertModel> {
+  register(dto: CreateUserDto): Promise<UserInsertModel | undefined> {
     return this.authService.register(dto);
   }
 
-  login(dto: login): Promise<string> {
+  /**
+   * Loging
+   *
+   * Logic:
+   * 1. Chech if user exist
+   * 2. Chech password is correct
+   * 3. Make token
+   *
+   * @returns token
+   */
+  login(dto: login): Promise<string | undefined> {
     return this.authService.login(dto);
   }
 

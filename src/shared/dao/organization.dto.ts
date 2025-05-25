@@ -14,8 +14,8 @@ export class OrganizationDao extends BaseDao<typeof organization> {
   ) {
     super(organization, postgresDatabase, {
       entityName: {
-        singular: 'contact',
-        plural: 'contacts',
+        singular: 'organization',
+        plural: 'organization',
       },
     });
   }

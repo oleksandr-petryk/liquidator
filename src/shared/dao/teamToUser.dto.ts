@@ -14,8 +14,8 @@ export class TeamToUserDao extends BaseDao<typeof teamToUser> {
   ) {
     super(teamToUser, postgresDatabase, {
       entityName: {
-        singular: 'contact',
-        plural: 'contacts',
+        singular: 'teamToUser',
+        plural: 'teamToUser',
       },
     });
   }
