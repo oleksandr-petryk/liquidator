@@ -1,10 +1,10 @@
-import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { Logger, PinoLogger } from 'nestjs-pino';
 
 import { AppModule } from './app.module';
 import { applyMiddlewares } from './middlewares';
@@ -15,7 +15,7 @@ import { setupSwagger } from './swagger';
  * Startup Nest.js application
  */
 async function bootstrap(): Promise<void> {
-  const logger = new Logger('Bootstrap');
+  const logger = new Logger(new PinoLogger({}), { renameContext: 'Bootstrap' });
   logger.log('Initialize application');
 
   // Create Nest.js application
@@ -23,9 +23,14 @@ async function bootstrap(): Promise<void> {
     AppModule,
     new FastifyAdapter({
       ignoreTrailingSlash: true,
-      logger: process.env.SERVICE_FASTIFY_LOGGING === 'true', // TODO: apply pino logger
+      logger: process.env.SERVICE_FASTIFY_LOGGING === 'true',
     }),
+    {
+      bufferLogs: true,
+    },
   );
+
+  app.useLogger(app.get(Logger));
 
   // Get ConfigService
   const configService = app.get(ConfigService<EnvConfig>);
