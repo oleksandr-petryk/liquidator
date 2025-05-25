@@ -106,16 +106,4 @@ export class CreateUserDto {
   @IsString()
   @MaxLength(128)
   password!: string;
-
-  @ApiProperty({
-    description: 'User recovery email',
-    type: String,
-    example: 'example002@gmail.com',
-    maxLength: 320,
-    minLength: 5,
-  })
-  @IsNotEmpty()
-  @IsEmail()
-  @MaxLength(320)
-  recoveryEmailAddress!: string;
 }

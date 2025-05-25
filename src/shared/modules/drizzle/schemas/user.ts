@@ -21,9 +21,7 @@ export const user = pgTable('user', {
   gender: GenderEnum(),
   pictureId: t.integer('picture_id'),
   password: t.varchar({ length: 128 }).notNull(),
-  recoveryEmailAddress: t
-    .varchar('recovery_email_address', { length: 320 })
-    .notNull(),
+  recoveryEmailAddress: t.varchar('recovery_email_address', { length: 320 }),
   ...drizzleTimestamps,
 });
 

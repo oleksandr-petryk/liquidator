@@ -55,7 +55,6 @@ export class AuthService {
       lastName: dto.lastName,
       dateOfBirth: dto.dateOfBirth,
       password: password,
-      recoveryEmailAddress: dto.recoveryEmailAddress,
       gender: dto.gender,
     };
 
