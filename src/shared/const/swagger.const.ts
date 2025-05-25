@@ -1,10 +1,4 @@
-type SwaggerTags = Record<
-  string,
-  {
-    title: string;
-    description?: string;
-  }
->;
+import type { SwaggerTags } from '../types/swagger.type';
 
 export const SWAGGER_TAGS = {
   platform: {
