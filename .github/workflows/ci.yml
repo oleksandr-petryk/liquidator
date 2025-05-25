@@ -1,5 +1,8 @@
 name: CI
 
+env:
+  NODE_VERSION: '22'
+
 on:
   push:
     branches: [main]
@@ -8,55 +11,142 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
+    name: Lint
     steps:
       - uses: actions/checkout@v3
-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
       - name: Run linter
         run: yarn lint
-
       - name: Run Prettier
         run: yarn format
 
-  load-test:
+  test-load:
     runs-on: ubuntu-latest
+    name: Load test
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: db-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install packages
+        run: yarn docker:ci:start
+      - name: Install packages
+        run: yarn install --frozen-lockfile
+      - name: Prepare .env file
+        run: ./scripts/ci/prepare-ci-env-file.sh
+      - name: Run Nest.js server
+        run: yarn build && yarn start:prod &
+      - name: Wait for services to be ready
+        run: ./scripts/ci/wait-for-docker-compose.sh
+      - name: Load tests for health endpoint
+        run: npx artillery run ./test/performance/health.yml
+
+  test-unit:
+    runs-on: ubuntu-latest
+    name: Unit tests
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: Install packages
         run: yarn docker:ci:start
-
       - name: Install packages
         run: yarn install --frozen-lockfile
-
       - name: Prepare .env file
-        run: cp .env.local.example .env
+        run: cp .env.ci.example .env
+      - name: Run unit tests
+        run: yarn test:unit
 
+  test-e2e:
+    runs-on: ubuntu-latest
+    name: E2E tests
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: db-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install packages
+        run: yarn docker:ci:start
+      - name: Install packages
+        run: yarn install --frozen-lockfile
+      - name: Prepare .env file
+        run: cp .env.ci.example .env
       - name: Run Nest.js server
         run: yarn build && yarn start:prod &
-
       - name: Wait for services to be ready
-        run: |
-          docker ps
-          until nc -z localhost 5432; do echo "Waiting for Postgres..."; sleep 2; done
-          until nc -z localhost 29092; do echo "Waiting for Kafka..."; sleep 2; done
-          until curl -s http://localhost:9000/minio/health/live; do echo "Waiting for Minio..."; sleep 2; done
-          until curl -s localhost:8888/api/liquidator/health; do echo "Waiting for Liquidator..."; sleep 2; done
-
-      - name: Load tests for health endpoint
-        run: npx artillery run ./test/performance/health.yml
+        run: ./scripts/ci/wait-for-docker-compose.sh
+      - name: Run E2E tests
+        run: yarn test:e2e
