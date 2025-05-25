@@ -89,10 +89,7 @@ jobs:
         run: ./scripts/ci/wait-for-docker-compose.sh
 
       - name: Load tests for health endpoint
-        # run: npx artillery run ./test/performance/health.yml
-        uses: artilleryio/action-cli@v1
-        with:
-          command: artillery run ./test/performance/health.yml --record --key=${ARTILLERY_CLOUD_API_KEY}
+        run: npx artillery run ./test/performance/health.yml --record --key=${ARTILLERY_CLOUD_API_KEY}
         env:
           ARTILLERY_CLOUD_API_KEY: ${{ secrets.ARTILLERY_CLOUD_API_KEY }}
 
