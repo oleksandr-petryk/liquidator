@@ -33,11 +33,9 @@ jobs:
       - name: Run Prettier
         run: yarn format
 
-
   test-unit:
     runs-on: ubuntu-latest
     name: Unit tests
-    needs: lint
 
     steps:
       - name: Checkout repository
@@ -62,10 +60,10 @@ jobs:
         run: cp .env.ci.example .env
       - name: Run unit tests
         run: yarn test:unit
+
   test-e2e:
     runs-on: ubuntu-latest
     name: E2E tests
-    needs: lint
     services:
       postgres:
         image: postgres:13
@@ -107,10 +105,10 @@ jobs:
         run: ./scripts/ci/wait-for-docker-compose.sh
       - name: Run E2E tests
         run: yarn test:e2e
+
   test-load:
     runs-on: ubuntu-latest
     name: Load test
-    needs: test-e2e
     services:
       postgres:
         image: postgres:13
