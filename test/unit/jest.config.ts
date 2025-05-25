@@ -20,8 +20,8 @@ const config: Config.InitialOptions = {
   roots: ['./test/unit'],
   runner: 'groups',
   setupFilesAfterEnv: [
-    './jest/jestDefaultTimeout.ts',
-    './jest/jestGlobalSetup.ts',
+    './jest/jest-default-timeout.ts',
+    './jest/jest-global-setup.ts',
     './jest/jest-retry-setup.ts',
   ],
   testRunner: 'jest-circus/runner',

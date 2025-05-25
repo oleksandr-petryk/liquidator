@@ -10,10 +10,11 @@ const config: Config.InitialOptions = {
   roots: ['./test/e2e'],
   runner: 'groups',
   setupFilesAfterEnv: [
-    './jest/jestDefaultTimeout.ts',
-    './jest/jestGlobalSetup.ts',
+    './jest/jest-default-timeout.ts',
+    './jest/jest-global-setup.ts',
     './jest/jest-retry-setup.ts',
   ],
+  testEnvironment: './jest/custom-environment.ts',
   testRunner: 'jest-circus/runner',
   transform: {
     '^.+\\.[t]s$': [
@@ -22,6 +23,7 @@ const config: Config.InitialOptions = {
     ],
   },
   verbose: false,
+  // watchPlugins: ['./jest/jest-plugs.ts'],
 };
 
 export default config;
