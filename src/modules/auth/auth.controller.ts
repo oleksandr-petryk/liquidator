@@ -21,6 +21,9 @@ export class AuthController {
     return this.authControllerService.register(dto);
   }
 
+  @ApiOperation({
+    summary: 'Log-in',
+  })
   @Post('log-in')
   login(@Body() dto: login): Promise<string | undefined> {
     return this.authControllerService.login(dto);

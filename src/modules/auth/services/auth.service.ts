@@ -35,12 +35,16 @@ export class AuthService {
       throw new BadRequestException('User with that username alredy exist');
     }
 
-    const phoneNumberCheck = await this.userDao.findByPhoneNumber({
-      phoneNumber: dto.phoneNumber,
-    });
+    if (dto.phoneNumber) {
+      const phoneNumberCheck = await this.userDao.findByPhoneNumber({
+        phoneNumber: dto.phoneNumber,
+      });
 
-    if (phoneNumberCheck) {
-      throw new BadRequestException('User with that phoneNumber alredy exist');
+      if (phoneNumberCheck) {
+        throw new BadRequestException(
+          'User with that phoneNumber alredy exist',
+        );
+      }
     }
 
     const saltRounds = 10; //

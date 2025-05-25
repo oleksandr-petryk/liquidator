@@ -34,10 +34,10 @@ export class CreateUserDto {
     maxLength: 15,
     minLength: 8,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsPhoneNumber()
   @MaxLength(15)
-  phoneNumber!: string;
+  phoneNumber?: string;
 
   @ApiProperty({
     description: 'Username of user',
@@ -58,10 +58,10 @@ export class CreateUserDto {
     maxLength: 15,
     minLength: 2,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(35)
-  firstName!: string;
+  firstName?: string;
 
   @ApiProperty({
     description: 'User last name',
@@ -70,10 +70,10 @@ export class CreateUserDto {
     maxLength: 15,
     minLength: 2,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(35)
-  lastName!: string;
+  lastName?: string;
 
   @ApiProperty({
     description: 'Date of user birth',
@@ -81,10 +81,10 @@ export class CreateUserDto {
     example: '1991-09-17',
     format: 'date',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
-  dateOfBirth!: Date;
+  dateOfBirth?: Date;
 
   @ApiProperty({
     description: 'User gender',
