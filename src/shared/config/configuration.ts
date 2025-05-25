@@ -21,6 +21,7 @@ export const EnvConfigZ = z.object({
   JWT_ACCESS_KEY_PRIVATE: z.string(),
   JWT_ACCESS_KEY_PUBLIC: z.string(),
   JWT_ACCESS_TOKEN_EXPIRES_IN: z.number().transform((value) => +value),
+
   JWT_REFRESH_KEY_PRIVATE: z.string(),
   JWT_REFRESH_KEY_PUBLIC: z.string(),
   JWT_REFRESH_TOKEN_EXPIRES_IN: z.number().transform((value) => +value),
