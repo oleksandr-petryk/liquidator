@@ -32,11 +32,16 @@ jobs:
         run: yarn lint
       - name: Run Prettier
         run: yarn format
+      - name: Test build
+        run: yarn build
 
   test-unit:
     runs-on: ubuntu-latest
     name: Unit tests
-
+    needs: lint
+    concurrency:
+      group: Tests
+      cancel-in-progress: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -64,6 +69,10 @@ jobs:
   test-e2e:
     runs-on: ubuntu-latest
     name: E2E tests
+    needs: lint
+    concurrency:
+      group: Tests
+      cancel-in-progress: true
     services:
       postgres:
         image: postgres:13
@@ -109,6 +118,7 @@ jobs:
   test-load:
     runs-on: ubuntu-latest
     name: Load test
+    needs: [test-unit, test-e2e]
     services:
       postgres:
         image: postgres:13

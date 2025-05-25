@@ -4,13 +4,13 @@ import fastifyMultipart, { FastifyMultipartOptions } from '@fastify/multipart';
 import fastifySession, { FastifySessionOptions } from '@fastify/session';
 import {
   BadRequestException,
-  Logger,
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { randomUUID } from 'crypto';
+import type { Logger } from 'nestjs-pino';
 
 import type { EnvConfig } from './shared/config/configuration';
 import { AbstractResponseInterceptor } from './shared/interceptors/abstract-response.interceptor';

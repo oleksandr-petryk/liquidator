@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
@@ -8,6 +7,7 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { readFile } from 'fs/promises';
+import type { Logger } from 'nestjs-pino';
 import * as path from 'path';
 
 import type { EnvConfig } from './shared/config/configuration';
