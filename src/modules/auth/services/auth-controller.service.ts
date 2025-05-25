@@ -21,7 +21,7 @@ export class AuthControllerService {
    *
    * @returns new user
    */
-  register(dto: CreateUserDto): Promise<UserInsertModel | undefined> {
+  register(dto: CreateUserDto): Promise<UserInsertModel> {
     return this.authService.register(dto);
   }
 
@@ -35,7 +35,7 @@ export class AuthControllerService {
    *
    * @returns token
    */
-  login(dto: login): Promise<string | undefined> {
+  login(dto: login): Promise<string> {
     return this.authService.login(dto);
   }
 

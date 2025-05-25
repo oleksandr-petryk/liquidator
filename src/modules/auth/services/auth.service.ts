@@ -18,7 +18,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(dto: CreateUserDto): Promise<UserInsertModel | undefined> {
+  async register(dto: CreateUserDto): Promise<UserInsertModel> {
     const emailCheck = await this.userDao.findByEmail({
       email: dto.email,
     });
@@ -67,7 +67,7 @@ export class AuthService {
     return newUser;
   }
 
-  async login(dto: login): Promise<string | undefined> {
+  async login(dto: login): Promise<string> {
     const user = await this.userDao.findByEmail({ email: dto.email });
 
     if (!user) {
