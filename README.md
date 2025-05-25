@@ -9,6 +9,15 @@ Useful:
 
 [![CI](https://github.com/oleksandr-petryk/liquidator/actions/workflows/ci.yml/badge.svg)](https://github.com/oleksandr-petryk/liquidator/actions/workflows/ci.yml)
 
+## Local run
+
+1. Install nvm
+2. Install Node.js v22
+3. Install packages `yarn`
+4. Run docker compose `yarn docker:local:start`
+5. Prepare .env file `cp .env.local.example .env`
+6. Run app in dev mode `yarn start:dev`
+
 ## Setup
 
 Generate RSA keys:
