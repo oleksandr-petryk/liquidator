@@ -18,13 +18,10 @@ export const team = pgTable('team', {
   ...drizzleTimestamps,
 });
 
-export const teamToPicture = relations(team, ({ one }) => ({
+export const teamRelations = relations(team, ({ one, many }) => ({
   picture: one(picture, {
     fields: [team.pictureId],
     references: [picture.id],
   }),
-}));
-
-export const teamRelations = relations(team, ({ many }) => ({
   teamToUser: many(teamToUser),
 }));

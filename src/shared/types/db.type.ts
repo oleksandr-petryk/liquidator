@@ -10,23 +10,37 @@ import type {
 } from '../modules/drizzle/schemas';
 
 export type OrganizationInsertModel = InferInsertModel<typeof organization>;
-export type OrganizationSelectModel = InferSelectModel<typeof organization>;
+export type OrganizationSelectModel = InferSelectModel<typeof organization> & {
+  picture: PictureSelectModel | null;
+};
 
-export type PasswordResetRequestInsrtModel = InferInsertModel<
+export type PasswordResetRequestInsertModel = InferInsertModel<
   typeof passwordResetRequest
 >;
 export type PasswordResetRequestSelectModel = InferSelectModel<
   typeof passwordResetRequest
->;
+> & {
+  user: UserSelectModel | null;
+};
 
 export type PictureInsertModel = InferInsertModel<typeof picture>;
 export type PictureSelectModel = InferSelectModel<typeof picture>;
 
 export type TeamInsertModel = InferInsertModel<typeof team>;
-export type TeamSelectModel = InferSelectModel<typeof team>;
+export type TeamSelectModel = InferSelectModel<typeof team> & {
+  picture: PictureSelectModel | null;
+  teamToUser: Array<TeamToUserSelectModel> | null;
+};
 
 export type TeamToUserInsertModel = InferInsertModel<typeof teamToUser>;
-export type TeamToUserSelectModel = InferSelectModel<typeof teamToUser>;
+export type TeamToUserSelectModel = InferSelectModel<typeof teamToUser> & {
+  user: UserSelectModel | null;
+  team: TeamSelectModel | null;
+};
 
 export type UserInsertModel = InferInsertModel<typeof user>;
-export type UserSelectModel = InferSelectModel<typeof user>;
+export type UserSelectModel = InferSelectModel<typeof user> & {
+  picture: PictureSelectModel | null;
+  passwordResetRequest: Array<PasswordResetRequestSelectModel> | null;
+  teamToUser: Array<TeamToUserSelectModel> | null;
+};

@@ -26,7 +26,6 @@ export const teamToUserRelations = relations(teamToUser, ({ one }) => ({
     fields: [teamToUser.teamId],
     references: [team.id],
   }),
-
   user: one(user, {
     fields: [teamToUser.userId],
     references: [user.id],
