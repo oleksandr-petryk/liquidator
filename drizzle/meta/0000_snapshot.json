@@ -1,5 +1,5 @@
 {
-  "id": "eb1755b6-ce32-47ff-a5a2-01640b58b875",
+  "id": "5f278dc0-386b-42f7-944f-466cbc926679",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -17,7 +17,7 @@
         },
         "status": {
           "name": "status",
-          "type": "status",
+          "type": "publish_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
@@ -175,7 +175,7 @@
         },
         "status": {
           "name": "status",
-          "type": "status",
+          "type": "publish_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -240,7 +240,7 @@
         },
         "role": {
           "name": "role",
-          "type": "roles",
+          "type": "user_roles",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -303,7 +303,7 @@
         },
         "status": {
           "name": "status",
-          "type": "status",
+          "type": "publish_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -347,7 +347,7 @@
         },
         "gender": {
           "name": "gender",
-          "type": "genres",
+          "type": "use_genders",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
@@ -416,16 +416,16 @@
     }
   },
   "enums": {
-    "public.genres": {
-      "name": "genres",
+    "public.use_genders": {
+      "name": "use_genders",
       "schema": "public",
       "values": [
         "male",
         "female"
       ]
     },
-    "public.roles": {
-      "name": "roles",
+    "public.user_roles": {
+      "name": "user_roles",
       "schema": "public",
       "values": [
         "member",
@@ -433,8 +433,8 @@
         "owner"
       ]
     },
-    "public.status": {
-      "name": "status",
+    "public.publish_status": {
+      "name": "publish_status",
       "schema": "public",
       "values": [
         "published",
