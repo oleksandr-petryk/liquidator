@@ -2,7 +2,8 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
-import { user, UserSelectModel } from '../modules/drizzle/schemas';
+import { user } from '../modules/drizzle/schemas';
+import type { UserSelectModel } from '../types/db.type';
 import { BaseDao } from './base.dto';
 
 @Injectable()
@@ -33,11 +34,9 @@ export class UserDao extends BaseDao<typeof user> {
     email: string;
   }): Promise<UserSelectModel | undefined> {
     try {
-      const find = await db.query.user.findFirst({
-        where: eq(user.email, email.toLowerCase()),
-      });
+      const result = await db.select().from(user).where(eq(user.email, email));
 
-      return find;
+      return result[0];
     } catch (error) {
       this.logger.error(`An error occurred when trying to findByEmail`);
       throw error;
@@ -53,7 +52,7 @@ export class UserDao extends BaseDao<typeof user> {
   }): Promise<UserSelectModel | undefined> {
     try {
       const find = await db.query.user.findFirst({
-        where: eq(user.username, username.toLowerCase()),
+        where: eq(user.username, username),
       });
 
       return find as UserSelectModel;

@@ -1,46 +1,51 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
-import { CreateUserDto } from '../../shared/dto/auth/createUser.dto';
-import { login } from '../../shared/dto/auth/login.dto';
-import { UserInsertModel } from '../../shared/modules/drizzle/schemas';
+import {
+  LoginRequestBodyDto,
+  RegisterRequestBodyDto,
+} from '../../shared/dto/controllers/auth/request-body.dto';
+import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
+import { JwtTokensPairMapper } from '../../shared/mappers/jwt.mapper';
 import { AuthControllerService } from './services/auth-controller.service';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
-@Controller('auth')
+@Controller(`${APP_DEFAULT_V1_PREFIX}/auth`)
 export class AuthController {
   constructor(private readonly authControllerService: AuthControllerService) {}
 
-  // TODO: all this for each endpoint
   @ApiOperation({
     summary: 'Register a new user',
   })
   @Post('register')
-  register(@Body() dto: CreateUserDto): Promise<UserInsertModel | undefined> {
-    return this.authControllerService.register(dto);
+  async register(@Body() dto: RegisterRequestBodyDto): Promise<void> {
+    await this.authControllerService.register(dto);
   }
 
   @ApiOperation({
     summary: 'Log-in',
   })
   @Post('log-in')
-  login(@Body() dto: login): Promise<string | undefined> {
-    return this.authControllerService.login(dto);
+  async login(@Body() dto: LoginRequestBodyDto): Promise<LoginResponseBodyDto> {
+    const result = await this.authControllerService.login(dto);
+
+    return JwtTokensPairMapper.serialize(result);
   }
 
-  @Get('verify')
-  verify(): void {
-    return this.authControllerService.verify();
-  }
+  // @Get('verify')
+  // verify(): void {
+  //   return this.authControllerService.verify();
+  // }
 
-  @Get('google')
-  google(): void {
-    return this.authControllerService.google();
-  }
+  // @Get('google')
+  // google(): void {
+  //   return this.authControllerService.google();
+  // }
 
-  @Get('google/callback')
-  googleCallback(): void {
-    return this.authControllerService.googleCallback();
-  }
+  // @Get('google/callback')
+  // googleCallback(): void {
+  //   return this.authControllerService.googleCallback();
+  // }
 }

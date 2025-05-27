@@ -6,7 +6,7 @@ import { APP_HEALTH_LIVE } from '../../../shared/const/app.const';
 import type {
   GetAppVersionResponseBodyDto,
   GetHealthResponseBodyDto,
-} from '../../../shared/dto/app/response.dto';
+} from '../../../shared/dto/controllers/app/response-body.dto';
 
 /**
  * Platform service

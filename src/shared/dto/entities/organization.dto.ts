@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 
 import { Status } from '../../enums/db.enum';
 import type { OrganizationSelectModel } from '../../types/db.type';
+import { PictureDto } from './picture.dto';
 
 export class OrganizationDto
   implements Record<keyof OrganizationSelectModel, any>
@@ -44,6 +45,13 @@ export class OrganizationDto
     nullable: true,
   })
   pictureId!: string | null;
+
+  @ApiProperty({
+    description: 'Picture',
+    type: PictureDto,
+    nullable: true,
+  })
+  picture!: PictureDto | null;
 
   @ApiProperty({
     description: 'Date created',

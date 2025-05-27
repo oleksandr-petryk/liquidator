@@ -40,7 +40,7 @@ export type TeamToUserSelectModel = InferSelectModel<typeof teamToUser> & {
 
 export type UserInsertModel = InferInsertModel<typeof user>;
 export type UserSelectModel = InferSelectModel<typeof user> & {
-  picture: PictureSelectModel | null;
-  passwordResetRequest: Array<PasswordResetRequestSelectModel> | null;
-  teamToUser: Array<TeamToUserSelectModel> | null;
+  picture?: PictureSelectModel | null;
+  passwordResetRequest?: Array<PasswordResetRequestSelectModel> | null;
+  teamToUser?: Array<TeamToUserSelectModel> | null;
 };

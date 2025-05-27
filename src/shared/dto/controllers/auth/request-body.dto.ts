@@ -11,10 +11,9 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import { Gender } from '../../modules/drizzle/schemas';
+import { Gender } from '../../../enums/db.enum';
 
-export class CreateUserDto {
-  // TODO: all this for each field
+export class RegisterRequestBodyDto {
   @ApiProperty({
     description: 'User email',
     type: String,
@@ -26,18 +25,6 @@ export class CreateUserDto {
   @IsEmail()
   @MaxLength(320)
   email!: string;
-
-  @ApiProperty({
-    description: 'User phone number',
-    type: String,
-    example: '+380970809685',
-    maxLength: 15,
-    minLength: 8,
-  })
-  @IsOptional()
-  @IsPhoneNumber()
-  @MaxLength(15)
-  phoneNumber?: string;
 
   @ApiProperty({
     description: 'Username of user',
@@ -52,11 +39,25 @@ export class CreateUserDto {
   username!: string;
 
   @ApiProperty({
+    description: 'User phone number',
+    type: String,
+    example: '+380970809685',
+    maxLength: 15,
+    minLength: 8,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsPhoneNumber()
+  @MaxLength(15)
+  phoneNumber?: string;
+
+  @ApiProperty({
     description: 'User first name',
     type: String,
     example: 'john',
     maxLength: 15,
     minLength: 2,
+    nullable: true,
   })
   @IsOptional()
   @IsString()
@@ -69,6 +70,7 @@ export class CreateUserDto {
     example: 'doe',
     maxLength: 15,
     minLength: 2,
+    nullable: true,
   })
   @IsOptional()
   @IsString()
@@ -80,6 +82,7 @@ export class CreateUserDto {
     type: String,
     example: '1991-09-17',
     format: 'date',
+    nullable: true,
   })
   @IsOptional()
   @IsDate()
@@ -90,6 +93,7 @@ export class CreateUserDto {
     description: 'User gender',
     type: String,
     example: 'male',
+    nullable: true,
   })
   @IsOptional()
   @IsEnum(Gender)
@@ -98,7 +102,33 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'User password',
     type: String,
-    example: 'drowssap',
+    example: '123123',
+    minLength: 8,
+    maxLength: 128,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  password!: string;
+}
+
+export class LoginRequestBodyDto {
+  @ApiProperty({
+    description: 'User email',
+    type: String,
+    example: 'example@gmail.com',
+    maxLength: 320,
+    minLength: 5,
+  })
+  @IsNotEmpty()
+  @IsEmail()
+  @MaxLength(320)
+  email!: string;
+
+  @ApiProperty({
+    description: 'User password',
+    type: String,
+    example: '123123',
     minLength: 8,
     maxLength: 128,
   })

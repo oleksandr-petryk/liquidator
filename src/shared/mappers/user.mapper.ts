@@ -1,6 +1,9 @@
 import { UserDto } from '../dto/entities/user.dto';
 import type { SerializeMapper } from '../interfaces/mapper.interface';
 import type { UserSelectModel } from '../types/db.type';
+import { PasswordResetRequestMapper } from './password-reset-request.mapper';
+import { PictureMapper } from './picture.mapper';
+import { TeamToUserMapper } from './team-to-user.mapper';
 
 export const UserMapper: SerializeMapper<UserSelectModel, UserDto> = {
   serialize: function (deserialized) {
@@ -16,6 +19,17 @@ export const UserMapper: SerializeMapper<UserSelectModel, UserDto> = {
       gender: deserialized.gender,
       phoneNumber: deserialized.phoneNumber,
       recoveryEmailAddress: deserialized.recoveryEmailAddress,
+      passwordResetRequest: deserialized.passwordResetRequest
+        ? deserialized.passwordResetRequest.map((i) =>
+            PasswordResetRequestMapper.serialize(i),
+          )
+        : null,
+      picture: deserialized.picture
+        ? PictureMapper.serialize(deserialized.picture)
+        : null,
+      teamToUser: deserialized.teamToUser
+        ? deserialized.teamToUser.map((i) => TeamToUserMapper.serialize(i))
+        : null,
       createdAt: deserialized.createdAt,
       updatedAt: deserialized.updatedAt,
     });

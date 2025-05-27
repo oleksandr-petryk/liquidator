@@ -1,53 +1,36 @@
 import { Injectable } from '@nestjs/common';
 
-import { CreateUserDto } from '../../../shared/dto/auth/createUser.dto';
-import { login } from '../../../shared/dto/auth/login.dto';
-import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
+import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
+import type {
+  UserInsertModel,
+  UserSelectModel,
+} from '../../../shared/types/db.type';
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthControllerService {
   constructor(private readonly authService: AuthService) {}
 
-  /**
-   * Register a new user
-   *
-   * Logic:
-   * 1. Check if user with email already exists
-   * 2. Check if user with phone number already exists
-   * 3. Check if user with username already exists
-   * 4. Hash password
-   * 5. Create new user in DB
-   *
-   * @returns new user
-   */
-  register(dto: CreateUserDto): Promise<UserInsertModel> {
-    return this.authService.register(dto);
+  async register(dto: RegisterRequestBodyDto): Promise<UserInsertModel> {
+    return await this.authService.register(dto);
   }
 
-  /**
-   * Loging
-   *
-   * Logic:
-   * 1. Chech if user exist
-   * 2. Chech password is correct
-   * 3. Make token
-   *
-   * @returns token
-   */
-  login(dto: login): Promise<string> {
-    return this.authService.login(dto);
+  async login(
+    data: Pick<UserSelectModel, 'email' | 'password'>,
+  ): Promise<JwtTokensPair> {
+    return await this.authService.login(data);
   }
 
-  verify(): void {
-    return this.authService.verify();
-  }
+  // verify(): void {
+  //   return this.authService.verify();
+  // }
 
-  google(): void {
-    return this.authService.google();
-  }
+  // google(): void {
+  //   return this.authService.google();
+  // }
 
-  googleCallback(): void {
-    return this.authService.googleCallback();
-  }
+  // googleCallback(): void {
+  //   return this.authService.googleCallback();
+  // }
 }

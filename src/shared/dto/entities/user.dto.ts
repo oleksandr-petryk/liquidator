@@ -3,6 +3,9 @@ import { randomUUID } from 'crypto';
 
 import { Gender, Status } from '../../enums/db.enum';
 import type { UserSelectModel } from '../../types/db.type';
+import { PasswordResetRequestDto } from './password-reset-request.dto';
+import { PictureDto } from './picture.dto';
+import { TeamToUserDto } from './team-to-user.dto';
 
 export class UserDto
   implements Record<keyof Omit<UserSelectModel, 'password'>, any>
@@ -100,6 +103,29 @@ export class UserDto
     nullable: true,
   })
   recoveryEmailAddress!: string | null;
+
+  @ApiProperty({
+    description: 'User picture',
+    type: PictureDto,
+    nullable: true,
+  })
+  picture!: PictureDto | null;
+
+  @ApiProperty({
+    description: 'Recovery email address',
+    type: TeamToUserDto,
+    nullable: true,
+    isArray: true,
+  })
+  teamToUser!: Array<TeamToUserDto> | null;
+
+  @ApiProperty({
+    description: 'Recovery email address',
+    type: PasswordResetRequestDto,
+    nullable: true,
+    isArray: true,
+  })
+  passwordResetRequest!: Array<PasswordResetRequestDto> | null;
 
   @ApiProperty({
     description: 'Date created',

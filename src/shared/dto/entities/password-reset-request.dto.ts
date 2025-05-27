@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
 import type { PasswordResetRequestSelectModel } from '../../types/db.type';
+import { UserDto } from './user.dto';
 
 export class PasswordResetRequestDto
   implements Record<keyof PasswordResetRequestSelectModel, any>
@@ -35,6 +36,13 @@ export class PasswordResetRequestDto
     example: randomUUID(),
   })
   expiresIn!: Date;
+
+  @ApiProperty({
+    description: 'User',
+    type: UserDto,
+    nullable: true,
+  })
+  user!: UserDto | null;
 
   @ApiProperty({
     description: 'Date created',

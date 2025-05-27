@@ -3,6 +3,8 @@ import { randomUUID } from 'crypto';
 
 import { Role } from '../../enums/db.enum';
 import type { TeamToUserSelectModel } from '../../types/db.type';
+import { TeamDto } from './team.dto';
+import { UserDto } from './user.dto';
 
 export class TeamToUserDto implements Record<keyof TeamToUserSelectModel, any> {
   @ApiProperty({
@@ -13,11 +15,25 @@ export class TeamToUserDto implements Record<keyof TeamToUserSelectModel, any> {
   userId!: string;
 
   @ApiProperty({
+    description: 'User',
+    type: UserDto,
+    nullable: true,
+  })
+  user!: UserDto | null;
+
+  @ApiProperty({
     description: 'Team ID',
     type: String,
     example: randomUUID(),
   })
   teamId!: string;
+
+  @ApiProperty({
+    description: 'User',
+    type: TeamDto,
+    nullable: true,
+  })
+  team!: TeamDto | null;
 
   @ApiProperty({
     description: 'User role',

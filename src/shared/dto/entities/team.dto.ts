@@ -3,6 +3,8 @@ import { randomUUID } from 'crypto';
 
 import { Status } from '../../enums/db.enum';
 import type { TeamSelectModel } from '../../types/db.type';
+import { PictureDto } from './picture.dto';
+import { TeamToUserDto } from './team-to-user.dto';
 
 export class TeamDto implements Record<keyof TeamSelectModel, any> {
   @ApiProperty({
@@ -42,6 +44,21 @@ export class TeamDto implements Record<keyof TeamSelectModel, any> {
     default: false,
   })
   isDefault!: boolean;
+
+  @ApiProperty({
+    description: 'Picture',
+    type: PictureDto,
+    nullable: true,
+  })
+  picture!: PictureDto | null;
+
+  @ApiProperty({
+    description: 'Team to user relation',
+    type: TeamToUserDto,
+    nullable: true,
+    isArray: true,
+  })
+  teamToUser!: Array<TeamToUserDto> | null;
 
   @ApiProperty({
     description: 'Date created',

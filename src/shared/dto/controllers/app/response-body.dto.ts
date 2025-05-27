@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { APP_HEALTH_LIVE } from '../../const/app.const';
+import { APP_HEALTH_LIVE } from '../../../const/app.const';
 
 export class GetHealthResponseBodyDto {
   @ApiProperty({
