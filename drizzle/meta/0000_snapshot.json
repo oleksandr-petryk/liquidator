@@ -1,5 +1,5 @@
 {
-  "id": "1734b9f8-d50f-4c4f-bf2d-6f6a52fa058a",
+  "id": "eb1755b6-ce32-47ff-a5a2-01640b58b875",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -37,7 +37,7 @@
         },
         "picture_id": {
           "name": "picture_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -178,7 +178,7 @@
           "type": "status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'published'"
         },
         "name": {
@@ -189,7 +189,7 @@
         },
         "picture_id": {
           "name": "picture_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -243,7 +243,7 @@
           "type": "roles",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'member'"
         },
         "is_favorite": {
@@ -259,6 +259,19 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -293,7 +306,7 @@
           "type": "status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'published'"
         },
         "email": {
@@ -306,7 +319,7 @@
           "name": "phone_number",
           "type": "varchar(15)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "username": {
           "name": "username",
@@ -318,19 +331,19 @@
           "name": "first_name",
           "type": "varchar(35)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "last_name": {
           "name": "last_name",
           "type": "varchar(35)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "date_of_birth": {
           "name": "date_of_birth",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "gender": {
           "name": "gender",
@@ -341,7 +354,7 @@
         },
         "picture_id": {
           "name": "picture_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -355,7 +368,7 @@
           "name": "recovery_email_address",
           "type": "varchar(320)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
