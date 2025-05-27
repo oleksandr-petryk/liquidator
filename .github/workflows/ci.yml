@@ -136,7 +136,7 @@ jobs:
       - name: Prepare .env file
         run: cp .env.ci.example .env
       - name: Apply migrations
-        run: yarn migrate
+        run: yarn db:migrate
       - name: Run Nest.js server
         run: yarn build && yarn start:prod &
       - name: Wait for services to be ready
