@@ -51,11 +51,12 @@ export class UserDao extends BaseDao<typeof user> {
     username: string;
   }): Promise<UserSelectModel | undefined> {
     try {
-      const find = await db.query.user.findFirst({
-        where: eq(user.username, username),
-      });
+      const result = await db
+        .select()
+        .from(user)
+        .where(eq(user.username, username));
 
-      return find as UserSelectModel;
+      return result[0];
     } catch (error) {
       this.logger.error(`An error occurred when trying to findByUsername`);
       throw error;

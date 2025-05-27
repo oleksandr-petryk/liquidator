@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { UserDao } from '../../../shared/dao/user.dto';
@@ -98,11 +94,12 @@ export class AuthService {
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
   ): Promise<JwtTokensPair> {
-    console.log(data, '<<< data', data.email, '<<<< email');
-    const user = await this.userDao.findByEmail({ email: data.email });
+    const emailLowerCase = data.email.toLowerCase();
+
+    const user = await this.userDao.findByEmail({ email: emailLowerCase });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new BadRequestException('User not found');
     }
 
     const passwordCheck = await bcrypt.compare(data.password, user.password);
