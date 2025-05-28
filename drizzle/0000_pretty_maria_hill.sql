@@ -1,12 +1,12 @@
-CREATE TYPE "public"."genres" AS ENUM('male', 'female');--> statement-breakpoint
-CREATE TYPE "public"."roles" AS ENUM('member', 'admin', 'owner');--> statement-breakpoint
-CREATE TYPE "public"."status" AS ENUM('published', 'draft', 'archived');--> statement-breakpoint
+CREATE TYPE "public"."use_genders" AS ENUM('male', 'female');--> statement-breakpoint
+CREATE TYPE "public"."user_roles" AS ENUM('member', 'admin', 'owner');--> statement-breakpoint
+CREATE TYPE "public"."publish_status" AS ENUM('published', 'draft', 'archived');--> statement-breakpoint
 CREATE TABLE "organization" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"status" "status" DEFAULT 'published',
+	"status" "publish_status" DEFAULT 'published',
 	"name" varchar(30) NOT NULL,
 	"slug" varchar(30) NOT NULL,
-	"picture_id" integer,
+	"picture_id" uuid,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
 	CONSTRAINT "organization_name_unique" UNIQUE("name"),
@@ -30,9 +30,9 @@ CREATE TABLE "pictures" (
 --> statement-breakpoint
 CREATE TABLE "team" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"status" "status" DEFAULT 'published',
+	"status" "publish_status" DEFAULT 'published' NOT NULL,
 	"name" varchar(30) NOT NULL,
-	"picture_id" integer,
+	"picture_id" uuid,
 	"is_default" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
@@ -41,25 +41,27 @@ CREATE TABLE "team" (
 CREATE TABLE "team_to_user" (
 	"user_id" uuid NOT NULL,
 	"team_id" uuid NOT NULL,
-	"role" "roles" DEFAULT 'member',
+	"role" "user_roles" DEFAULT 'member' NOT NULL,
 	"is_favorite" boolean DEFAULT false NOT NULL,
 	"is_default" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
 	CONSTRAINT "team_to_user_user_id_team_id_pk" PRIMARY KEY("user_id","team_id")
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"status" "status" DEFAULT 'published',
+	"status" "publish_status" DEFAULT 'published' NOT NULL,
 	"email" varchar(320) NOT NULL,
-	"phone_number" varchar(15) NOT NULL,
+	"phone_number" varchar(15),
 	"username" varchar(15) NOT NULL,
-	"first_name" varchar(35) NOT NULL,
-	"last_name" varchar(35) NOT NULL,
-	"date_of_birth" timestamp NOT NULL,
-	"gender" "genres",
-	"picture_id" integer,
+	"first_name" varchar(35),
+	"last_name" varchar(35),
+	"date_of_birth" timestamp,
+	"gender" "use_genders",
+	"picture_id" uuid,
 	"password" varchar(128) NOT NULL,
-	"recovery_email_address" varchar(320) NOT NULL,
+	"recovery_email_address" varchar(320),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
 	CONSTRAINT "user_email_unique" UNIQUE("email"),

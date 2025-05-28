@@ -16,7 +16,8 @@ Useful:
 3. Install packages `yarn`
 4. Run docker compose `yarn docker:local:start`
 5. Prepare .env file `cp .env.local.example .env`
-6. Run app in dev mode `yarn start:dev`
+6. Run migrations `yarn db:migrate`
+7. Run app in dev mode `yarn start:dev`
 
 ## Setup
 

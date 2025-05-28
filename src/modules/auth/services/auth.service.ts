@@ -1,91 +1,120 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { UserDao } from '../../../shared/dao/user.dto';
-import { CreateUserDto } from '../../../shared/dto/auth/createUser.dto';
-import { login } from '../../../shared/dto/auth/login.dto';
-import { UserInsertModel } from '../../../shared/modules/drizzle/schemas';
+import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
+import type {
+  UserInsertModel,
+  UserSelectModel,
+} from '../../../shared/types/db.type';
+import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userDao: UserDao,
-    private jwtService: JwtService,
+    private readonly userDao: UserDao,
+    private readonly jwtInternalService: JwtInternalService,
   ) {}
 
-  async register(dto: CreateUserDto): Promise<UserInsertModel> {
+  /**
+   * Register a new user
+   *
+   * Logic:
+   * 1. Check if user with email already exists
+   * 2. Check if user with phone number already exists
+   * 3. Check if user with username already exists
+   * 4. Hash password
+   * 5. Create new user in DB
+   *
+   * @returns new user
+   */
+  async register(data: RegisterRequestBodyDto): Promise<UserInsertModel> {
+    const emailLowerCase = data.email.toLowerCase();
+    const usernameLowerCase = data.username.toLowerCase();
+
     const emailCheck = await this.userDao.findByEmail({
-      email: dto.email,
+      email: emailLowerCase,
     });
 
     if (emailCheck) {
-      throw new BadRequestException('User with that email alredy exist');
+      throw new BadRequestException('User with that email already exist');
     }
 
     const usernameCheck = await this.userDao.findByUsername({
-      username: dto.username,
+      username: usernameLowerCase,
     });
 
     if (usernameCheck) {
-      throw new BadRequestException('User with that username alredy exist');
+      throw new BadRequestException('User with that username already exist');
     }
 
-    if (dto.phoneNumber) {
+    if (data.phoneNumber) {
       const phoneNumberCheck = await this.userDao.findByPhoneNumber({
-        phoneNumber: dto.phoneNumber,
+        phoneNumber: data.phoneNumber,
       });
 
       if (phoneNumberCheck) {
         throw new BadRequestException(
-          'User with that phoneNumber alredy exist',
+          'User with that phoneNumber already exist',
         );
       }
     }
 
-    const saltRounds = 10; //
+    const saltRounds = 10; // TODO: use different salt each time
 
-    const password = await bcrypt.hash(dto.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const data: UserInsertModel = {
-      email: dto.email,
-      phoneNumber: dto.phoneNumber,
-      username: dto.username,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      dateOfBirth: dto.dateOfBirth,
-      password: password,
-      gender: dto.gender,
-    };
-
-    const newUser = this.userDao.create({ data: data });
+    const newUser = this.userDao.create({
+      data: {
+        email: emailLowerCase,
+        username: usernameLowerCase,
+        phoneNumber: data.phoneNumber,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dateOfBirth: data.dateOfBirth,
+        password: hashedPassword,
+        gender: data.gender,
+      },
+    });
 
     return newUser;
   }
 
-  async login(dto: login): Promise<string> {
-    const user = await this.userDao.findByEmail({ email: dto.email });
+  /**
+   * Login
+   *
+   * Logic:
+   * 1. Check if user exist
+   * 2. Check if password is correct
+   * 3. Generate token
+   *
+   * @returns token
+   */
+  async login(
+    data: Pick<UserSelectModel, 'email' | 'password'>,
+  ): Promise<JwtTokensPair> {
+    const emailLowerCase = data.email.toLowerCase();
+
+    const user = await this.userDao.findByEmail({ email: emailLowerCase });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new BadRequestException('User not found');
     }
 
-    const passwordCheck = await bcrypt.compare(dto.password, user.password);
+    const passwordCheck = await bcrypt.compare(data.password, user.password);
 
     if (!passwordCheck) {
       throw new BadRequestException('Incorrect password');
     }
 
-    const token: string = this.jwtService.sign({
-      email: user.email,
+    const tokensPair = this.jwtInternalService.generatePairTokens({
       id: user.id,
     });
 
-    return token;
+    // TODO: create session in DB
+
+    return tokensPair;
   }
 
   verify(): void {

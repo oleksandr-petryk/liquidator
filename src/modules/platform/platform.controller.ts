@@ -6,7 +6,7 @@ import { ApiAbstractResponse } from '../../shared/decorators/api-abstract-respon
 import {
   GetAppVersionResponseBodyDto,
   GetHealthResponseBodyDto,
-} from '../../shared/dto/app/response.dto';
+} from '../../shared/dto/controllers/app/response-body.dto';
 import { PlatformControllerService } from './services/platform-controller.service';
 
 /**

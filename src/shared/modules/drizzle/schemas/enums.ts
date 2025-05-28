@@ -1,28 +1,17 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 
-export enum Status {
-  Published = 'published',
-  Draft = 'draft',
-  Archived = 'archived',
-}
+import { Gender, Role, Status } from '../../../enums/db.enum';
 
-export enum Gender {
-  Male = 'male',
-  Female = 'female',
-}
-
-export enum Role {
-  Member = 'member',
-  Admin = 'admin',
-  Owner = 'owner',
-}
-
-export const StatusEnum = pgEnum('status', [
+export const StatusEnum = pgEnum('publish_status', [
   Status.Published,
   Status.Draft,
   Status.Archived,
 ]);
 
-export const GenderEnum = pgEnum('genres', [Gender.Male, Gender.Female]);
+export const GenderEnum = pgEnum('use_genders', [Gender.Male, Gender.Female]);
 
-export const RoleEnum = pgEnum('roles', [Role.Member, Role.Admin, Role.Owner]);
+export const RoleEnum = pgEnum('user_roles', [
+  Role.Member,
+  Role.Admin,
+  Role.Owner,
+]);

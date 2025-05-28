@@ -16,12 +16,12 @@ export class JwtInternalService {
   private readonly JWT_ACCESS_KEY_PRIVATE: string;
   private readonly JWT_ACCESS_KEY_PUBLIC: string;
   readonly JWT_ACCESS_ALGORITHM = 'RS256';
-  readonly JWT_ACCESS_EXPIRES_IN_X_SECONDS: number;
+  readonly JWT_ACCESS_TOKEN_EXPIRES_IN: number;
 
   private readonly JWT_REFRESH_KEY_PRIVATE: string;
   private readonly JWT_REFRESH_KEY_PUBLIC: string;
   readonly JWT_REFRESH_ALGORITHM = 'RS256';
-  readonly JWT_REFRESH_EXPIRES_IN_X_SECONDS: number;
+  readonly JWT_REFRESH_TOKEN_EXPIRES_IN: number;
 
   constructor(
     private readonly configService: ConfigService<EnvConfig>,
@@ -34,7 +34,7 @@ export class JwtInternalService {
     this.JWT_ACCESS_KEY_PUBLIC = this.configService.getOrThrow(
       'JWT_ACCESS_KEY_PUBLIC',
     );
-    this.JWT_ACCESS_EXPIRES_IN_X_SECONDS = this.configService.getOrThrow(
+    this.JWT_ACCESS_TOKEN_EXPIRES_IN = this.configService.getOrThrow(
       'JWT_ACCESS_TOKEN_EXPIRES_IN',
     );
 
@@ -45,7 +45,7 @@ export class JwtInternalService {
     this.JWT_REFRESH_KEY_PUBLIC = this.configService.getOrThrow(
       'JWT_REFRESH_KEY_PUBLIC',
     );
-    this.JWT_REFRESH_EXPIRES_IN_X_SECONDS = this.configService.getOrThrow(
+    this.JWT_REFRESH_TOKEN_EXPIRES_IN = this.configService.getOrThrow(
       'JWT_REFRESH_TOKEN_EXPIRES_IN',
     );
   }
@@ -57,10 +57,10 @@ export class JwtInternalService {
    * @returns JWT
    */
   generateAccessToken(payload: JwtTokenPayload): string {
-    return this.jwtService.sign(Buffer.from(JSON.stringify(payload)), {
+    return this.jwtService.sign(payload, {
       privateKey: this.JWT_ACCESS_KEY_PRIVATE,
-      algorithm: this.JWT_ACCESS_ALGORITHM as any,
-      expiresIn: this.JWT_REFRESH_EXPIRES_IN_X_SECONDS,
+      algorithm: this.JWT_ACCESS_ALGORITHM,
+      expiresIn: this.JWT_REFRESH_TOKEN_EXPIRES_IN,
     });
   }
 
@@ -74,7 +74,7 @@ export class JwtInternalService {
     return this.jwtService.sign(payload, {
       privateKey: this.JWT_REFRESH_KEY_PRIVATE,
       algorithm: this.JWT_REFRESH_ALGORITHM,
-      expiresIn: this.JWT_ACCESS_EXPIRES_IN_X_SECONDS,
+      expiresIn: this.JWT_ACCESS_TOKEN_EXPIRES_IN,
     });
   }
 
