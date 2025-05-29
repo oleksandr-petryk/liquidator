@@ -5,6 +5,7 @@ import { Gender, Status } from '../../enums/db.enum';
 import type { UserSelectModel } from '../../types/db.type';
 import { PasswordResetRequestDto } from './password-reset-request.dto';
 import { PictureDto } from './picture.dto';
+import { SessionDto } from './session.dto';
 import { TeamToUserDto } from './team-to-user.dto';
 
 export class UserDto
@@ -118,6 +119,14 @@ export class UserDto
     isArray: true,
   })
   teamToUser!: Array<TeamToUserDto> | null;
+
+  @ApiProperty({
+    description: 'User sessions',
+    type: SessionDto,
+    nullable: true,
+    isArray: true,
+  })
+  session!: Array<SessionDto> | null;
 
   @ApiProperty({
     description: 'Recovery email address',

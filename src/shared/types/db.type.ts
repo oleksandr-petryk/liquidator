@@ -4,6 +4,7 @@ import type {
   organization,
   passwordResetRequest,
   picture,
+  session,
   team,
   teamToUser,
   user,
@@ -26,6 +27,11 @@ export type PasswordResetRequestSelectModel = InferSelectModel<
 export type PictureInsertModel = InferInsertModel<typeof picture>;
 export type PictureSelectModel = InferSelectModel<typeof picture>;
 
+export type SessionInsertModel = InferInsertModel<typeof session>;
+export type SessionSelectModel = InferSelectModel<typeof session> & {
+  user: UserSelectModel | null;
+};
+
 export type TeamInsertModel = InferInsertModel<typeof team>;
 export type TeamSelectModel = InferSelectModel<typeof team> & {
   picture: PictureSelectModel | null;
@@ -42,5 +48,6 @@ export type UserInsertModel = InferInsertModel<typeof user>;
 export type UserSelectModel = InferSelectModel<typeof user> & {
   picture?: PictureSelectModel | null;
   passwordResetRequest?: Array<PasswordResetRequestSelectModel> | null;
+  session?: Array<SessionSelectModel> | null;
   teamToUser?: Array<TeamToUserSelectModel> | null;
 };
