@@ -8,6 +8,7 @@ import { drizzleTimestamps } from './consts/timestamps';
 import { GenderEnum, StatusEnum } from './enums';
 import { passwordResetRequest } from './password-reset-request';
 import { picture } from './picture';
+import { session } from './session';
 import { teamToUser } from './team-to-user';
 
 export const user = pgTable('user', {
@@ -33,4 +34,5 @@ export const userRelations = relations(user, ({ one, many }) => ({
   }),
   passwordResetRequest: many(passwordResetRequest),
   teamToUser: many(teamToUser),
+  sessions: many(session),
 }));
