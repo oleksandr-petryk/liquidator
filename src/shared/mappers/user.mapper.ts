@@ -3,6 +3,7 @@ import type { SerializeMapper } from '../interfaces/mapper.interface';
 import type { UserSelectModel } from '../types/db.type';
 import { PasswordResetRequestMapper } from './password-reset-request.mapper';
 import { PictureMapper } from './picture.mapper';
+import { SessionMapper } from './session.mapper';
 import { TeamToUserMapper } from './team-to-user.mapper';
 
 export const UserMapper: SerializeMapper<UserSelectModel, UserDto> = {
@@ -32,6 +33,9 @@ export const UserMapper: SerializeMapper<UserSelectModel, UserDto> = {
         : null,
       createdAt: deserialized.createdAt,
       updatedAt: deserialized.updatedAt,
+      session: deserialized.session
+        ? deserialized.session.map((i) => SessionMapper.serialize(i))
+        : null,
     });
   },
 };

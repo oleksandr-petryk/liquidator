@@ -10,7 +10,7 @@ export const session = pgTable('Sessions', {
   ...drizzlePrimaryKey,
   name: t.varchar({ length: 50 }).notNull(),
   userId: t.uuid('user_id').notNull(),
-  refreshToken: t.varchar('refresh-token', { length: 500 }),
+  refreshToken: t.varchar('refresh-token', { length: 500 }).notNull(),
   ...drizzleTimestamps,
 });
 
