@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
 import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import { SessionDto } from '../../../shared/dto/controllers/auth/session.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
 import type {
+  SessionSelectModel,
   UserInsertModel,
   UserSelectModel,
 } from '../../../shared/types/db.type';
@@ -20,6 +22,12 @@ export class AuthControllerService {
     data: Pick<UserSelectModel, 'email' | 'password'>,
   ): Promise<JwtTokensPair> {
     return await this.authService.login(data);
+  }
+
+  async getSessions(
+    dto: SessionDto,
+  ): Promise<Omit<SessionSelectModel, 'user'> | undefined> {
+    return await this.authService.getSessions(dto);
   }
 
   // verify(): void {

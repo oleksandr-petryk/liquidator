@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
@@ -8,7 +8,9 @@ import {
   RegisterRequestBodyDto,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
+import { SessionDto } from '../../shared/dto/controllers/auth/session.dto';
 import { JwtTokensPairMapper } from '../../shared/mappers/jwt.mapper';
+import { SessionSelectModel } from '../../shared/types/db.type';
 import { AuthControllerService } from './services/auth-controller.service';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
@@ -32,6 +34,16 @@ export class AuthController {
     const result = await this.authControllerService.login(dto);
 
     return JwtTokensPairMapper.serialize(result);
+  }
+
+  @ApiOperation({
+    summary: 'Get all user session',
+  })
+  @Get('session')
+  verify(
+    @Headers() dto: SessionDto,
+  ): Promise<Omit<SessionSelectModel, 'user'> | undefined> {
+    return this.authControllerService.getSessions(dto);
   }
 
   // @Get('verify')

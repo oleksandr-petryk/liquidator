@@ -1,10 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { SessionDao } from '../../../shared/dao/session.dto';
 import { UserDao } from '../../../shared/dao/user.dto';
 import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import { SessionDto } from '../../../shared/dto/controllers/auth/session.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
 import type {
+  SessionSelectModel,
   UserInsertModel,
   UserSelectModel,
 } from '../../../shared/types/db.type';
@@ -14,6 +17,7 @@ import { JwtInternalService } from './jwt-internal.service';
 export class AuthService {
   constructor(
     private readonly userDao: UserDao,
+    private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
   ) {}
 
@@ -115,6 +119,25 @@ export class AuthService {
     // TODO: create session in DB
 
     return tokensPair;
+  }
+
+  /**
+   * Get list of user sessions
+   *
+   * Logic:
+   * 1. Uncode refresh token
+   * 2. Get all sessions by user id
+   *
+   * @returns list of sessions
+   */
+  getSessions(
+    dto: SessionDto,
+  ): Promise<Omit<SessionSelectModel, 'user'> | undefined> {
+    const payload = this.jwtInternalService.verifyRefreshToken(dto.token);
+
+    const sessions = this.sessionDao.findById({ id: payload.id });
+
+    return sessions;
   }
 
   verify(): void {
