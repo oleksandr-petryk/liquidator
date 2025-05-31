@@ -8,7 +8,7 @@ import {
   RegisterRequestBodyDto,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
-import { SessionDto } from '../../shared/dto/controllers/auth/session.dto';
+import { SessionResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
 import { JwtTokensPairMapper } from '../../shared/mappers/jwt.mapper';
 import { SessionSelectModel } from '../../shared/types/db.type';
 import { AuthControllerService } from './services/auth-controller.service';
@@ -41,8 +41,8 @@ export class AuthController {
   })
   @Get('session')
   verify(
-    @Headers() dto: SessionDto,
-  ): Promise<Omit<SessionSelectModel, 'user'> | undefined> {
+    @Headers() dto: SessionResponseBodyDto,
+  ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
     return this.authControllerService.getSessions(dto);
   }
 
