@@ -166,15 +166,15 @@ export class AuthService {
     dto: PatchSessionRequestBodyDto,
     id: string,
   ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
-    const user = this.sessionDao.updateSessionName({
+    const updatedSession = this.sessionDao.updateSessionName({
       id: id,
       data: dto.name,
     });
 
-    if (!user) {
+    if (!updatedSession) {
       throw new BadRequestException('Session not found');
     }
 
-    return user;
+    return updatedSession;
   }
 }
