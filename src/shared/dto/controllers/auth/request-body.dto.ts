@@ -137,3 +137,17 @@ export class LoginRequestBodyDto {
   @MaxLength(128)
   password!: string;
 }
+
+export class PatchSessionRequestBodyDto {
+  @ApiProperty({
+    description: 'Name of session',
+    type: String,
+    example: 'MacBook',
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(50)
+  name!: string;
+}

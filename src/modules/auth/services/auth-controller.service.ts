@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
-import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import {
+  PatchSessionRequestBodyDto,
+  RegisterRequestBodyDto,
+} from '../../../shared/dto/controllers/auth/request-body.dto';
 import { SessionResponseBodyDto } from '../../../shared/dto/controllers/auth/response-body.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
 import type {
@@ -24,12 +27,6 @@ export class AuthControllerService {
     return await this.authService.login(data);
   }
 
-  async getSessions(
-    dto: SessionResponseBodyDto,
-  ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
-    return await this.authService.getSessions(dto);
-  }
-
   // verify(): void {
   //   return this.authService.verify();
   // }
@@ -41,4 +38,17 @@ export class AuthControllerService {
   // googleCallback(): void {
   //   return this.authService.googleCallback();
   // }
+
+  async getSessions(
+    dto: SessionResponseBodyDto,
+  ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
+    return await this.authService.getSessions(dto);
+  }
+
+  updateSessionName(
+    dto: PatchSessionRequestBodyDto,
+    id: string,
+  ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
+    return this.authService.updateSessionName(dto, id);
+  }
 }

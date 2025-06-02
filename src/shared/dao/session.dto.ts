@@ -3,6 +3,7 @@ import { eq, InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { session } from '../modules/drizzle/schemas/session';
+import { SessionInsertModel } from '../types/db.type';
 import { BaseDao } from './base.dto';
 
 @Injectable()
@@ -44,6 +45,30 @@ export class SessionDao extends BaseDao<typeof session> {
     } catch (error) {
       this.logger.error(
         `Could not find ${this.options.entityName.plural}: ${error}`,
+      );
+      throw error;
+    }
+  }
+
+  public async updateSessionName({
+    db = this.postgres,
+    data,
+    id,
+  }: {
+    db?: Drizzle;
+    data?: string;
+    id: string;
+  }): Promise<Omit<SessionInsertModel, 'user'> | unknown> {
+    try {
+      const updated = await db
+        .update(this.daoInstance)
+        .set({ name: data })
+        .where(eq(session.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      this.logger.error(
+        `Could not updated ${this.options.entityName.plural}: ${error}`,
       );
       throw error;
     }

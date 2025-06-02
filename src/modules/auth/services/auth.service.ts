@@ -3,7 +3,10 @@ import * as bcrypt from 'bcrypt';
 
 import { SessionDao } from '../../../shared/dao/session.dto';
 import { UserDao } from '../../../shared/dao/user.dto';
-import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import {
+  PatchSessionRequestBodyDto,
+  RegisterRequestBodyDto,
+} from '../../../shared/dto/controllers/auth/request-body.dto';
 import { SessionResponseBodyDto } from '../../../shared/dto/controllers/auth/response-body.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
 import type {
@@ -157,5 +160,21 @@ export class AuthService {
     const sessions = this.sessionDao.findByUserId({ id: payload.id });
 
     return sessions;
+  }
+
+  updateSessionName(
+    dto: PatchSessionRequestBodyDto,
+    id: string,
+  ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
+    const user = this.sessionDao.updateSessionName({
+      id: id,
+      data: dto.name,
+    });
+
+    if (!user) {
+      throw new BadRequestException('Session not found');
+    }
+
+    return user;
   }
 }

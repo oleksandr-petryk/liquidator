@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
 import {
   LoginRequestBodyDto,
+  PatchSessionRequestBodyDto,
   RegisterRequestBodyDto,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
@@ -44,6 +53,17 @@ export class AuthController {
     @Headers() dto: SessionResponseBodyDto,
   ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
     return this.authControllerService.getSessions(dto);
+  }
+
+  @ApiOperation({
+    summary: 'Update session name',
+  })
+  @Patch('session/:id')
+  updateSessionName(
+    @Body() name: PatchSessionRequestBodyDto,
+    @Param('id') id: string,
+  ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
+    return this.authControllerService.updateSessionName(name, id);
   }
 
   // @Get('verify')
