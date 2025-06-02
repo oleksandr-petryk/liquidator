@@ -147,7 +147,12 @@ export class BaseDao<T extends Table<any>> {
     id: string;
   }): Promise<InferSelectModel<T>> {
     try {
-      const deleted = await db.delete(user).where(eq(user.id, id));
+      const table: any = this.daoInstance;
+
+      const deleted = await db
+        .delete(table)
+        .where(eq(table.id, id))
+        .returning();
       return deleted as InferSelectModel<T>;
     } catch (error) {
       this.baseLogger.error(

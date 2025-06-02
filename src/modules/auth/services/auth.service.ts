@@ -177,4 +177,14 @@ export class AuthService {
 
     return updatedSession;
   }
+
+  deleteSession(id: string): Promise<Omit<SessionSelectModel, 'user'>> {
+    const deletedSession = this.sessionDao.delete({ id: id });
+
+    if (!deletedSession) {
+      throw new BadRequestException('Session not found');
+    }
+
+    return deletedSession;
+  }
 }

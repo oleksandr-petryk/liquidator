@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Param,
@@ -64,6 +65,13 @@ export class AuthController {
     @Param('id') id: string,
   ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
     return this.authControllerService.updateSessionName(name, id);
+  }
+
+  @Delete('session/:id')
+  deleteSession(
+    @Param('id') id: string,
+  ): Promise<Omit<SessionSelectModel, 'user'>> {
+    return this.authControllerService.deleteSession(id);
   }
 
   // @Get('verify')

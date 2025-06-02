@@ -51,4 +51,8 @@ export class AuthControllerService {
   ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
     return this.authService.updateSessionName(dto, id);
   }
+
+  deleteSession(id: string): Promise<Omit<SessionSelectModel, 'user'>> {
+    return this.authService.deleteSession(id);
+  }
 }
