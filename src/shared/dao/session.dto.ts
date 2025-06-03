@@ -62,7 +62,7 @@ export class SessionDao extends BaseDao<typeof session> {
     try {
       const updated = await db
         .update(this.daoInstance)
-        .set({ name: data })
+        .set({ name: data, updatedAt: new Date() })
         .where(eq(session.id, id))
         .returning();
       return updated;
