@@ -219,6 +219,58 @@ describe('Auth Tests', () => {
         await API.patch(`/v1/auth/session/---`, {
           name: '------',
         });
+        throw new Error('Error expected');
+      } catch (e: any) {
+        expect(e?.response?.status).toBe(500);
+        expect(e?.response?.data?.message).toBe('Internal server error');
+      }
+    });
+  });
+
+  describe('Delete sessions', () => {
+    test('/auth/session/:id/ - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const loginResponse = await API.post('/v1/auth/log-in', data);
+
+      const getSessionsResponse = await API.get('/v1/auth/session', {
+        headers: { token: loginResponse.data.payload.refreshToken },
+      });
+
+      const deleteSessionResponse = await API.delete(
+        `/v1/auth/session/${getSessionsResponse.data.payload[0].id}`,
+      );
+
+      const response = await API.get('/v1/auth/session', {
+        headers: { token: loginResponse.data.payload.refreshToken },
+      });
+
+      expect(deleteSessionResponse.status).toBe(200);
+      expect(deleteSessionResponse.data.payload).toBeTruthy();
+      expect(response.data.payload).toBeTruthy();
+      expect(response.data.payload[0]).toBeFalsy();
+    });
+
+    test('/auth/session/ - NOK - incorrect id', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/log-in', data);
+
+      try {
+        await API.delete(`/v1/auth/session/---`);
+        throw new Error('Error expected');
       } catch (e: any) {
         expect(e?.response?.status).toBe(500);
         expect(e?.response?.data?.message).toBe('Internal server error');
