@@ -50,7 +50,7 @@ export class AuthController {
     summary: 'Get all user session',
   })
   @Get('session')
-  verify(
+  getSessions(
     @Headers() dto: SessionResponseBodyDto,
   ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
     return this.authControllerService.getSessions(dto);
