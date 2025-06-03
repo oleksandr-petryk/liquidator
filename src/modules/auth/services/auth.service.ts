@@ -162,6 +162,15 @@ export class AuthService {
     return sessions;
   }
 
+  /**
+   * Update session name
+   *
+   * Logic:
+   * 1. Update session name
+   * 2. Check if updated exist
+   *
+   * @returns updated session
+   */
   updateSessionName(
     dto: PatchSessionRequestBodyDto,
     id: string,
@@ -178,6 +187,15 @@ export class AuthService {
     return updatedSession;
   }
 
+  /**
+   * Delete session
+   *
+   * Logic:
+   * 1. Delete session name
+   * 2. Check if deleted exist
+   *
+   * @returns deleted session
+   */
   deleteSession(id: string): Promise<Omit<SessionSelectModel, 'user'>> {
     const deletedSession = this.sessionDao.delete({ id: id });
 
