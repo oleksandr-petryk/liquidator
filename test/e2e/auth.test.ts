@@ -171,4 +171,58 @@ describe('Auth Tests', () => {
       }
     });
   });
+
+  describe('Update sessions', () => {
+    test('/auth/session/:id/ - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const loginResponse = await API.post('/v1/auth/log-in', data);
+
+      const getSessionsResponse = await API.get('/v1/auth/session', {
+        headers: { token: loginResponse.data.payload.refreshToken },
+      });
+
+      const response = await API.patch(
+        `/v1/auth/session/${getSessionsResponse.data.payload[0].id}`,
+        {
+          name: '------',
+        },
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.data.payload).toBeTruthy();
+      expect(response.data.payload[0].name).toBe('------');
+      expect(response.data.payload[0].userId).toBeTruthy();
+      expect(response.data.payload[0].refreshToken).toBeTruthy();
+      expect(response.data.payload[0].createdAt).toBeTruthy();
+      expect(response.data.payload[0].updatedAt).toBeTruthy();
+    });
+
+    test('/auth/session/ - NOK - incorrect id', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/log-in', data);
+
+      try {
+        await API.patch(`/v1/auth/session/---`, {
+          name: '------',
+        });
+      } catch (e: any) {
+        expect(e?.response?.status).toBe(500);
+        expect(e?.response?.data?.message).toBe('Internal server error');
+      }
+    });
+  });
 });
