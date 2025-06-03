@@ -67,6 +67,9 @@ export class AuthController {
     return this.authControllerService.updateSessionName(name, id);
   }
 
+  @ApiOperation({
+    summary: 'Delete session',
+  })
   @Delete('session/:id')
   deleteSession(
     @Param('id') id: string,
