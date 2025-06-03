@@ -124,4 +124,30 @@ describe('Auth Tests', () => {
       }
     });
   });
+
+  describe('Get user sessions', () => {
+    test('/auth/session/ - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const loginResponse = await API.post('/v1/auth/log-in', data);
+      console.log(loginResponse.data.payload.refreshToken);
+
+      const response = await API.get('/v1/auth/session', {
+        headers: { token: loginResponse.data.payload.refreshToken },
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data.payload).toBeTruthy();
+      expect(response.data.payload[0].name).toBeTruthy();
+      expect(response.data.payload[0].userId).toBeTruthy();
+      expect(response.data.payload[0].refreshToken).toBeTruthy();
+      expect(response.data.payload[0].createdAt).toBeTruthy();
+    });
+  });
 });

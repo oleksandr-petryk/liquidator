@@ -9,7 +9,6 @@ export class SessionResponseBodyDto {
   @ApiProperty({
     description: 'Refresh token',
     type: String,
-    example: 'your refresh token',
   })
   @IsNotEmpty()
   @IsString()
