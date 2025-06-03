@@ -4,13 +4,15 @@ import fastifyMultipart, { FastifyMultipartOptions } from '@fastify/multipart';
 import fastifySession, { FastifySessionOptions } from '@fastify/session';
 import {
   BadRequestException,
-  Logger,
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { randomUUID } from 'crypto';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { PinoLogger } from 'nestjs-pino';
 
 import type { EnvConfig } from './shared/config/configuration';
 import { AbstractResponseInterceptor } from './shared/interceptors/abstract-response.interceptor';
@@ -24,16 +26,16 @@ import { AbstractResponseInterceptor } from './shared/interceptors/abstract-resp
  * - abstract response interceptor
  * - validation pipe
  */
-export function applyMiddlewares({
+export async function applyMiddlewares({
   app,
   configService,
   logger,
 }: {
   app: NestFastifyApplication;
   configService: ConfigService<EnvConfig>;
-  logger: Logger;
-}): void {
-  logger.log('Setup middlewares');
+  logger: PinoLogger;
+}): Promise<void> {
+  logger.info('Setup middlewares');
 
   const APP_GLOBAL_URL_PREFIX = configService.getOrThrow(
     'APP_GLOBAL_URL_PREFIX',
@@ -43,15 +45,15 @@ export function applyMiddlewares({
   app.setGlobalPrefix(APP_GLOBAL_URL_PREFIX);
 
   // Fastify middlewares
-  app.register(fastifyCors, {
+  await app.register(fastifyCors, {
     origin: '*',
     credentials: false, // must be false when origin is '*'
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   } satisfies FastifyCorsOptions);
-  app.register(fastifyCookie, {
+  await app.register(fastifyCookie, {
     parseOptions: {},
   } satisfies FastifyCookieOptions);
-  app.register(fastifySession, {
+  await app.register(fastifySession, {
     secret: randomUUID(), // TODO: research how to safely manage secret
     saveUninitialized: false, // TODO: research it (Don't save uninitialized session)
     cookie: {
@@ -59,11 +61,19 @@ export function applyMiddlewares({
       maxAge: 1000 * 60, // Session expiration (1 minute in this example)
     },
   } satisfies FastifySessionOptions);
-  app.register(fastifyMultipart, {
+  await app.register(fastifyMultipart, {
     limits: {
       fileSize: 100 * 1024 * 1024, // TODO: move it to const and env config
     },
   } satisfies FastifyMultipartOptions);
+  app.use((req: FastifyRequest, res: FastifyReply, next: any) => {
+    const headerId = req.headers['x-correlation-id'];
+    const correlationId =
+      typeof headerId === 'string' ? headerId : randomUUID();
+    req.headers['x-correlation-id'] = correlationId;
+    (req as any).correlationId = correlationId;
+    next();
+  });
 
   // Interceptors
   app.useGlobalInterceptors(new AbstractResponseInterceptor());
@@ -77,7 +87,7 @@ export function applyMiddlewares({
         value: true,
       },
       validateCustomDecorators: true,
-      disableErrorMessages: false,
+      // disableErrorMessages: false,
       exceptionFactory: (
         validationErrors: ValidationError[] = [],
       ): BadRequestException => {

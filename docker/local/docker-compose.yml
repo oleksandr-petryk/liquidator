@@ -96,6 +96,20 @@ services:
       - '9001:9001'
     command: server /data --console-address ":9001"
 
+  # UI: http://localhost:9000
+  # Info: https://github.com/inbucket/inbucket/wiki/REST-API
+  mailserver:
+    image: inbucket/inbucket
+    container_name: mailserver
+    ports:
+      - 9002:9000
+      - 2502:2500
+      - 1102:1100
+    environment:
+      - INBUCKET_MAILBOXNAMING=full
+    networks:
+      - default_network
+
 networks:
   default_network:
     name: default_network

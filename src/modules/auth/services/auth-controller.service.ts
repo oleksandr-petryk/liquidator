@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 
 import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
@@ -10,7 +11,10 @@ import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthControllerService {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly authService: AuthService,
+  ) {}
 
   async register(dto: RegisterRequestBodyDto): Promise<UserInsertModel> {
     return await this.authService.register(dto);

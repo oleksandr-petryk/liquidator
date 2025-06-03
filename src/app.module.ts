@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from 'nestjs-pino';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { PlatformModule } from './modules/platform/platform.module';
@@ -14,6 +15,24 @@ const DEFAULT_MODULES = [
     isGlobal: true,
     load: [configurationLoader],
     envFilePath: '.env',
+  }),
+  LoggerModule.forRoot({
+    pinoHttp: {
+      level: process.env.LOG_LEVEL || 'debug',
+      redact: ['request.headers.authorization'],
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          singleLine: true,
+          levelFirst: false,
+          translateTime: "yyyy-MM-dd'T'HH:mm:ss.l'Z'",
+          messageFormat: '{req.headers.x-correlation-id} [{context}] {msg}',
+          ignore: 'pid,hostname,context,req,res',
+          errorLikeObjectKeys: ['err', 'error'],
+        },
+      },
+    },
   }),
 ];
 

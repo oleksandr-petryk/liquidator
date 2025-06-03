@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { PinoLogger } from 'nestjs-pino';
 
 import type { EnvConfig } from '../../../shared/config/configuration';
 import type {
@@ -24,6 +25,7 @@ export class JwtInternalService {
   readonly JWT_REFRESH_TOKEN_EXPIRES_IN: number;
 
   constructor(
+    private readonly logger: PinoLogger,
     private readonly configService: ConfigService<EnvConfig>,
     private readonly jwtService: JwtService,
   ) {
