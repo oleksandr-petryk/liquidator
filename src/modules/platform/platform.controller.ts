@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PinoLogger } from 'nestjs-pino';
 
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
 import { ApiAbstractResponse } from '../../shared/decorators/api-abstract-response.decorator';
@@ -18,7 +19,10 @@ import { PlatformControllerService } from './services/platform-controller.servic
 @ApiTags(SWAGGER_TAGS.platform.title)
 @Controller()
 export class PlatformController {
-  constructor(private readonly appService: PlatformControllerService) {}
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly appService: PlatformControllerService,
+  ) {}
 
   /**
    * Get application health status
@@ -30,6 +34,8 @@ export class PlatformController {
   @ApiAbstractResponse(GetHealthResponseBodyDto)
   @Get('health')
   getHealth(): GetHealthResponseBodyDto {
+    this.logger.info('Get health');
+
     return this.appService.getHealth();
   }
 
@@ -43,6 +49,8 @@ export class PlatformController {
   @ApiAbstractResponse(GetAppVersionResponseBodyDto)
   @Get('version')
   getVersion(): GetAppVersionResponseBodyDto {
+    this.logger.info('Get application version');
+
     return this.appService.getVersion();
   }
 }

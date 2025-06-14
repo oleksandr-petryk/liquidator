@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
@@ -8,6 +7,7 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { readFile } from 'fs/promises';
+import { PinoLogger } from 'nestjs-pino';
 import * as path from 'path';
 
 import type { EnvConfig } from './shared/config/configuration';
@@ -23,9 +23,9 @@ export async function setupSwagger({
 }: {
   app: NestFastifyApplication;
   configService: ConfigService<EnvConfig>;
-  logger: Logger;
+  logger: PinoLogger;
 }): Promise<void> {
-  logger.log('Setup swagger');
+  logger.info('Setup swagger');
 
   const APP_VERSION = configService.getOrThrow<string>('APP_VERSION');
   const APP_SWAGGER_URL = configService.getOrThrow<string>('APP_SWAGGER_URL');

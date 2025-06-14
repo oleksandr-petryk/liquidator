@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { PinoLogger } from 'nestjs-pino';
 
 import { SessionDao } from '../../../shared/dao/session.dto';
 import { UserDao } from '../../../shared/dao/user.dto';
@@ -22,6 +23,7 @@ import { JwtInternalService } from './jwt-internal.service';
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
@@ -48,6 +50,7 @@ export class AuthService {
     });
 
     if (emailCheck) {
+      this.logger.debug(`User with email: ${data.email} already exists`);
       throw new BadRequestException('User with that email already exist');
     }
 
@@ -56,6 +59,7 @@ export class AuthService {
     });
 
     if (usernameCheck) {
+      this.logger.debug(`User with username: ${data.username} already exists`);
       throw new BadRequestException('User with that username already exist');
     }
 
@@ -65,6 +69,9 @@ export class AuthService {
       });
 
       if (phoneNumberCheck) {
+        this.logger.debug(
+          `User with phoneNumber: ${data.phoneNumber} already exists`,
+        );
         throw new BadRequestException(
           'User with that phoneNumber already exist',
         );
@@ -75,7 +82,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const newUser = this.userDao.create({
+    return this.userDao.create({
       data: {
         email: emailLowerCase,
         username: usernameLowerCase,
@@ -87,8 +94,6 @@ export class AuthService {
         gender: data.gender,
       },
     });
-
-    return newUser;
   }
 
   /**
@@ -109,12 +114,14 @@ export class AuthService {
     const user = await this.userDao.findByEmail({ email: emailLowerCase });
 
     if (!user) {
+      this.logger.debug(`User not found, email ${data.email}`);
       throw new BadRequestException('User not found');
     }
 
     const passwordCheck = await bcrypt.compare(data.password, user.password);
 
     if (!passwordCheck) {
+      this.logger.debug(`Wrong password, email ${data.email}`);
       throw new BadRequestException('Incorrect password');
     }
 

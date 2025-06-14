@@ -1,10 +1,10 @@
-import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { Logger, PinoLogger } from 'nestjs-pino';
 
 import { AppModule } from './app.module';
 import { applyMiddlewares } from './middlewares';
@@ -15,9 +15,6 @@ import { setupSwagger } from './swagger';
  * Startup Nest.js application
  */
 async function bootstrap(): Promise<void> {
-  const logger = new Logger('Bootstrap');
-  logger.log('Initialize application');
-
   // Create Nest.js application
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -25,10 +22,20 @@ async function bootstrap(): Promise<void> {
       ignoreTrailingSlash: true,
       logger: process.env.SERVICE_FASTIFY_LOGGING === 'true', // TODO: apply pino logger
     }),
+    {
+      bufferLogs: true,
+    },
   );
 
-  // Get ConfigService
+  // Use Pino logger
+  app.useLogger(app.get(Logger));
+
+  const logger = await app.resolve<PinoLogger>(PinoLogger);
+  logger.setContext('Bootstrap');
+
   const configService = app.get(ConfigService<EnvConfig>);
+
+  // Get required variables
   const PORT = configService.getOrThrow<number>('PORT');
   const APP_GLOBAL_URL_PREFIX = configService.getOrThrow<number>(
     'APP_GLOBAL_URL_PREFIX',
@@ -37,7 +44,7 @@ async function bootstrap(): Promise<void> {
   const APP_OPENAPI_JSON_URL = configService.getOrThrow('APP_OPENAPI_JSON_URL');
 
   // Apply middlewares
-  applyMiddlewares({ app, configService, logger });
+  await applyMiddlewares({ app, configService, logger });
 
   // Setup Swagger
   await setupSwagger({ app, configService, logger });
@@ -50,9 +57,9 @@ async function bootstrap(): Promise<void> {
   );
 
   // Log basic URLs
-  logger.log(`Swagger UI http://localhost:${PORT}/${APP_SWAGGER_URL}`);
-  logger.log(`openapi.json http://localhost:${PORT}/${APP_OPENAPI_JSON_URL}`);
-  logger.log(
+  logger.info(`Swagger UI http://localhost:${PORT}/${APP_SWAGGER_URL}`);
+  logger.info(`openapi.json http://localhost:${PORT}/${APP_OPENAPI_JSON_URL}`);
+  logger.info(
     `App started on http://localhost:${PORT}/${APP_GLOBAL_URL_PREFIX}`,
   );
 }

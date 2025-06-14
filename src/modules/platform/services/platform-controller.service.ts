@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PinoLogger } from 'nestjs-pino';
 
 import type { EnvConfig } from '../../../shared/config/configuration';
 import { APP_HEALTH_LIVE } from '../../../shared/const/app.const';
@@ -13,7 +14,10 @@ import type {
  */
 @Injectable()
 export class PlatformControllerService {
-  constructor(private readonly configService: ConfigService<EnvConfig>) {}
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly configService: ConfigService<EnvConfig>,
+  ) {}
 
   /**
    * Get application health
