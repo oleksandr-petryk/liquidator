@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { SessionDao } from '../../../shared/dao/session.dto';
@@ -7,7 +11,6 @@ import {
   PatchSessionRequestBodyDto,
   RegisterRequestBodyDto,
 } from '../../../shared/dto/controllers/auth/request-body.dto';
-import { SessionResponseBodyDto } from '../../../shared/dto/controllers/auth/response-body.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
 import type {
   SessionSelectModel,
@@ -147,19 +150,24 @@ export class AuthService {
    * Get list of user sessions
    *
    * Logic:
-   * 1. Uncode refresh token
+   * 1. Uncode access token
    * 2. Get all sessions by user id
    *
    * @returns list of sessions
    */
-  getSessions(
-    dto: SessionResponseBodyDto,
-  ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
-    const payload = this.jwtInternalService.verifyRefreshToken(dto.token);
+  getSessions(token: string): Promise<Omit<SessionSelectModel, 'user'>[]> {
+    try {
+      const payload = this.jwtInternalService.verifyAccessToken(token);
 
-    const sessions = this.sessionDao.findByUserId({ id: payload.id });
+      const sessions = this.sessionDao.findByUserId({ id: payload.id });
 
-    return sessions;
+      return sessions;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Invalid access token';
+
+      throw new UnauthorizedException(message);
+    }
   }
 
   /**

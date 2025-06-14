@@ -138,7 +138,9 @@ describe('Auth Tests', () => {
       const loginResponse = await API.post('/v1/auth/log-in', data);
 
       const response = await API.get('/v1/auth/session', {
-        headers: { token: loginResponse.data.payload.refreshToken },
+        headers: {
+          Authorization: 'Bearer ' + loginResponse.data.payload.accessToken,
+        },
       });
 
       expect(response.status).toBe(200);
@@ -149,7 +151,7 @@ describe('Auth Tests', () => {
       expect(response.data.payload[0].createdAt).toBeTruthy();
     });
 
-    test('/auth/session/ - NOK - incorrect refresh token', async () => {
+    test('/auth/session/ - NOK - invalid access token', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -162,12 +164,14 @@ describe('Auth Tests', () => {
 
       try {
         await API.get('/v1/auth/session', {
-          headers: { token: '------' },
+          headers: {
+            Authorization: 'Bearer ------',
+          },
         });
         throw new Error('Error expected');
       } catch (e: any) {
-        expect(e?.response?.status).toBe(500);
-        expect(e?.response?.data?.message).toBe('Internal server error');
+        expect(e?.response?.status).toBe(401);
+        expect(e?.response?.data?.message).toBe('jwt malformed');
       }
     });
   });
@@ -185,7 +189,9 @@ describe('Auth Tests', () => {
       const loginResponse = await API.post('/v1/auth/log-in', data);
 
       const getSessionsResponse = await API.get('/v1/auth/session', {
-        headers: { token: loginResponse.data.payload.refreshToken },
+        headers: {
+          Authorization: 'Bearer ' + loginResponse.data.payload.accessToken,
+        },
       });
 
       const response = await API.patch(
@@ -240,7 +246,9 @@ describe('Auth Tests', () => {
       const loginResponse = await API.post('/v1/auth/log-in', data);
 
       const getSessionsResponse = await API.get('/v1/auth/session', {
-        headers: { token: loginResponse.data.payload.refreshToken },
+        headers: {
+          Authorization: 'Bearer ' + loginResponse.data.payload.accessToken,
+        },
       });
 
       const deleteSessionResponse = await API.delete(
@@ -248,7 +256,9 @@ describe('Auth Tests', () => {
       );
 
       const response = await API.get('/v1/auth/session', {
-        headers: { token: loginResponse.data.payload.refreshToken },
+        headers: {
+          Authorization: 'Bearer ' + loginResponse.data.payload.accessToken,
+        },
       });
 
       expect(deleteSessionResponse.status).toBe(200);

@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
@@ -18,7 +18,6 @@ import {
   RegisterRequestBodyDto,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
-import { SessionResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
 import { JwtTokensPairMapper } from '../../shared/mappers/jwt.mapper';
 import { SessionSelectModel } from '../../shared/types/db.type';
 import { AuthControllerService } from './services/auth-controller.service';
@@ -46,14 +45,17 @@ export class AuthController {
     return JwtTokensPairMapper.serialize(result);
   }
 
+  @ApiBearerAuth('Bearer')
   @ApiOperation({
     summary: 'Get all user session',
   })
   @Get('session')
-  getSessions(
-    @Headers() dto: SessionResponseBodyDto,
-  ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
-    return this.authControllerService.getSessions(dto);
+  async getSessions(
+    @Headers('authorization') token: string,
+  ): Promise<Omit<SessionSelectModel, 'user'>[]> {
+    return await this.authControllerService.getSessions(
+      token.split(' ').slice(1).join(' '),
+    );
   }
 
   @ApiOperation({

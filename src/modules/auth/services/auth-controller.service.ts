@@ -4,7 +4,6 @@ import {
   PatchSessionRequestBodyDto,
   RegisterRequestBodyDto,
 } from '../../../shared/dto/controllers/auth/request-body.dto';
-import { SessionResponseBodyDto } from '../../../shared/dto/controllers/auth/response-body.dto';
 import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
 import type {
   SessionSelectModel,
@@ -40,9 +39,9 @@ export class AuthControllerService {
   // }
 
   async getSessions(
-    dto: SessionResponseBodyDto,
-  ): Promise<Omit<SessionSelectModel, 'user'>[] | undefined> {
-    return await this.authService.getSessions(dto);
+    token: string,
+  ): Promise<Omit<SessionSelectModel, 'user'>[]> {
+    return await this.authService.getSessions(token);
   }
 
   updateSessionName(
