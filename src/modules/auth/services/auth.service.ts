@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -170,10 +166,10 @@ export class AuthService {
 
       return sessions;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Invalid access token';
-
-      throw new UnauthorizedException(message);
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException(error);
     }
   }
 
@@ -186,20 +182,25 @@ export class AuthService {
    *
    * @returns updated session
    */
-  updateSessionName(
+  async updateSessionName(
     dto: PatchSessionRequestBodyDto,
     id: string,
   ): Promise<Omit<SessionSelectModel, 'user'> | unknown> {
-    const updatedSession = this.sessionDao.updateSessionName({
-      id: id,
-      data: dto.name,
-    });
+    try {
+      await this.sessionDao.findByIdOrThrow({ id: id });
 
-    if (!updatedSession) {
-      throw new BadRequestException('Session not found');
+      const updatedSession = this.sessionDao.updateSessionName({
+        id: id,
+        data: dto.name,
+      });
+
+      return updatedSession;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException(error);
     }
-
-    return updatedSession;
   }
 
   /**
@@ -211,13 +212,16 @@ export class AuthService {
    *
    * @returns deleted session
    */
-  deleteSession(id: string): Promise<Omit<SessionSelectModel, 'user'>> {
-    const deletedSession = this.sessionDao.delete({ id: id });
+  async deleteSession(id: string): Promise<Omit<SessionSelectModel, 'user'>> {
+    try {
+      await this.sessionDao.findByIdOrThrow({ id: id });
 
-    if (!deletedSession) {
-      throw new BadRequestException('Session not found');
+      return await this.sessionDao.delete({ id: id });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException(error);
     }
-
-    return deletedSession;
   }
 }

@@ -170,7 +170,7 @@ describe('Auth Tests', () => {
         });
         throw new Error('Error expected');
       } catch (e: any) {
-        expect(e?.response?.status).toBe(401);
+        expect(e?.response?.status).toBe(400);
         expect(e?.response?.data?.message).toBe('jwt malformed');
       }
     });
@@ -210,6 +210,32 @@ describe('Auth Tests', () => {
       expect(response.data.payload[0].updatedAt).toBeTruthy();
     });
 
+    test('/auth/session/ - NOK - incorrect id type', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      const id: string = '---';
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/log-in', data);
+
+      try {
+        await API.patch(`/v1/auth/session/${id}`, {
+          name: '------',
+        });
+        throw new Error('Error expected');
+      } catch (e: any) {
+        expect(e?.response?.status).toBe(400);
+        expect(e?.response?.data?.message).toBe(
+          `invalid input syntax for type uuid: \"${id}\"`,
+        );
+      }
+    });
+
     test('/auth/session/ - NOK - incorrect id', async () => {
       const data = {
         email: faker.internet.email(),
@@ -217,18 +243,20 @@ describe('Auth Tests', () => {
         password: faker.internet.password(),
       };
 
+      const id: string = '00000000-0000-0000-0000-000000000000';
+
       await API.post('/v1/auth/register', data);
 
       await API.post('/v1/auth/log-in', data);
 
       try {
-        await API.patch(`/v1/auth/session/---`, {
+        await API.patch(`/v1/auth/session/${id}`, {
           name: '------',
         });
         throw new Error('Error expected');
       } catch (e: any) {
-        expect(e?.response?.status).toBe(500);
-        expect(e?.response?.data?.message).toBe('Internal server error');
+        expect(e?.response?.status).toBe(400);
+        expect(e?.response?.data?.message).toBe(`Session not find`);
       }
     });
   });
@@ -267,6 +295,30 @@ describe('Auth Tests', () => {
       expect(response.data.payload[0]).toBeFalsy();
     });
 
+    test('/auth/session/ - NOK - incorrect id type', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      const id: string = '---';
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/log-in', data);
+
+      try {
+        await API.delete(`/v1/auth/session/${id}`);
+        throw new Error('Error expected');
+      } catch (e: any) {
+        expect(e?.response?.status).toBe(400);
+        expect(e?.response?.data?.message).toBe(
+          `invalid input syntax for type uuid: \"${id}\"`,
+        );
+      }
+    });
+
     test('/auth/session/ - NOK - incorrect id', async () => {
       const data = {
         email: faker.internet.email(),
@@ -274,16 +326,18 @@ describe('Auth Tests', () => {
         password: faker.internet.password(),
       };
 
+      const id: string = '00000000-0000-0000-0000-000000000000';
+
       await API.post('/v1/auth/register', data);
 
       await API.post('/v1/auth/log-in', data);
 
       try {
-        await API.delete(`/v1/auth/session/---`);
+        await API.delete(`/v1/auth/session/${id}`);
         throw new Error('Error expected');
       } catch (e: any) {
-        expect(e?.response?.status).toBe(500);
-        expect(e?.response?.data?.message).toBe('Internal server error');
+        expect(e?.response?.status).toBe(400);
+        expect(e?.response?.data?.message).toBe(`Session not find`);
       }
     });
   });

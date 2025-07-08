@@ -1,9 +1,15 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { eq, InferSelectModel } from 'drizzle-orm';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { session } from '../modules/drizzle/schemas/session';
-import { SessionInsertModel } from '../types/db.type';
+import { SessionInsertModel, SessionSelectModel } from '../types/db.type';
 import { BaseDao } from './base.dto';
 
 @Injectable()
@@ -26,13 +32,37 @@ export class SessionDao extends BaseDao<typeof session> {
     throw new NotFoundException(message || 'Session not found');
   }
 
+  async findByIdOrThrow({
+    db = this.postgres,
+    id,
+  }: {
+    db?: Drizzle;
+    id: string;
+  }): Promise<SessionSelectModel[] | void> {
+    await this.findOneOrThrow(
+      async () => {
+        const table: any = this.daoInstance;
+
+        const find = await db
+          .select()
+          .from(table as any)
+          .where(eq(table.id, id));
+
+        return find[0] as SessionSelectModel;
+      },
+      () => {
+        throw new BadRequestException('Session not find');
+      },
+    );
+  }
+
   async findByUserId({
     db = this.postgres,
     id,
   }: {
     db?: Drizzle;
     id: string;
-  }): Promise<InferSelectModel<typeof session>[]> {
+  }): Promise<SessionSelectModel[]> {
     try {
       const table: any = this.daoInstance;
 
@@ -41,7 +71,7 @@ export class SessionDao extends BaseDao<typeof session> {
         .from(table as any)
         .where(eq(table.userId, id));
 
-      return find as InferSelectModel<typeof session>[];
+      return find as SessionSelectModel[];
     } catch (error) {
       this.logger.error(
         `Could not find ${this.options.entityName.plural}: ${error}`,

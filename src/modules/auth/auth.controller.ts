@@ -1,14 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
-  Headers,
   Param,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import type { FastifyRequest } from 'fastify';
 import { PinoLogger } from 'nestjs-pino';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
@@ -59,10 +61,16 @@ export class AuthController {
   })
   @Get('session')
   async getSessions(
-    @Headers('authorization') token: string,
+    @Req() req: FastifyRequest,
   ): Promise<Omit<SessionSelectModel, 'user'>[]> {
+    const headers = req.headers['authorization'];
+
+    if (!headers) {
+      throw new BadRequestException('Missing Authorization header');
+    }
+
     return await this.authControllerService.getSessions(
-      token.split(' ').slice(1).join(' '),
+      headers.split(' ').slice(1).join(' '),
     );
   }
 
