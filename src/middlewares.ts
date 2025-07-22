@@ -10,8 +10,7 @@ import {
 import type { ConfigService } from '@nestjs/config';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { randomUUID } from 'crypto';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest, RawServerDefault } from 'fastify';
 import { PinoLogger } from 'nestjs-pino';
 
 import type { EnvConfig } from './shared/config/configuration';
@@ -31,7 +30,7 @@ export async function applyMiddlewares({
   configService,
   logger,
 }: {
-  app: NestFastifyApplication;
+  app: NestFastifyApplication<RawServerDefault>;
   configService: ConfigService<EnvConfig>;
   logger: PinoLogger;
 }): Promise<void> {

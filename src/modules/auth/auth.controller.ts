@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -56,4 +56,14 @@ export class AuthController {
   // googleCallback(): void {
   //   return this.authControllerService.googleCallback();
   // }
+
+  // @UseGuards(JwtAccessGuard)
+  // @Get('sessions')
+  // async getListOfSessions() {}
+  //
+  // @Get('sessions/:id')
+  // async updateSession() {}
+  //
+  // @Delete('sessions/:id')
+  // async deleteSession() {}
 }

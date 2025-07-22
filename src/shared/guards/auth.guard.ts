@@ -1,0 +1,62 @@
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
+import { JwtInternalService } from '../../modules/auth/services/jwt-internal.service';
+import {
+  AUTHORIZATION_HEADER_NAME,
+  USER_ROLE_REQUIRED_METADATA_KEY,
+} from '../const/auth.const';
+import { AuthUserType } from '../enums/auth.enum';
+import { FastifyRequestType } from '../types/fastify.type';
+
+export interface AuthData {
+  accessToken: string | undefined;
+  requiredRoles: AuthUserType[];
+}
+
+export const getAuthData = (
+  context: ExecutionContext,
+  reflector: Reflector,
+): AuthData => {
+  const request = context.switchToHttp().getRequest<FastifyRequestType>();
+
+  const accessToken = request.headers[AUTHORIZATION_HEADER_NAME];
+
+  const requiredRoles: AuthUserType[] =
+    reflector.get<AuthUserType[]>(
+      USER_ROLE_REQUIRED_METADATA_KEY,
+      context.getHandler(),
+    ) ?? [];
+
+  return {
+    accessToken: typeof accessToken === 'string' ? accessToken : undefined,
+    requiredRoles,
+  };
+};
+
+@Injectable()
+export class JwtAccessGuard implements CanActivate {
+  constructor(
+    private readonly jwtInternalService: JwtInternalService,
+    private readonly reflector: Reflector,
+  ) {}
+
+  public canActivate(context: ExecutionContext): boolean | never {
+    const request = context.switchToHttp().getRequest<FastifyRequestType>();
+
+    const { accessToken } = getAuthData(context, this.reflector);
+
+    if (!accessToken) {
+      throw new UnauthorizedException();
+    }
+
+    request.user = this.jwtInternalService.verifyAccessToken(accessToken);
+
+    return true;
+  }
+}
