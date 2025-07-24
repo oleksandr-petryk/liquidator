@@ -176,9 +176,17 @@ describe('Auth Tests', () => {
 
       const id = session.data.payload.items[0].id;
 
-      const response = await API.patch(`/v1/auth/sessions/${id}`, {
-        name: 'john',
-      });
+      const response = await API.patch(
+        `/v1/auth/sessions/${id}`,
+        {
+          name: 'john',
+        },
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        },
+      );
 
       expect(response.status).toEqual(200);
       expect(response.data.payload).toMatchObject({

@@ -106,6 +106,8 @@ export class AuthController {
   @ApiOperation({
     summary: 'Update session name',
   })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
   @Patch('sessions/:id')
   async updateSession(
