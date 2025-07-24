@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import type { PictureSelectModel } from '../../types/db.type';
+import { PictureSelectModel } from '../../dao/pictures.dao';
 
 export class PictureDto implements Record<keyof PictureSelectModel, any> {
   @ApiProperty({

@@ -1,4 +1,4 @@
-import { BadRequestException, Delete, Get, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -6,17 +6,19 @@ import {
   SessionDao,
   SessionSelectModel,
 } from '../../../shared/dao/session.dao';
-import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
-import {
-  JwtTokenPayload,
-  JwtTokensPair,
-} from '../../../shared/interfaces/jwt-token.interface';
-import { JwtInternalService } from './jwt-internal.service';
 import {
   UserDao,
   UserInsertModel,
   UserSelectModel,
 } from '../../../shared/dao/user.dao';
+import { UserAgentAndIp } from '../../../shared/decorators/user-agent-and-ip.decorator';
+import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
+import { Listable } from '../../../shared/interfaces/abstract.interface';
+import {
+  JwtTokenPayload,
+  JwtTokensPair,
+} from '../../../shared/interfaces/jwt-token.interface';
+import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
 export class AuthService {
@@ -105,6 +107,7 @@ export class AuthService {
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
+    userAgentAndIp: UserAgentAndIp,
   ): Promise<JwtTokensPair> {
     const emailLowerCase = data.email.toLowerCase();
 
@@ -126,6 +129,10 @@ export class AuthService {
     // 4. Create session
     await this.sessionDao.create({
       data: {
+        name:
+          userAgentAndIp.userAgent && userAgentAndIp.userAgent.length >= 9
+            ? userAgentAndIp.userAgent.slice(0, 6) + '...'
+            : userAgentAndIp.userAgent || '',
         userId: user.id,
         token: tokensPair.refreshToken,
       },
@@ -148,9 +155,12 @@ export class AuthService {
 
   async getListOfSessions(
     user: JwtTokenPayload,
-  ): Promise<SessionSelectModel[]> {
-    console.log('Here we are!', user);
-    return [];
+  ): Promise<Listable<SessionSelectModel>> {
+    const response = await this.sessionDao.listSessionsByUserId({
+      userId: user.id,
+    });
+
+    return response;
   }
 
   updateSession(): void {

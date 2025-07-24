@@ -1,5 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+import {
+  count,
+  eq,
+  type InferInsertModel,
+  type InferSelectModel,
+} from 'drizzle-orm';
 
 import { Listable } from '../interfaces/abstract.interface';
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
@@ -31,12 +36,20 @@ export class SessionDao extends BaseDao<typeof session> {
   }: {
     userId: string;
   }): Promise<SessionSelectModel[]> {
-    return [];
+    return await this.postgresDatabase
+      .select()
+      .from(session)
+      .where(eq(session.userId, userId));
   }
 
   // TODO:...
   async countByUserId({ userId }: { userId: string }): Promise<number> {
-    return 0;
+    const result = await this.postgresDatabase
+      .select({ count: count(session.userId) })
+      .from(session)
+      .where(eq(session.userId, userId));
+
+    return result[0]?.count;
   }
 
   async listSessionsByUserId({

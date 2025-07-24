@@ -11,7 +11,7 @@ export const session = pgTable('session', {
   userId: uuid('picture_id')
     .references(() => user.id)
     .notNull(),
-  name: varchar('name', { length: 64 }),
+  name: varchar('name', { length: 128 }),
   ...drizzleTimestamps,
 });
 

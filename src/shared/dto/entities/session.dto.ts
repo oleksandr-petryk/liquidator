@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { SessionSelectModel } from '../../dao/session.dao';
+import { PageableDto } from './dase.dto';
 
 export class SessionDto implements SessionSelectModel {
   constructor(props: SessionDto) {
@@ -49,3 +50,5 @@ export class SessionDto implements SessionSelectModel {
   })
   updatedAt!: Date | null;
 }
+
+export class SessionPageableDto extends PageableDto(SessionDto) {}

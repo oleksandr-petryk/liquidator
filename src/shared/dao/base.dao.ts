@@ -68,7 +68,7 @@ export class BaseDao<T extends Table<any>> {
     try {
       const table: any = this.daoInstance;
 
-      const find = await db
+      const [find] = await db
         .select()
         .from(table as any)
         .where(eq(table.id, id));

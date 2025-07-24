@@ -4,18 +4,25 @@ import { PinoLogger } from 'nestjs-pino';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
+import { ApiAbstractResponse } from '../../shared/decorators/api-abstract-response.decorator';
 import { GetUserFromRequest } from '../../shared/decorators/get-user-from-request.decorator';
+import {
+  GetUserAgentAndIp,
+  UserAgentAndIp,
+} from '../../shared/decorators/user-agent-and-ip.decorator';
 import {
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
+import {
+  SessionDto,
+  SessionPageableDto,
+} from '../../shared/dto/entities/session.dto';
 import { JwtAccessGuard } from '../../shared/guards/auth.guard';
 import { JwtTokenPayload } from '../../shared/interfaces/jwt-token.interface';
-import { JwtTokensPairMapper } from '../../shared/mappers/jwt.mapper';
+import { DtoMapper } from '../../shared/services/dto.mapper';
 import { AuthService } from './services/auth.service';
-import { SessionMapper } from '../../shared/mappers/session.mapper';
-import { SessionDto } from '../../shared/dto/entities/session.dto';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
 @Controller(`${APP_DEFAULT_V1_PREFIX}/auth`)
@@ -23,6 +30,7 @@ export class AuthController {
   constructor(
     private readonly logger: PinoLogger,
     private readonly authService: AuthService,
+    private readonly dtoMapper: DtoMapper,
   ) {}
 
   @ApiOperation({
@@ -39,12 +47,15 @@ export class AuthController {
     summary: 'Log-in',
   })
   @Post('log-in')
-  async login(@Body() dto: LoginRequestBodyDto): Promise<LoginResponseBodyDto> {
+  async login(
+    @GetUserAgentAndIp() agent: UserAgentAndIp,
+    @Body() dto: LoginRequestBodyDto,
+  ): Promise<LoginResponseBodyDto> {
     this.logger.info(`login, dto: ${JSON.stringify(dto)}`);
 
-    const result = await this.authService.login(dto);
+    const result = await this.authService.login(dto, agent);
 
-    return JwtTokensPairMapper.serialize(result);
+    return this.dtoMapper.mapJwtDtoResponseDto(result);
   }
 
   // @Get('verify-account')
@@ -62,15 +73,21 @@ export class AuthController {
   //   return this.authControllerService.googleCallback();
   // }
 
+  @ApiAbstractResponse(SessionDto, { pageable: true })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @Get('sessions')
   async getListOfSessions(
     @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<SessionDto[]> {
+  ): Promise<SessionPageableDto> {
     const result = await this.authService.getListOfSessions(user);
 
-    return result.map((i) => SessionMapper.serialize(i));
+    return new SessionPageableDto({
+      items: result.items.map((i) =>
+        this.dtoMapper.mapSessionDtoResponseDto(i),
+      ),
+      count: result.count,
+    });
   }
 
   @Get('sessions/:id')

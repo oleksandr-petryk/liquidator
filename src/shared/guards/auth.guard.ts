@@ -62,8 +62,8 @@ export class JwtAccessGuard implements CanActivate {
         this.jwtInternalService.verifyAccessToken(accessToken);
 
       request.user = decodedToken;
-    } catch (e) {
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new UnauthorizedException(error);
     }
 
     return true;

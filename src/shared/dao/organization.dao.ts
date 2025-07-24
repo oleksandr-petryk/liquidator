@@ -3,8 +3,8 @@ import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { organization } from '../modules/drizzle/schemas';
-import { PictureSelectModel } from '../types/db.type';
 import { BaseDao } from './base.dao';
+import { PictureSelectModel } from './pictures.dao';
 
 export type OrganizationInsertModel = InferInsertModel<typeof organization>;
 export type OrganizationSelectModel = InferSelectModel<typeof organization> & {

@@ -48,11 +48,11 @@ export const ApiAbstractResponse = <DataDto extends Type<unknown>>(
       payload: {
         type: 'object',
         properties: {
-          currentPageItems: {
+          items: {
             type: 'array',
             items: { $ref: getSchemaPath(dataDto) },
           },
-          totalNumber: {
+          count: {
             type: 'number',
           },
         } as Record<PageableProps<DataDto>, Schema>,
