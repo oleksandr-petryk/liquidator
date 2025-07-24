@@ -1,4 +1,4 @@
-export class PageablePayloadDto<PI> {
-  currentPageItems!: PI[];
-  totalNumber!: number;
+export class PageablePayloadDto<T> {
+  items!: T[];
+  count!: number;
 }

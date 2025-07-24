@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
+import { TeamSelectModel } from '../../dao/team.dao';
 import { Status } from '../../enums/db.enum';
-import type { TeamSelectModel } from '../../types/db.type';
 import { PictureDto } from './picture.dto';
-import { TeamToUserDto } from './team-to-user.dto';
 
-export class TeamDto implements Record<keyof TeamSelectModel, any> {
+export class TeamDto
+  implements Record<keyof Omit<TeamSelectModel, 'teamToUser'>, any>
+{
   @ApiProperty({
     description: 'ID',
     type: String,
@@ -51,14 +52,6 @@ export class TeamDto implements Record<keyof TeamSelectModel, any> {
     nullable: true,
   })
   picture!: PictureDto | null;
-
-  @ApiProperty({
-    description: 'Team to user relation',
-    type: TeamToUserDto,
-    nullable: true,
-    isArray: true,
-  })
-  teamToUser!: Array<TeamToUserDto> | null;
 
   @ApiProperty({
     description: 'Date created',

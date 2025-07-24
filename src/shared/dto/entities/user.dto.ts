@@ -1,14 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
+import { UserSelectModel } from '../../dao/user.dao';
 import { Gender, Status } from '../../enums/db.enum';
-import type { UserSelectModel } from '../../types/db.type';
-import { PasswordResetRequestDto } from './password-reset-request.dto';
 import { PictureDto } from './picture.dto';
-import { TeamToUserDto } from './team-to-user.dto';
 
 export class UserDto
-  implements Record<keyof Omit<UserSelectModel, 'password'>, any>
+  implements
+    Record<
+      keyof Omit<
+        UserSelectModel,
+        'password' | 'teamToUser' | 'pictureId' | 'passwordResetRequest'
+      >,
+      any
+    >
 {
   @ApiProperty({
     description: 'ID',
@@ -25,14 +30,6 @@ export class UserDto
     default: Status.Published,
   })
   status!: Status;
-
-  @ApiProperty({
-    description: 'Team picture ID',
-    type: String,
-    example: `/pictures/${randomUUID()}.png`,
-    nullable: true,
-  })
-  pictureId!: string | null;
 
   @ApiProperty({
     description: 'User email',
@@ -109,23 +106,7 @@ export class UserDto
     type: PictureDto,
     nullable: true,
   })
-  picture!: PictureDto | null;
-
-  @ApiProperty({
-    description: 'Recovery email address',
-    type: TeamToUserDto,
-    nullable: true,
-    isArray: true,
-  })
-  teamToUser!: Array<TeamToUserDto> | null;
-
-  @ApiProperty({
-    description: 'Recovery email address',
-    type: PasswordResetRequestDto,
-    nullable: true,
-    isArray: true,
-  })
-  passwordResetRequest!: Array<PasswordResetRequestDto> | null;
+  picture!: PictureDto | null | undefined;
 
   @ApiProperty({
     description: 'Date created',

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import * as http from 'http';
 
 import { APP_DEFAULT_GLOBAL_URL_PREFIX } from '../../../src/shared/const/app.const';
@@ -15,3 +15,15 @@ export const API = axios.create({
 afterAll(() => {
   agent.destroy();
 });
+
+export async function expectApiError<T = any>(
+  callback: () => Promise<T>,
+): Promise<AxiosResponse<T>> {
+  try {
+    await callback();
+
+    throw new Error('Error expected');
+  } catch (e: any) {
+    return e.response as AxiosResponse<T>;
+  }
+}

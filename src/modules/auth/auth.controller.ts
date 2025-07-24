@@ -1,23 +1,46 @@
-import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
+import { ApiAbstractResponse } from '../../shared/decorators/api-abstract-response.decorator';
+import { GetUserFromRequest } from '../../shared/decorators/get-user-from-request.decorator';
+import {
+  GetUserAgentAndIp,
+  UserAgentAndIp,
+} from '../../shared/decorators/user-agent-and-ip.decorator';
 import {
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
+  UpdateSessionRequestBody,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
-import { JwtTokensPairMapper } from '../../shared/mappers/jwt.mapper';
-import { AuthControllerService } from './services/auth-controller.service';
+import {
+  SessionDto,
+  SessionPageableDto,
+} from '../../shared/dto/entities/session.dto';
+import { JwtAccessGuard } from '../../shared/guards/auth.guard';
+import { JwtTokenPayload } from '../../shared/interfaces/jwt-token.interface';
+import { DtoMapper } from '../../shared/services/dto.mapper';
+import { AuthService } from './services/auth.service';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
 @Controller(`${APP_DEFAULT_V1_PREFIX}/auth`)
 export class AuthController {
   constructor(
     private readonly logger: PinoLogger,
-    private readonly authControllerService: AuthControllerService,
+    private readonly authService: AuthService,
+    private readonly dtoMapper: DtoMapper,
   ) {}
 
   @ApiOperation({
@@ -27,22 +50,25 @@ export class AuthController {
   async register(@Body() dto: RegisterRequestBodyDto): Promise<void> {
     this.logger.info(`register, dto: ${JSON.stringify(dto)}`);
 
-    await this.authControllerService.register(dto);
+    await this.authService.register(dto);
   }
 
   @ApiOperation({
     summary: 'Log-in',
   })
   @Post('log-in')
-  async login(@Body() dto: LoginRequestBodyDto): Promise<LoginResponseBodyDto> {
+  async login(
+    @GetUserAgentAndIp() agent: UserAgentAndIp,
+    @Body() dto: LoginRequestBodyDto,
+  ): Promise<LoginResponseBodyDto> {
     this.logger.info(`login, dto: ${JSON.stringify(dto)}`);
 
-    const result = await this.authControllerService.login(dto);
+    const result = await this.authService.login(dto, agent);
 
-    return JwtTokensPairMapper.serialize(result);
+    return this.dtoMapper.mapJwtDtoResponseDto(result);
   }
 
-  // @Get('verify')
+  // @Get('verify-account')
   // verify(): void {
   //   return this.authControllerService.verify();
   // }
@@ -57,13 +83,53 @@ export class AuthController {
   //   return this.authControllerService.googleCallback();
   // }
 
-  // @UseGuards(JwtAccessGuard)
-  // @Get('sessions')
-  // async getListOfSessions() {}
-  //
-  // @Get('sessions/:id')
-  // async updateSession() {}
-  //
-  // @Delete('sessions/:id')
-  // async deleteSession() {}
+  @ApiOperation({
+    summary: 'Get list of sessions',
+  })
+  @ApiAbstractResponse(SessionDto, { pageable: true })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Get('sessions')
+  async getListOfSessions(
+    @GetUserFromRequest() user: JwtTokenPayload,
+  ): Promise<SessionPageableDto> {
+    const result = await this.authService.getListOfSessions(user);
+
+    return new SessionPageableDto({
+      items: result.items.map((i) =>
+        this.dtoMapper.mapSessionDtoResponseDto(i),
+      ),
+      count: result.count,
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Update session name',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @ApiAbstractResponse(SessionDto)
+  @Patch('sessions/:id')
+  async updateSession(
+    @Param('id') sessionId: string,
+    @Body() name: UpdateSessionRequestBody,
+  ): Promise<SessionDto> {
+    const response = await this.authService.updateSession({
+      id: sessionId,
+      name: name.name,
+    });
+
+    return this.dtoMapper.mapSessionDtoResponseDto(response);
+  }
+
+  @ApiOperation({
+    summary: 'Delete session',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @ApiAbstractResponse(SessionDto)
+  @Delete('sessions/:id')
+  async deleteSession(@Param('id') id: string): Promise<void> {
+    await this.authService.deleteSession(id);
+  }
 }

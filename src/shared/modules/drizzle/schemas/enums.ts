@@ -8,7 +8,7 @@ export const StatusEnum = pgEnum('publish_status', [
   Status.Archived,
 ]);
 
-export const GenderEnum = pgEnum('use_genders', [Gender.Male, Gender.Female]);
+export const GenderEnum = pgEnum('user_genders', [Gender.Male, Gender.Female]);
 
 export const RoleEnum = pgEnum('user_roles', [
   Role.Member,
