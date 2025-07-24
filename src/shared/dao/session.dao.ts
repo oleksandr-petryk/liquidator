@@ -25,7 +25,33 @@ export class SessionDao extends BaseDao<typeof session> {
     });
   }
 
-  async listSessionsByUserId(): Promise<Listable<SessionSelectModel>> {
-    //   TODO: return pageable or listable sessions
+  // TODO:...
+  async findManyByUserId({
+    userId,
+  }: {
+    userId: string;
+  }): Promise<SessionSelectModel[]> {
+    return [];
+  }
+
+  // TODO:...
+  async countByUserId({ userId }: { userId: string }): Promise<number> {
+    return 0;
+  }
+
+  async listSessionsByUserId({
+    userId,
+  }: {
+    userId: string;
+  }): Promise<Listable<SessionSelectModel>> {
+    const [items, count] = await Promise.all([
+      await this.findManyByUserId({ userId }),
+      await this.countByUserId({ userId }),
+    ]);
+
+    return {
+      items,
+      count,
+    };
   }
 }
