@@ -25,7 +25,8 @@ export const getAuthData = (
 ): AuthData => {
   const request = context.switchToHttp().getRequest<FastifyRequestType>();
 
-  const accessToken = request.headers[AUTHORIZATION_HEADER_NAME];
+  const accessToken =
+    request.headers[AUTHORIZATION_HEADER_NAME]?.split(' ')?.pop();
 
   const requiredRoles: AuthUserType[] =
     reflector.get<AuthUserType[]>(
@@ -34,7 +35,7 @@ export const getAuthData = (
     ) ?? [];
 
   return {
-    accessToken: typeof accessToken === 'string' ? accessToken : undefined,
+    accessToken,
     requiredRoles,
   };
 };
@@ -55,7 +56,15 @@ export class JwtAccessGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    request.user = this.jwtInternalService.verifyAccessToken(accessToken);
+    try {
+      console.log(accessToken);
+      const decodedToken =
+        this.jwtInternalService.verifyAccessToken(accessToken);
+
+      request.user = decodedToken;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
 
     return true;
   }

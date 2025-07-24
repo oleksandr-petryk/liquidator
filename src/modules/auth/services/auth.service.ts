@@ -1,21 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Delete, Get, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
-import { UserDao } from '../../../shared/dao/user.dto';
+import {
+  SessionDao,
+  SessionSelectModel,
+} from '../../../shared/dao/session.dao';
 import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
-import type { JwtTokensPair } from '../../../shared/interfaces/jwt-token.interface';
-import type {
+import {
+  JwtTokenPayload,
+  JwtTokensPair,
+} from '../../../shared/interfaces/jwt-token.interface';
+import { JwtInternalService } from './jwt-internal.service';
+import {
+  UserDao,
   UserInsertModel,
   UserSelectModel,
-} from '../../../shared/types/db.type';
-import { JwtInternalService } from './jwt-internal.service';
+} from '../../../shared/dao/user.dao';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
+    private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
   ) {}
 
@@ -92,34 +100,36 @@ export class AuthService {
    * Logic:
    * 1. Check if user exist
    * 2. Check if password is correct
-   * 3. Generate token
-   *
-   * @returns token
+   * 3. Generate tokens
+   * 4. Create session
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
   ): Promise<JwtTokensPair> {
     const emailLowerCase = data.email.toLowerCase();
 
-    const user = await this.userDao.findByEmail({ email: emailLowerCase });
+    // 1. Check if user exist
+    const user = await this.userDao.getByEmail({ email: emailLowerCase });
 
-    if (!user) {
-      this.logger.debug(`User not found, email ${data.email}`);
-      throw new BadRequestException('User not found');
-    }
-
+    // 2. Check if password is correct
     const passwordCheck = await bcrypt.compare(data.password, user.password);
-
     if (!passwordCheck) {
       this.logger.debug(`Wrong password, email ${data.email}`);
       throw new BadRequestException('Incorrect password');
     }
 
+    // 3. Generate tokens
     const tokensPair = this.jwtInternalService.generatePairTokens({
       id: user.id,
     });
 
-    // TODO: create session in DB
+    // 4. Create session
+    await this.sessionDao.create({
+      data: {
+        userId: user.id,
+        token: tokensPair.refreshToken,
+      },
+    });
 
     return tokensPair;
   }
@@ -134,5 +144,20 @@ export class AuthService {
 
   googleCallback(): void {
     console.log('google callback');
+  }
+
+  async getListOfSessions(
+    user: JwtTokenPayload,
+  ): Promise<SessionSelectModel[]> {
+    console.log('Here we are!', user);
+    return [];
+  }
+
+  updateSession(): void {
+    console.log('Here we are!');
+  }
+
+  deleteSession(): void {
+    console.log('Here we are!');
   }
 }

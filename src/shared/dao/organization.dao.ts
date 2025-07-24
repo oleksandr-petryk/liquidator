@@ -1,8 +1,15 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { organization } from '../modules/drizzle/schemas';
-import { BaseDao } from './base.dto';
+import { PictureSelectModel } from '../types/db.type';
+import { BaseDao } from './base.dao';
+
+export type OrganizationInsertModel = InferInsertModel<typeof organization>;
+export type OrganizationSelectModel = InferSelectModel<typeof organization> & {
+  picture: PictureSelectModel | null;
+};
 
 @Injectable()
 export class OrganizationDao extends BaseDao<typeof organization> {
@@ -18,9 +25,5 @@ export class OrganizationDao extends BaseDao<typeof organization> {
         plural: 'organization',
       },
     });
-  }
-
-  private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Organization not found');
   }
 }

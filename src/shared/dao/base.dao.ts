@@ -25,19 +25,6 @@ export class BaseDao<T extends Table<any>> {
     },
   ) {}
 
-  public async findOneOrThrow<T>(
-    callback: () => Promise<T | null | undefined>,
-    error: () => never,
-  ): Promise<T> {
-    const result = await callback();
-
-    if (result == null) {
-      return error();
-    }
-
-    return result;
-  }
-
   public async countAll(): Promise<number> {
     const [{ count }] = await this.postgres
       .select({ count: sql<number>`count(*)::integer` })

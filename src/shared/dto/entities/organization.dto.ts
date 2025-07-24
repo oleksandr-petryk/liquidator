@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
+import { OrganizationSelectModel } from '../../dao/organization.dao';
 import { Status } from '../../enums/db.enum';
-import type { OrganizationSelectModel } from '../../types/db.type';
 import { PictureDto } from './picture.dto';
 
 export class OrganizationDto

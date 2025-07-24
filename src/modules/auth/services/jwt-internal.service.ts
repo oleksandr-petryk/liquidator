@@ -99,7 +99,7 @@ export class JwtInternalService {
    * @param token JWT
    * @returns verified and decoded token
    */
-  verifyAccessToken(token: string): JwtTokenPayload {
+  verifyAccessToken(token: string): JwtTokenPayload | never {
     return this.jwtService.verify(token, {
       publicKey: this.JWT_ACCESS_KEY_PUBLIC,
       algorithms: [this.JWT_ACCESS_ALGORITHM],
@@ -112,7 +112,7 @@ export class JwtInternalService {
    * @param token JWT
    * @returns verified and decoded token
    */
-  verifyRefreshToken(token: string): JwtTokenPayload {
+  verifyRefreshToken(token: string): JwtTokenPayload | never {
     return this.jwtService.verify(token, {
       publicKey: this.JWT_REFRESH_KEY_PUBLIC,
       algorithms: [this.JWT_REFRESH_ALGORITHM],

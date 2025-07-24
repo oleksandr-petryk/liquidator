@@ -1,6 +1,6 @@
+import { TeamSelectModel } from '../dao/team.dao';
 import { TeamDto } from '../dto/entities/team.dto';
 import type { SerializeMapper } from '../interfaces/mapper.interface';
-import type { TeamSelectModel } from '../types/db.type';
 import { PictureMapper } from './picture.mapper';
 import { TeamToUserMapper } from './team-to-user.mapper';
 

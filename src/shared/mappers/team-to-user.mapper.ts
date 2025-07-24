@@ -1,6 +1,6 @@
+import { TeamToUserSelectModel } from '../dao/team-to-user.dao';
 import { TeamToUserDto } from '../dto/entities/team-to-user.dto';
 import type { SerializeMapper } from '../interfaces/mapper.interface';
-import type { TeamToUserSelectModel } from '../types/db.type';
 import { TeamMapper } from './team.mapper';
 
 export const TeamToUserMapper: SerializeMapper<

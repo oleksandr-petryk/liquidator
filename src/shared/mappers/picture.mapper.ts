@@ -1,6 +1,6 @@
+import { PictureSelectModel } from '../dao/pictures.dao';
 import { PictureDto } from '../dto/entities/picture.dto';
 import type { SerializeMapper } from '../interfaces/mapper.interface';
-import type { PictureSelectModel } from '../types/db.type';
 
 export const PictureMapper: SerializeMapper<PictureSelectModel, PictureDto> = {
   serialize: function (deserialized) {

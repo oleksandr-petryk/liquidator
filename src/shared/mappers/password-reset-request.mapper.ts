@@ -1,6 +1,6 @@
+import { PasswordResetRequestSelectModel } from '../dao/password-reset-request.dao';
 import { PasswordResetRequestDto } from '../dto/entities/password-reset-request.dto';
 import type { SerializeMapper } from '../interfaces/mapper.interface';
-import type { PasswordResetRequestSelectModel } from '../types/db.type';
 import { UserMapper } from './user.mapper';
 
 export const PasswordResetRequestMapper: SerializeMapper<
