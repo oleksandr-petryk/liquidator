@@ -215,10 +215,18 @@ describe('Auth Tests', () => {
 
       const id = session.data.payload.items[0].id;
 
-      await API.delete(`/v1/auth/sessions/${id}`);
+      await API.delete(`/v1/auth/sessions/${id}`, {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
 
       const response = await expectApiError(() =>
-        API.delete(`/v1/auth/sessions/${id}`),
+        API.delete(`/v1/auth/sessions/${id}`, {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        }),
       );
 
       expect(response.status).toEqual(404);

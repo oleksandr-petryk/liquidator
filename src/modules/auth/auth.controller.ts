@@ -113,7 +113,7 @@ export class AuthController {
     @Body() name: UpdateSessionRequestBody,
   ): Promise<SessionDto> {
     const response = await this.authService.updateSession({
-      sessionId: sessionId,
+      id: sessionId,
       name: name.name,
     });
 

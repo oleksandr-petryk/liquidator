@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   count,
   eq,
@@ -30,7 +30,6 @@ export class SessionDao extends BaseDao<typeof session> {
     });
   }
 
-  // TODO:...
   async findManyByUserId({
     userId,
   }: {
@@ -42,7 +41,6 @@ export class SessionDao extends BaseDao<typeof session> {
       .where(eq(session.userId, userId));
   }
 
-  // TODO:...
   async countByUserId({ userId }: { userId: string }): Promise<number> {
     const result = await this.postgresDatabase
       .select({ count: count(session.userId) })
@@ -85,5 +83,18 @@ export class SessionDao extends BaseDao<typeof session> {
       .returning();
 
     return updatedUserId[0];
+  }
+
+  async getSessionById({ id }: { id: string }): Promise<SessionSelectModel> {
+    const [find] = await this.postgresDatabase
+      .select()
+      .from(session)
+      .where(eq(session.id, id));
+
+    if (find === undefined) {
+      throw new NotFoundException();
+    }
+
+    return find;
   }
 }
