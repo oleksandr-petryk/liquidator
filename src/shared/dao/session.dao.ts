@@ -67,4 +67,23 @@ export class SessionDao extends BaseDao<typeof session> {
       count,
     };
   }
+
+  async updateSession({
+    data,
+    id,
+  }: {
+    data: Partial<SessionInsertModel>;
+    id: string;
+  }): Promise<SessionSelectModel> {
+    const updatedUserId = await this.postgresDatabase
+      .update(session)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(session.id, id))
+      .returning();
+
+    return updatedUserId[0];
+  }
 }

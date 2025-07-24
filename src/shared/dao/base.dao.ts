@@ -9,7 +9,6 @@ import {
 
 import { DEFAULT_DB_BATCH_SIZE } from '../const/db';
 import { Drizzle } from '../modules/drizzle/drizzle.module';
-import { user } from '../modules/drizzle/schemas';
 
 export class BaseDao<T extends Table<any>> {
   private readonly baseLogger = new Logger(BaseDao.name);
@@ -65,21 +64,12 @@ export class BaseDao<T extends Table<any>> {
     db?: Drizzle;
     id: string;
   }): Promise<InferSelectModel<T>> {
-    try {
-      const table: any = this.daoInstance;
+    const [find] = await db
+      .select()
+      .from(this.daoInstance as any)
+      .where(eq((this.daoInstance as any).id, id));
 
-      const [find] = await db
-        .select()
-        .from(table as any)
-        .where(eq(table.id, id));
-
-      return find as InferSelectModel<T>;
-    } catch (error) {
-      this.baseLogger.error(
-        `Could not find ${this.options.entityName.plural}: ${error}`,
-      );
-      throw error;
-    }
+    return find as InferSelectModel<T>;
   }
 
   public async create({
@@ -89,18 +79,11 @@ export class BaseDao<T extends Table<any>> {
     db?: Drizzle;
     data?: InferInsertModel<T>;
   } = {}): Promise<InferSelectModel<T>> {
-    try {
-      const [inserted] = await db
-        .insert(this.daoInstance)
-        .values(data as InferInsertModel<T>)
-        .returning();
-      return inserted as InferSelectModel<T>;
-    } catch (error) {
-      this.baseLogger.error(
-        `Could not create ${this.options.entityName.singular}: ${error}`,
-      );
-      throw error;
-    }
+    const [inserted] = await db
+      .insert(this.daoInstance)
+      .values(data as InferInsertModel<T>)
+      .returning();
+    return inserted as InferSelectModel<T>;
   }
 
   public async update({
@@ -112,18 +95,11 @@ export class BaseDao<T extends Table<any>> {
     data?: InferInsertModel<T>;
     id: string;
   }): Promise<InferSelectModel<T>> {
-    try {
-      const updated = await db
-        .update(this.daoInstance)
-        .set(data as InferInsertModel<T>)
-        .where(eq(user.id, id));
-      return updated as InferSelectModel<T>;
-    } catch (error) {
-      this.baseLogger.error(
-        `Could not updated ${this.options.entityName.plural}: ${error}`,
-      );
-      throw error;
-    }
+    const updated = await db
+      .update(this.daoInstance)
+      .set(data as InferInsertModel<T>)
+      .where(eq((this.daoInstance as any).id, id));
+    return updated as InferSelectModel<T>;
   }
 
   async delete({
@@ -133,14 +109,9 @@ export class BaseDao<T extends Table<any>> {
     db?: Drizzle;
     id: string;
   }): Promise<InferSelectModel<T>> {
-    try {
-      const deleted = await db.delete(user).where(eq(user.id, id));
-      return deleted as InferSelectModel<T>;
-    } catch (error) {
-      this.baseLogger.error(
-        `Could not deleted ${this.options.entityName.plural}: ${error}`,
-      );
-      throw error;
-    }
+    const deleted = await db
+      .delete(this.daoInstance as any)
+      .where(eq((this.daoInstance as any).id, id));
+    return deleted as InferSelectModel<T>;
   }
 }

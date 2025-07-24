@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -13,6 +22,7 @@ import {
 import {
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
+  UpdateSessionRequestBody,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
 import {
@@ -90,13 +100,23 @@ export class AuthController {
     });
   }
 
-  @Get('sessions/:id')
-  updateSession(): void {
-    console.log('Here we are!');
+  @ApiAbstractResponse(SessionDto)
+  @Patch('sessions/:id')
+  async updateSession(
+    @Param('id') sessionId: string,
+    @Body() name: UpdateSessionRequestBody,
+  ): Promise<SessionDto> {
+    const response = await this.authService.updateSession({
+      sessionId: sessionId,
+      name: name.name,
+    });
+
+    return this.dtoMapper.mapSessionDtoResponseDto(response);
   }
 
+  @ApiAbstractResponse(SessionDto)
   @Delete('sessions/:id')
-  deleteSession(): void {
-    console.log('Here we are!');
+  async deleteSession(@Param('id') id: string): Promise<void> {
+    await this.authService.deleteSession(id);
   }
 }

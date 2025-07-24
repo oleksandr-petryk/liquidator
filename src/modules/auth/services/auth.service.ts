@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -163,11 +167,26 @@ export class AuthService {
     return response;
   }
 
-  updateSession(): void {
-    console.log('Here we are!');
+  async updateSession({
+    sessionId,
+    name,
+  }: {
+    sessionId: string;
+    name: string;
+  }): Promise<SessionSelectModel> {
+    return await this.sessionDao.updateSession({
+      id: sessionId,
+      data: {
+        name: name,
+      },
+    });
   }
 
-  deleteSession(): void {
-    console.log('Here we are!');
+  async deleteSession(id: string): Promise<void> {
+    if ((await this.sessionDao.findById({ id: id })) === undefined) {
+      throw new NotFoundException();
+    }
+
+    await this.sessionDao.delete({ id: id });
   }
 }

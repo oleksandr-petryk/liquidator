@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import { API } from './helpers/api';
+import { API, expectApiError } from './helpers/api';
 
 describe('Auth Tests', () => {
   describe('Register', () => {
@@ -127,7 +127,7 @@ describe('Auth Tests', () => {
     });
   });
 
-  describe('Register', () => {
+  describe('Get session', () => {
     test('/v1/auth/sessions/ - OK', async () => {
       const data = {
         email: faker.internet.email(),
@@ -153,6 +153,75 @@ describe('Auth Tests', () => {
         id: expect.any(String),
         token: expect.any(String),
       });
+    });
+  });
+
+  describe('Update session', () => {
+    test('/v1/auth/sessions/ - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const session = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      const id = session.data.payload.items[0].id;
+
+      const response = await API.patch(`/v1/auth/sessions/${id}`, {
+        name: 'john',
+      });
+
+      expect(response.status).toEqual(200);
+      expect(response.data.payload).toMatchObject({
+        id: expect.any(String),
+        userId: expect.any(String),
+        token: expect.any(String),
+        name: 'john',
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
+      expect(session.data.payload.items[0].updatedAt).not.toBe(
+        response.data.payload.updatedAt,
+      );
+    });
+  });
+
+  describe('Delete session', () => {
+    test('/v1/auth/sessions/ - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const session = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      const id = session.data.payload.items[0].id;
+
+      await API.delete(`/v1/auth/sessions/${id}`);
+
+      const response = await expectApiError(() =>
+        API.delete(`/v1/auth/sessions/${id}`),
+      );
+
+      expect(response.status).toEqual(404);
     });
   });
 });
