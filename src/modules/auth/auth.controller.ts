@@ -83,6 +83,9 @@ export class AuthController {
   //   return this.authControllerService.googleCallback();
   // }
 
+  @ApiOperation({
+    summary: 'Get list of sessions',
+  })
   @ApiAbstractResponse(SessionDto, { pageable: true })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
@@ -100,6 +103,9 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({
+    summary: 'Update session name',
+  })
   @ApiAbstractResponse(SessionDto)
   @Patch('sessions/:id')
   async updateSession(
