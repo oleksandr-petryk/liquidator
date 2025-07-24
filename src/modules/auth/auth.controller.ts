@@ -120,6 +120,11 @@ export class AuthController {
     return this.dtoMapper.mapSessionDtoResponseDto(response);
   }
 
+  @ApiOperation({
+    summary: 'Delete session',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
   @Delete('sessions/:id')
   async deleteSession(@Param('id') id: string): Promise<void> {
