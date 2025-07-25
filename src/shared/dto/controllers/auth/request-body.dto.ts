@@ -9,6 +9,7 @@ import {
   IsPhoneNumber,
   IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
 import { Gender } from '../../../enums/db.enum';
@@ -143,10 +144,12 @@ export class UpdateSessionRequestBody {
     description: 'Session name',
     type: String,
     example: 'MacBook',
+    minLength: 1,
     maxLength: 128,
   })
   @IsNotEmpty()
   @IsString()
+  @MinLength(1)
   @MaxLength(128)
   name!: string;
 }

@@ -69,7 +69,7 @@ export class AuthController {
 
     const result = await this.authService.login(dto, agent);
 
-    return this.dtoMapper.mapJwtDto(result);
+    return this.dtoMapper.mapJwtTokensPairDto(result);
   }
 
   // @Get('verify-account')

@@ -109,7 +109,7 @@ export class DtoMapper {
     };
   }
 
-  public mapJwtDto(data: JwtTokensPair): JwtTokensPairDto {
+  public mapJwtTokensPairDto(data: JwtTokensPair): JwtTokensPairDto {
     return {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
