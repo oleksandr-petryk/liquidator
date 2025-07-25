@@ -7,3 +7,6 @@ export const APP_DEFAULT_OPENAPI_JSON_URL = `api/liquidator/openapi.json`;
 export const APP_HEALTH_LIVE = 'Live';
 
 export const APP_DEFAULT_V1_PREFIX = 'v1';
+
+export const DEFAULT_PAGINATION_PAGE = 1;
+export const DEFAULT_PAGINATION_SIZE = 10;

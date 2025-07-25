@@ -47,20 +47,39 @@ export class AuthService {
     const usernameLowerCase = data.username.toLowerCase();
 
     // 1. Check if user with email already exists
-    await this.userDao.getByEmail({
+    const emailCheck = await this.userDao.findByEmail({
       email: emailLowerCase,
     });
 
+    if (emailCheck) {
+      this.logger.debug(`User with email: ${data.email} already exists`);
+      throw new BadRequestException('User with that email already exist');
+    }
+
     // 2. Check if user with phone number already exists
-    await this.userDao.getByUsername({
+    const usernameCheck = await this.userDao.findByUsername({
       username: usernameLowerCase,
     });
 
+    if (usernameCheck) {
+      this.logger.debug(`User with username: ${data.username} already exists`);
+      throw new BadRequestException('User with that username already exist');
+    }
+
     // 3. Check if user with username already exists
     if (data.phoneNumber) {
-      await this.userDao.getByPhoneNumber({
+      const phoneNumberCheck = await this.userDao.findByPhoneNumber({
         phoneNumber: data.phoneNumber,
       });
+
+      if (phoneNumberCheck) {
+        this.logger.debug(
+          `User with phoneNumber: ${data.phoneNumber} already exists`,
+        );
+        throw new BadRequestException(
+          'User with that phoneNumber already exist',
+        );
+      }
     }
 
     // 4. Hash password

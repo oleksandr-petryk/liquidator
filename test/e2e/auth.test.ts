@@ -251,31 +251,38 @@ describe('Auth Tests', () => {
 
       await API.post('/v1/auth/register', data);
 
+      for (let i = 0; i < 12; i++) {
+        await API.post('/v1/auth/log-in', data);
+      }
       const tokens = await API.post('/v1/auth/log-in', data);
 
-      const session = await API.get('/v1/auth/sessions', {
+      const response = await API.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
-      });
-
-      const id = session.data.payload.items[0].id;
-
-      await API.delete(`/v1/auth/sessions/${id}`, {
-        headers: {
-          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        params: {
+          page: 1,
+          size: 10,
         },
       });
 
-      const response = await expectApiError(() =>
-        API.delete(`/v1/auth/sessions/${id}`, {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
-        }),
-      );
+      const res = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+        params: {
+          page: 2,
+          size: 10,
+        },
+      });
 
-      expect(response.status).toEqual(404);
+      expect(response.status).toEqual(200);
+      expect(response.data.payload.items.length).toEqual(10);
+      expect(res.data.payload.items.length).toEqual(3);
+      expect(response.data.payload.items[0]).toMatchObject({
+        id: expect.any(String),
+        token: expect.any(String),
+      });
     });
   });
 });
