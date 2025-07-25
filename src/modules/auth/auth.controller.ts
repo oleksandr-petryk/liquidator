@@ -48,7 +48,7 @@ export class AuthController {
   })
   @Post('register')
   async register(@Body() dto: RegisterRequestBodyDto): Promise<void> {
-    this.logger.info(`register, dto: ${JSON.stringify(dto)}`);
+    this.logger.info(`${this.register.name}, dto: ${JSON.stringify(dto)}`);
 
     await this.authService.register(dto);
   }
@@ -61,7 +61,7 @@ export class AuthController {
     @GetUserAgentAndIp() agent: UserAgentAndIp,
     @Body() dto: LoginRequestBodyDto,
   ): Promise<LoginResponseBodyDto> {
-    this.logger.info(`login, dto: ${JSON.stringify(dto)}`);
+    this.logger.info(`${this.login.name}, dto: ${JSON.stringify(dto)}`);
 
     const result = await this.authService.login(dto, agent);
 
@@ -93,6 +93,10 @@ export class AuthController {
   async getListOfSessions(
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SessionPageableDto> {
+    this.logger.info(
+      `${this.getListOfSessions.name}, user id: ${JSON.stringify(user)}`,
+    );
+
     const result = await this.authService.getListOfSessions(user);
 
     return new SessionPageableDto({
@@ -112,11 +116,15 @@ export class AuthController {
   @Patch('sessions/:id')
   async updateSession(
     @Param('id') sessionId: string,
-    @Body() name: UpdateSessionRequestBody,
+    @Body() data: UpdateSessionRequestBody,
   ): Promise<SessionDto> {
+    this.logger.info(
+      `${this.updateSession.name}, session id: ${JSON.stringify(sessionId)}, data: ${JSON.stringify(data)}`,
+    );
+
     const response = await this.authService.updateSession({
       id: sessionId,
-      name: name.name,
+      name: data.name,
     });
 
     return this.dtoMapper.mapSessionDtoResponseDto(response);
@@ -129,7 +137,11 @@ export class AuthController {
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
   @Delete('sessions/:id')
-  async deleteSession(@Param('id') id: string): Promise<void> {
-    await this.authService.deleteSession(id);
+  async deleteSession(@Param('id') sessionId: string): Promise<void> {
+    this.logger.info(
+      `${this.deleteSession.name}, session id: ${JSON.stringify(sessionId)}`,
+    );
+
+    await this.authService.deleteSession(sessionId);
   }
 }
