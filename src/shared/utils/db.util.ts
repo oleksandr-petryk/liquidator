@@ -1,5 +1,8 @@
+import { PaginationQueryDto } from '../dto/common/pagination-query.dto';
+import { DrizzlePagination } from '../interfaces/db.interface';
+
 /**
- * This function can be used to throw error if value is falsy
+ * Throw error if value is falsy
  */
 export function nonNullableUtils<Nullable>(
   nullable: Nullable,
@@ -10,4 +13,16 @@ export function nonNullableUtils<Nullable>(
   }
 
   return nullable;
+}
+
+/**
+ * Transform input PaginationQueryDto to DrizzlePagination
+ */
+export function paginationQueryToDrizzle(
+  query: PaginationQueryDto,
+): DrizzlePagination {
+  return {
+    offset: (query.page - 1) * query.size,
+    limit: query.size,
+  };
 }

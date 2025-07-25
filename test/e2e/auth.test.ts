@@ -240,4 +240,42 @@ describe('Auth Tests', () => {
       expect(response.status).toEqual(404);
     });
   });
+
+  describe('Session pagination', () => {
+    test('/v1/auth/sessions/ - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const session = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      const id = session.data.payload.items[0].id;
+
+      await API.delete(`/v1/auth/sessions/${id}`, {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      const response = await expectApiError(() =>
+        API.delete(`/v1/auth/sessions/${id}`, {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        }),
+      );
+
+      expect(response.status).toEqual(404);
+    });
+  });
 });

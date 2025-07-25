@@ -14,6 +14,7 @@ import {
 import { UserAgentAndIp } from '../../../shared/decorators/user-agent-and-ip.decorator';
 import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
 import { Listable } from '../../../shared/interfaces/abstract.interface';
+import { DrizzlePagination } from '../../../shared/interfaces/db.interface';
 import {
   JwtTokenPayload,
   JwtTokensPair,
@@ -149,10 +150,12 @@ export class AuthService {
    */
   async getListOfSessions(
     user: JwtTokenPayload,
+    pagination: DrizzlePagination,
   ): Promise<Listable<SessionSelectModel>> {
     // 1. Get list of sessions
     const response = await this.sessionDao.listSessionsByUserId({
       userId: user.id,
+      pagination,
     });
 
     return response;

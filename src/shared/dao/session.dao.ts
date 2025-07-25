@@ -1,12 +1,14 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   count,
+  desc,
   eq,
   type InferInsertModel,
   type InferSelectModel,
 } from 'drizzle-orm';
 
 import { Listable } from '../interfaces/abstract.interface';
+import { DrizzlePagination } from '../interfaces/db.interface';
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { session } from '../modules/drizzle/schemas';
 import { BaseDao } from './base.dao';
@@ -32,13 +34,26 @@ export class SessionDao extends BaseDao<typeof session> {
 
   async findManyByUserId({
     userId,
+    pagination,
   }: {
     userId: string;
+    pagination?: DrizzlePagination;
   }): Promise<SessionSelectModel[]> {
+    if (pagination) {
+      return await this.postgresDatabase
+        .select()
+        .from(session)
+        .where(eq(session.userId, userId))
+        .offset(pagination.offset)
+        .limit(pagination.limit)
+        .orderBy(desc(session.createdAt));
+    }
+
     return await this.postgresDatabase
       .select()
       .from(session)
-      .where(eq(session.userId, userId));
+      .where(eq(session.userId, userId))
+      .orderBy(desc(session.createdAt));
   }
 
   async countByUserId({ userId }: { userId: string }): Promise<number> {
@@ -52,11 +67,13 @@ export class SessionDao extends BaseDao<typeof session> {
 
   async listSessionsByUserId({
     userId,
+    pagination,
   }: {
     userId: string;
+    pagination: DrizzlePagination;
   }): Promise<Listable<SessionSelectModel>> {
     const [items, count] = await Promise.all([
-      await this.findManyByUserId({ userId }),
+      await this.findManyByUserId({ userId, pagination }),
       await this.countByUserId({ userId }),
     ]);
 

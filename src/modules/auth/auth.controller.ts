@@ -4,8 +4,10 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,6 +21,7 @@ import {
   GetUserAgentAndIp,
   UserAgentAndIp,
 } from '../../shared/decorators/user-agent-and-ip.decorator';
+import { PaginationQueryDto } from '../../shared/dto/common/pagination-query.dto';
 import {
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
@@ -32,6 +35,7 @@ import {
 import { JwtAccessGuard } from '../../shared/guards/auth.guard';
 import { JwtTokenPayload } from '../../shared/interfaces/jwt-token.interface';
 import { DtoMapper } from '../../shared/services/dto.mapper';
+import { paginationQueryToDrizzle } from '../../shared/utils/db.util';
 import { AuthService } from './services/auth.service';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
@@ -65,7 +69,7 @@ export class AuthController {
 
     const result = await this.authService.login(dto, agent);
 
-    return this.dtoMapper.mapJwtDtoResponseDto(result);
+    return this.dtoMapper.mapJwtDto(result);
   }
 
   // @Get('verify-account')
@@ -91,18 +95,20 @@ export class AuthController {
   @UseGuards(JwtAccessGuard)
   @Get('sessions')
   async getListOfSessions(
+    @Query() query: PaginationQueryDto,
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SessionPageableDto> {
     this.logger.info(
-      `${this.getListOfSessions.name}, user id: ${JSON.stringify(user)}`,
+      `${this.getListOfSessions.name}, user Id: ${JSON.stringify(user)}, query: ${JSON.stringify(query)}`,
     );
 
-    const result = await this.authService.getListOfSessions(user);
+    const result = await this.authService.getListOfSessions(
+      user,
+      paginationQueryToDrizzle(query),
+    );
 
     return new SessionPageableDto({
-      items: result.items.map((i) =>
-        this.dtoMapper.mapSessionDtoResponseDto(i),
-      ),
+      items: result.items.map((i) => this.dtoMapper.mapSessionDto(i)),
       count: result.count,
     });
   }
@@ -113,9 +119,9 @@ export class AuthController {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
-  @Patch('sessions/:id')
+  @Patch('sessions/:sessionId')
   async updateSession(
-    @Param('id') sessionId: string,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
     @Body() data: UpdateSessionRequestBody,
   ): Promise<SessionDto> {
     this.logger.info(
@@ -127,7 +133,7 @@ export class AuthController {
       name: data.name,
     });
 
-    return this.dtoMapper.mapSessionDtoResponseDto(response);
+    return this.dtoMapper.mapSessionDto(response);
   }
 
   @ApiOperation({
@@ -136,8 +142,10 @@ export class AuthController {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
-  @Delete('sessions/:id')
-  async deleteSession(@Param('id') sessionId: string): Promise<void> {
+  @Delete('sessions/:sessionId')
+  async deleteSession(
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+  ): Promise<void> {
     this.logger.info(
       `${this.deleteSession.name}, session id: ${JSON.stringify(sessionId)}`,
     );
