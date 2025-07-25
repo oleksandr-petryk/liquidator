@@ -45,43 +45,29 @@ export class AuthService {
     const emailLowerCase = data.email.toLowerCase();
     const usernameLowerCase = data.username.toLowerCase();
 
-    const emailCheck = await this.userDao.findByEmail({
+    // 1. Check if user with email already exists
+    await this.userDao.getByEmail({
       email: emailLowerCase,
     });
 
-    if (emailCheck) {
-      this.logger.debug(`User with email: ${data.email} already exists`);
-      throw new BadRequestException('User with that email already exist');
-    }
-
-    const usernameCheck = await this.userDao.findByUsername({
+    // 2. Check if user with phone number already exists
+    await this.userDao.getByUsername({
       username: usernameLowerCase,
     });
 
-    if (usernameCheck) {
-      this.logger.debug(`User with username: ${data.username} already exists`);
-      throw new BadRequestException('User with that username already exist');
-    }
-
+    // 3. Check if user with username already exists
     if (data.phoneNumber) {
-      const phoneNumberCheck = await this.userDao.findByPhoneNumber({
+      await this.userDao.getByPhoneNumber({
         phoneNumber: data.phoneNumber,
       });
-
-      if (phoneNumberCheck) {
-        this.logger.debug(
-          `User with phoneNumber: ${data.phoneNumber} already exists`,
-        );
-        throw new BadRequestException(
-          'User with that phoneNumber already exist',
-        );
-      }
     }
 
+    // 4. Hash password
     const saltRounds = 10; // TODO: use different salt each time
 
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
+    // 5. Create new user in DB
     return this.userDao.create({
       data: {
         email: emailLowerCase,
@@ -153,9 +139,18 @@ export class AuthService {
     console.log('google callback');
   }
 
+  /**
+   * Get list of sessions
+   *
+   * Logic:
+   * 1. Get list of sessions
+   *
+   * @returns list of sessions
+   */
   async getListOfSessions(
     user: JwtTokenPayload,
   ): Promise<Listable<SessionSelectModel>> {
+    // 1. Get list of sessions
     const response = await this.sessionDao.listSessionsByUserId({
       userId: user.id,
     });
@@ -163,6 +158,15 @@ export class AuthService {
     return response;
   }
 
+  /**
+   * Update session name by id
+   *
+   * Logic:
+   * 1. Check if session exist
+   * 2. Update session name
+   *
+   * @returns session
+   */
   async updateSession({
     id,
     name,
@@ -170,8 +174,10 @@ export class AuthService {
     id: string;
     name: string;
   }): Promise<SessionSelectModel> {
+    // 1. Check if session exist
     await this.sessionDao.getSessionById({ id: id });
 
+    // 2. Update session name
     return await this.sessionDao.updateSession({
       id: id,
       data: {
@@ -180,9 +186,18 @@ export class AuthService {
     });
   }
 
+  /**
+   * Delete session by id
+   *
+   * Logic:
+   * 1. Check if session exist
+   * 2. Delete session
+   */
   async deleteSession(id: string): Promise<void> {
+    // 1. Check if session exist
     await this.sessionDao.getSessionById({ id: id });
 
+    // 2. Delete session
     await this.sessionDao.delete({ id: id });
   }
 }
