@@ -4,8 +4,10 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,6 +21,7 @@ import {
   GetUserAgentAndIp,
   UserAgentAndIp,
 } from '../../shared/decorators/user-agent-and-ip.decorator';
+import { PaginationQueryDto } from '../../shared/dto/common/pagination-query.dto';
 import {
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
@@ -32,6 +35,7 @@ import {
 import { JwtAccessGuard } from '../../shared/guards/auth.guard';
 import { JwtTokenPayload } from '../../shared/interfaces/jwt-token.interface';
 import { DtoMapper } from '../../shared/services/dto.mapper';
+import { paginationQueryToDrizzle } from '../../shared/utils/db.util';
 import { AuthService } from './services/auth.service';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
@@ -48,7 +52,7 @@ export class AuthController {
   })
   @Post('register')
   async register(@Body() dto: RegisterRequestBodyDto): Promise<void> {
-    this.logger.info(`register, dto: ${JSON.stringify(dto)}`);
+    this.logger.info(`${this.register.name}, dto: ${JSON.stringify(dto)}`);
 
     await this.authService.register(dto);
   }
@@ -61,11 +65,11 @@ export class AuthController {
     @GetUserAgentAndIp() agent: UserAgentAndIp,
     @Body() dto: LoginRequestBodyDto,
   ): Promise<LoginResponseBodyDto> {
-    this.logger.info(`login, dto: ${JSON.stringify(dto)}`);
+    this.logger.info(`${this.login.name}, dto: ${JSON.stringify(dto)}`);
 
     const result = await this.authService.login(dto, agent);
 
-    return this.dtoMapper.mapJwtDtoResponseDto(result);
+    return this.dtoMapper.mapJwtTokensPairDto(result);
   }
 
   // @Get('verify-account')
@@ -91,14 +95,20 @@ export class AuthController {
   @UseGuards(JwtAccessGuard)
   @Get('sessions')
   async getListOfSessions(
+    @Query() query: PaginationQueryDto,
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SessionPageableDto> {
-    const result = await this.authService.getListOfSessions(user);
+    this.logger.info(
+      `${this.getListOfSessions.name}, user Id: ${JSON.stringify(user)}, query: ${JSON.stringify({})}`,
+    );
+
+    const result = await this.authService.getListOfSessions(
+      user,
+      paginationQueryToDrizzle(query),
+    );
 
     return new SessionPageableDto({
-      items: result.items.map((i) =>
-        this.dtoMapper.mapSessionDtoResponseDto(i),
-      ),
+      items: result.items.map((i) => this.dtoMapper.mapSessionDto(i)),
       count: result.count,
     });
   }
@@ -109,17 +119,21 @@ export class AuthController {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
-  @Patch('sessions/:id')
+  @Patch('sessions/:sessionId')
   async updateSession(
-    @Param('id') sessionId: string,
-    @Body() name: UpdateSessionRequestBody,
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+    @Body() data: UpdateSessionRequestBody,
   ): Promise<SessionDto> {
+    this.logger.info(
+      `${this.updateSession.name}, session id: ${JSON.stringify(sessionId)}, data: ${JSON.stringify(data)}`,
+    );
+
     const response = await this.authService.updateSession({
       id: sessionId,
-      name: name.name,
+      name: data.name,
     });
 
-    return this.dtoMapper.mapSessionDtoResponseDto(response);
+    return this.dtoMapper.mapSessionDto(response);
   }
 
   @ApiOperation({
@@ -128,8 +142,14 @@ export class AuthController {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SessionDto)
-  @Delete('sessions/:id')
-  async deleteSession(@Param('id') id: string): Promise<void> {
-    await this.authService.deleteSession(id);
+  @Delete('sessions/:sessionId')
+  async deleteSession(
+    @Param('sessionId', ParseUUIDPipe) sessionId: string,
+  ): Promise<void> {
+    this.logger.info(
+      `${this.deleteSession.name}, session id: ${JSON.stringify(sessionId)}`,
+    );
+
+    await this.authService.deleteSession(sessionId);
   }
 }

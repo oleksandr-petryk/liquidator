@@ -19,7 +19,7 @@ import { JwtTokensPair } from '../interfaces/jwt-token.interface';
 
 @Injectable()
 export class DtoMapper {
-  public mapUserDtoResponseDto(data: UserSelectModel): UserDto {
+  public mapUserDto(data: UserSelectModel): UserDto {
     return {
       id: data.id,
       status: data.status,
@@ -37,7 +37,7 @@ export class DtoMapper {
     };
   }
 
-  public mapTeamDtoResponseDto(data: TeamSelectModel): TeamDto {
+  public mapTeamDto(data: TeamSelectModel): TeamDto {
     return {
       id: data.id,
       status: data.status,
@@ -50,9 +50,7 @@ export class DtoMapper {
     };
   }
 
-  public mapTeamToUserDtoResponseDto(
-    data: TeamToUserSelectModel,
-  ): TeamToUserDto {
+  public mapTeamToUserDto(data: TeamToUserSelectModel): TeamToUserDto {
     return {
       userId: data.userId,
       teamId: data.teamId,
@@ -65,7 +63,7 @@ export class DtoMapper {
     };
   }
 
-  public mapSessionDtoResponseDto(data: SessionSelectModel): SessionDto {
+  public mapSessionDto(data: SessionSelectModel): SessionDto {
     return {
       id: data.id,
       userId: data.userId,
@@ -76,7 +74,7 @@ export class DtoMapper {
     };
   }
 
-  public mapPictureDtoResponseDto(data: PictureSelectModel): PictureDto {
+  public mapPictureDto(data: PictureSelectModel): PictureDto {
     return {
       id: data.id,
       picture: data.picture,
@@ -85,7 +83,7 @@ export class DtoMapper {
     };
   }
 
-  public mapPasswordResetRequestDtoResponseDto(
+  public mapPasswordResetRequestDto(
     data: PasswordResetRequestSelectModel,
   ): PasswordResetRequestDto {
     return {
@@ -98,9 +96,7 @@ export class DtoMapper {
     };
   }
 
-  public mapOrganizationDtoResponseDto(
-    data: OrganizationSelectModel,
-  ): OrganizationDto {
+  public mapOrganizationDto(data: OrganizationSelectModel): OrganizationDto {
     return {
       id: data.id,
       status: data.status,
@@ -113,7 +109,7 @@ export class DtoMapper {
     };
   }
 
-  public mapJwtDtoResponseDto(data: JwtTokensPair): JwtTokensPairDto {
+  public mapJwtTokensPairDto(data: JwtTokensPair): JwtTokensPairDto {
     return {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,

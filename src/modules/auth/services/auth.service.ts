@@ -14,6 +14,7 @@ import {
 import { UserAgentAndIp } from '../../../shared/decorators/user-agent-and-ip.decorator';
 import { RegisterRequestBodyDto } from '../../../shared/dto/controllers/auth/request-body.dto';
 import { Listable } from '../../../shared/interfaces/abstract.interface';
+import { DrizzlePagination } from '../../../shared/interfaces/db.interface';
 import {
   JwtTokenPayload,
   JwtTokensPair,
@@ -45,6 +46,7 @@ export class AuthService {
     const emailLowerCase = data.email.toLowerCase();
     const usernameLowerCase = data.username.toLowerCase();
 
+    // 1. Check if user with email already exists
     const emailCheck = await this.userDao.findByEmail({
       email: emailLowerCase,
     });
@@ -54,6 +56,7 @@ export class AuthService {
       throw new BadRequestException('User with that email already exist');
     }
 
+    // 2. Check if user with phone number already exists
     const usernameCheck = await this.userDao.findByUsername({
       username: usernameLowerCase,
     });
@@ -63,6 +66,7 @@ export class AuthService {
       throw new BadRequestException('User with that username already exist');
     }
 
+    // 3. Check if user with username already exists
     if (data.phoneNumber) {
       const phoneNumberCheck = await this.userDao.findByPhoneNumber({
         phoneNumber: data.phoneNumber,
@@ -78,10 +82,12 @@ export class AuthService {
       }
     }
 
+    // 4. Hash password
     const saltRounds = 10; // TODO: use different salt each time
 
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
+    // 5. Create new user in DB
     return this.userDao.create({
       data: {
         email: emailLowerCase,
@@ -153,16 +159,36 @@ export class AuthService {
     console.log('google callback');
   }
 
+  /**
+   * Get list of sessions
+   *
+   * Logic:
+   * 1. Get list of sessions
+   *
+   * @returns list of sessions
+   */
   async getListOfSessions(
     user: JwtTokenPayload,
+    pagination: DrizzlePagination,
   ): Promise<Listable<SessionSelectModel>> {
+    // 1. Get list of sessions
     const response = await this.sessionDao.listSessionsByUserId({
       userId: user.id,
+      pagination,
     });
 
     return response;
   }
 
+  /**
+   * Update session name by id
+   *
+   * Logic:
+   * 1. Check if session exist
+   * 2. Update session name
+   *
+   * @returns session
+   */
   async updateSession({
     id,
     name,
@@ -170,8 +196,10 @@ export class AuthService {
     id: string;
     name: string;
   }): Promise<SessionSelectModel> {
+    // 1. Check if session exist
     await this.sessionDao.getSessionById({ id: id });
 
+    // 2. Update session name
     return await this.sessionDao.updateSession({
       id: id,
       data: {
@@ -180,9 +208,18 @@ export class AuthService {
     });
   }
 
+  /**
+   * Delete session by id
+   *
+   * Logic:
+   * 1. Check if session exist
+   * 2. Delete session
+   */
   async deleteSession(id: string): Promise<void> {
+    // 1. Check if session exist
     await this.sessionDao.getSessionById({ id: id });
 
+    // 2. Delete session
     await this.sessionDao.delete({ id: id });
   }
 }
