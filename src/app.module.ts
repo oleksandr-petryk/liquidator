@@ -27,7 +27,7 @@ const DEFAULT_MODULES = [
           singleLine: true,
           levelFirst: false,
           translateTime: "yyyy-MM-dd'T'HH:mm:ss.l'Z'",
-          messageFormat: '{req.headers.x-correlation-id} [{context}] {msg}',
+          messageFormat: '{req.id} [{context}] {msg}',
           ignore: 'pid,hostname,context,req,res',
           errorLikeObjectKeys: ['err', 'error'],
         },

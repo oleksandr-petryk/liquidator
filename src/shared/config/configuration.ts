@@ -5,12 +5,14 @@ import {
   APP_DEFAULT_OPENAPI_JSON_URL,
   APP_DEFAULT_SWAGGER_URL,
   APP_DEFAULT_VERSION,
+  APP_HEALTH_LIVE,
 } from '../const/app.const';
 import { NodeEnvEnum } from '../enums/app.enum';
 
 export const EnvConfigZ = z.object({
   NODE_ENV: z.nativeEnum(NodeEnvEnum).default(NodeEnvEnum.prod),
 
+  APP_HEALTH_LIVE: z.string(),
   APP_VERSION: z.string(),
   APP_GLOBAL_URL_PREFIX: z.string(),
   APP_SWAGGER_URL: z.string(),
@@ -49,6 +51,7 @@ export function configurationLoader(): EnvConfig {
     ...process.env,
 
     APP_VERSION: process.env.APP_VERSION || APP_DEFAULT_VERSION,
+    APP_HEALTH_LIVE: process.env.APP_HEALTH_LIVE || APP_HEALTH_LIVE,
     APP_GLOBAL_URL_PREFIX:
       process.env.APP_GLOBAL_URL_PREFIX || APP_DEFAULT_GLOBAL_URL_PREFIX,
     APP_SWAGGER_URL: process.env.APP_SWAGGER_URL || APP_DEFAULT_SWAGGER_URL,

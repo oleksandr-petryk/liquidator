@@ -57,6 +57,9 @@ export const ApiAbstractResponse = <DataDto extends Type<unknown>>(
           },
         } as Record<PageableProps<DataDto>, Schema>,
       },
+      requestId: {
+        type: 'string',
+      },
     };
   } else {
     payloadType = dataDto.name;
@@ -74,6 +77,9 @@ export const ApiAbstractResponse = <DataDto extends Type<unknown>>(
         : {
             $ref: getSchemaPath(dataDto),
           },
+      requestId: {
+        type: 'string',
+      },
     } as Record<AbstractProps<DataDto>, Schema>;
   }
 
