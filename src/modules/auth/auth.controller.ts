@@ -99,7 +99,7 @@ export class AuthController {
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SessionPageableDto> {
     this.logger.info(
-      `${this.getListOfSessions.name}, user Id: ${JSON.stringify(user)}, query: ${JSON.stringify({})}`,
+      `${this.getListOfSessions.name}, user Id: ${JSON.stringify(user)}, query: ${JSON.stringify(query)}`,
     );
 
     const result = await this.authService.getListOfSessions(

@@ -36,8 +36,6 @@ export class PlatformController {
   getHealth(): GetHealthResponseBodyDto {
     this.logger.info(`${this.getHealth.name}`);
 
-    this.logger.info('Get health');
-
     return this.appService.getHealth();
   }
 
@@ -52,8 +50,6 @@ export class PlatformController {
   @Get('version')
   getVersion(): GetAppVersionResponseBodyDto {
     this.logger.info(`${this.getVersion.name}`);
-
-    this.logger.info('Get application version');
 
     return this.appService.getVersion();
   }
