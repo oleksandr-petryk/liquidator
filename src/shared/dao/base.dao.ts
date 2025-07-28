@@ -92,7 +92,7 @@ export class BaseDao<T extends Table<any>> {
     id,
   }: {
     db?: Drizzle;
-    data?: InferInsertModel<T>;
+    data?: Partial<InferInsertModel<T>>;
     id: string;
   }): Promise<InferSelectModel<T>> {
     const updated = await db

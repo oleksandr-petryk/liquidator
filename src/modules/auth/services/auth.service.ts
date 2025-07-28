@@ -1,7 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
+import { AccountVerificationDao } from '../../../shared/dao/account-verification.dao';
 import {
   SessionDao,
   SessionSelectModel,
@@ -19,6 +24,10 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../../shared/interfaces/jwt-token.interface';
+import { generateVerificationCode } from '../../../shared/utils/db.util';
+import { AccountVerificationService } from '../../accountVerification/services/accountVerification.service';
+import { HandlebarsService } from '../../handlebars/services/handlebars.service';
+import { MailService } from '../../mail/services/mail.service';
 import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
@@ -28,6 +37,10 @@ export class AuthService {
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
+    private readonly mailService: MailService,
+    private readonly handlebarsService: HandlebarsService,
+    private readonly accountVerificationDao: AccountVerificationDao,
+    private readonly accountVerificationService: AccountVerificationService,
   ) {}
 
   /**
@@ -39,6 +52,8 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
+   * 6. Create account veryfication record in DB
+   * 7. Send veryfication email
    *
    * @returns new user
    */
@@ -88,7 +103,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
     // 5. Create new user in DB
-    return this.userDao.create({
+    const newUser = await this.userDao.create({
       data: {
         email: emailLowerCase,
         username: usernameLowerCase,
@@ -100,6 +115,30 @@ export class AuthService {
         gender: data.gender,
       },
     });
+
+    // 6. Create account veryfication record in DB
+    const newAccountVerification = await this.accountVerificationDao.create({
+      data: {
+        userId: newUser.id,
+        code: generateVerificationCode(),
+        expiresAt: new Date(new Date().getTime() + 10 * 60 * 1000), // current data + 10 minuts
+      },
+    });
+
+    // 7. Send veryfication email
+    await this.mailService.sendEmail({
+      to: newUser.email,
+      subject: 'verification approval',
+      html: await this.handlebarsService.render('verification-email', {
+        name: newUser.username,
+        email: newUser.email,
+        code: newAccountVerification.code,
+        expiresAt: newAccountVerification.expiresAt,
+        year: new Date().getFullYear(),
+      }),
+    });
+
+    return newUser;
   }
 
   /**
@@ -171,7 +210,6 @@ export class AuthService {
     user: JwtTokenPayload,
     pagination: DrizzlePagination,
   ): Promise<Listable<SessionSelectModel>> {
-    // 1. Get list of sessions
     const response = await this.sessionDao.listSessionsByUserId({
       userId: user.id,
       pagination,
@@ -221,5 +259,35 @@ export class AuthService {
 
     // 2. Delete session
     await this.sessionDao.delete({ id: id });
+  }
+
+  /**
+   * Account verification
+   *
+   * Logic:
+   * 1. Check is account verification code valid
+   * 2. Set user verifyed field to true
+   *
+   * @returnd string
+   */
+  async accountVerification({
+    userId,
+    code,
+  }: {
+    userId: string;
+    code: string;
+  }): Promise<string> {
+    const accountVerificationRecord =
+      await this.accountVerificationDao.getByUserId(userId);
+
+    // 1. Check is account verification code valid
+    if (accountVerificationRecord.code !== code) {
+      throw new UnauthorizedException();
+    }
+
+    // 2. Set user verifyed field to true
+    await this.accountVerificationService.verifyUserAccount(userId);
+
+    return 'todo';
   }
 }

@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
+import { AccountVerificationModule } from './modules/accountVerification/accountVerification.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HandlebarsModule } from './modules/handlebars/handlebars.module';
+import { MailModule } from './modules/mail/mail.module';
 import { PlatformModule } from './modules/platform/platform.module';
 import { configurationLoader } from './shared/config/configuration';
 import { DrizzleModule } from './shared/modules/drizzle/drizzle.module';
@@ -45,6 +48,9 @@ const DEFAULT_MODULES = [
     PgModule,
     PlatformModule,
     RedisModule,
+    MailModule,
+    HandlebarsModule,
+    AccountVerificationModule,
   ],
 })
 export class AppModule {}

@@ -23,11 +23,13 @@ import {
 } from '../../shared/decorators/user-agent-and-ip.decorator';
 import { PaginationQueryDto } from '../../shared/dto/common/pagination-query.dto';
 import {
+  AccountVerificationRequestBody,
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
   UpdateSessionRequestBody,
 } from '../../shared/dto/controllers/auth/request-body.dto';
 import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
+import { AccountVerificationDto } from '../../shared/dto/entities/account-verification.dto';
 import {
   SessionDto,
   SessionPageableDto,
@@ -151,5 +153,28 @@ export class AuthController {
     );
 
     await this.authService.deleteSession(sessionId);
+  }
+
+  @ApiOperation({
+    summary: 'Account verification',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @ApiAbstractResponse(AccountVerificationDto)
+  @Post('verify/')
+  async accountVerification(
+    @GetUserFromRequest() user: JwtTokenPayload,
+    @Body() data: AccountVerificationRequestBody,
+  ): Promise<string> {
+    this.logger.info(
+      `${this.accountVerification.name}, user: ${JSON.stringify(user)}, data: ${JSON.stringify(data)}`,
+    );
+
+    await this.authService.accountVerification({
+      userId: user.id,
+      code: data.code,
+    });
+
+    return 'todo';
   }
 }

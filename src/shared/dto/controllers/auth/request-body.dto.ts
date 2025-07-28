@@ -153,3 +153,18 @@ export class UpdateSessionRequestBody {
   @MaxLength(128)
   name!: string;
 }
+
+export class AccountVerificationRequestBody {
+  @ApiProperty({
+    description: 'Verification code',
+    type: String,
+    example: '123456',
+    minLength: 6,
+    maxLength: 6,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  @MaxLength(6)
+  code!: string;
+}

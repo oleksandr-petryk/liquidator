@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { AccountVerificationSelectModel } from '../dao/account-verification.dao';
 import { OrganizationSelectModel } from '../dao/organization.dao';
 import { PasswordResetRequestSelectModel } from '../dao/password-reset-request.dao';
 import { PictureSelectModel } from '../dao/pictures.dao';
@@ -7,6 +8,7 @@ import { SessionSelectModel } from '../dao/session.dao';
 import { TeamSelectModel } from '../dao/team.dao';
 import { TeamToUserSelectModel } from '../dao/team-to-user.dao';
 import { UserSelectModel } from '../dao/user.dao';
+import { AccountVerificationDto } from '../dto/entities/account-verification.dto';
 import { JwtTokensPairDto } from '../dto/entities/jwt-token.dto';
 import { OrganizationDto } from '../dto/entities/organization.dto';
 import { PasswordResetRequestDto } from '../dto/entities/password-reset-request.dto';
@@ -23,6 +25,7 @@ export class DtoMapper {
     return {
       id: data.id,
       status: data.status,
+      verifyed: data.verifyed,
       username: data.username,
       email: data.email,
       firstName: data.firstName,
@@ -90,7 +93,7 @@ export class DtoMapper {
       id: data.id,
       userId: data.userId,
       code: data.code,
-      expiresIn: data.expiresIn,
+      expiresAt: data.expiresAt,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
@@ -113,6 +116,19 @@ export class DtoMapper {
     return {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
+    };
+  }
+
+  public mapAccountVerificationDto(
+    data: AccountVerificationSelectModel,
+  ): AccountVerificationDto {
+    return {
+      id: data.id,
+      userId: data.userId,
+      code: data.code,
+      expiresAt: data.expiresAt,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
     };
   }
 }

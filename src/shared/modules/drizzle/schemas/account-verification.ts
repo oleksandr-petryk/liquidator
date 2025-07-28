@@ -5,7 +5,7 @@ import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
 import { user } from './user';
 
-export const passwordResetRequest = pgTable('password_reset_request', {
+export const accountVerification = pgTable('account_verification', {
   ...drizzlePrimaryKey,
   userId: uuid('user_id')
     .references(() => user.id)
@@ -15,11 +15,11 @@ export const passwordResetRequest = pgTable('password_reset_request', {
   ...drizzleTimestamps,
 });
 
-export const passwordResetRequestRelations = relations(
-  passwordResetRequest,
+export const accountVerificationRelations = relations(
+  accountVerification,
   ({ one }) => ({
     user: one(user, {
-      fields: [passwordResetRequest.userId],
+      fields: [accountVerification.userId],
       references: [user.id],
     }),
   }),

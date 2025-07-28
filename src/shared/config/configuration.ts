@@ -12,6 +12,10 @@ import { NodeEnvEnum } from '../enums/app.enum';
 export const EnvConfigZ = z.object({
   NODE_ENV: z.nativeEnum(NodeEnvEnum).default(NodeEnvEnum.prod),
 
+  INBUCKET_PORT: z.string(),
+
+  APP_EMAIL: z.string(),
+
   APP_HEALTH_LIVE: z.string(),
   APP_VERSION: z.string(),
   APP_GLOBAL_URL_PREFIX: z.string(),
@@ -37,11 +41,6 @@ export const EnvConfigZ = z.object({
 
   KAFKA_BROKERS: z.array(z.string()),
   KAFKA_FROM_BEGINNING: z.boolean().default(true),
-
-  MINIO_ENDPOINT: z.string(),
-  MINIO_PORT: z.number().transform((value) => +value),
-  MINIO_ACCESS_KEY: z.string(),
-  MINIO_SECRET_KEY: z.string(),
 });
 
 export type EnvConfig = z.infer<typeof EnvConfigZ>;
@@ -49,6 +48,10 @@ export type EnvConfig = z.infer<typeof EnvConfigZ>;
 export function configurationLoader(): EnvConfig {
   const envConfig = EnvConfigZ.parse({
     ...process.env,
+
+    INBUCKET_PORT: process.env.INBUCKET_PORT,
+
+    APP_EMAIL: process.env.APP_EMAIL,
 
     APP_VERSION: process.env.APP_VERSION || APP_DEFAULT_VERSION,
     APP_HEALTH_LIVE: process.env.APP_HEALTH_LIVE || APP_HEALTH_LIVE,
@@ -69,8 +72,6 @@ export function configurationLoader(): EnvConfig {
 
     KAFKA_BROKERS: process.env.KAFKA_BROKERS?.split(','),
     KAFKA_FROM_BEGINNING: process.env.KAFKA_FROM_BEGINNING === 'true',
-
-    MINIO_PORT: +process.env.MINIO_PORT!,
   });
 
   return envConfig;
