@@ -57,11 +57,7 @@ export class JwtAccessGuard implements CanActivate {
     }
 
     try {
-      console.log(accessToken);
-      const decodedToken =
-        this.jwtInternalService.verifyAccessToken(accessToken);
-
-      request.user = decodedToken;
+      request.user = this.jwtInternalService.verifyAccessToken(accessToken);
     } catch (error) {
       throw new UnauthorizedException(error);
     }
