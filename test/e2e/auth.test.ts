@@ -358,8 +358,6 @@ describe('Auth Tests', () => {
     );
 
     expect(response.status).toEqual(201);
-    expect(response.data.payload.message).toEqual(
-      'Account successfully verified', // todo
-    );
+    expect(response.data.payload).toEqual('Account successfully verified');
   });
 });
