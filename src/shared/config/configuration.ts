@@ -12,6 +12,8 @@ import { NodeEnvEnum } from '../enums/app.enum';
 export const EnvConfigZ = z.object({
   NODE_ENV: z.nativeEnum(NodeEnvEnum).default(NodeEnvEnum.prod),
 
+  PROJECT_NAME: z.string(),
+
   INBUCKET_PORT: z.string(),
 
   APP_EMAIL: z.string(),
@@ -48,6 +50,8 @@ export type EnvConfig = z.infer<typeof EnvConfigZ>;
 export function configurationLoader(): EnvConfig {
   const envConfig = EnvConfigZ.parse({
     ...process.env,
+
+    PROJECT_NAME: process.env.PROJECT_NAME,
 
     INBUCKET_PORT: process.env.INBUCKET_PORT,
 

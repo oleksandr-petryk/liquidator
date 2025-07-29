@@ -71,9 +71,9 @@ export class AccountVerificationDao extends BaseDao<
     );
   }
 
-  public async canVerifyAccount(userId: string): Promise<boolean> {
+  public async canVerifyAccount(userId: string): Promise<void> {
     if ((await this.getByUserId(userId)).expiresAt < new Date()) {
-      throw new GoneException();
+      throw new GoneException('The code has expired');
     }
 
     if (
@@ -85,7 +85,5 @@ export class AccountVerificationDao extends BaseDao<
     ) {
       throw new BadRequestException('User is already verified');
     }
-
-    return true;
   }
 }

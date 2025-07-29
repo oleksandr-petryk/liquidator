@@ -137,4 +137,19 @@ export class UserDao extends BaseDao<typeof user> {
       new BadRequestException('User not found, phoneNumber: ' + phoneNumber),
     );
   }
+
+  public async getById({
+    db = this.postgresDatabase,
+    id,
+  }: {
+    db?: Drizzle;
+    id: string;
+  }): Promise<UserSelectModel> {
+    const result = await this.findById({ db, id });
+
+    return nonNullableUtils(
+      result,
+      new BadRequestException('User not found, id: ' + id),
+    );
+  }
 }

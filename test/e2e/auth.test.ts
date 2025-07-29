@@ -1,9 +1,11 @@
 import { faker } from '@faker-js/faker';
+import axios from 'axios';
 
 import { API, expectApiError } from './helpers/api';
 
 describe('Auth Tests', () => {
   describe('Register', () => {
+    // todo check if mail exist
     test('/auth/register/ - OK', async () => {
       const data = {
         email: faker.internet.email(),
@@ -324,5 +326,40 @@ describe('Auth Tests', () => {
 
       expect(response_2.data.payload.items.length).toEqual(4);
     });
+  });
+
+  // Todo Account verification
+
+  test('/v1/auth/verify/ - OK - account verification', async () => {
+    const data = {
+      email: faker.internet.email(),
+      username: faker.internet.username(),
+      password: faker.internet.password(),
+    };
+
+    await API.post('/v1/auth/register', data);
+
+    const mail = await axios.get(
+      `http://localhost:9000/api/v1/mailbox/${data.email}/1`,
+    );
+
+    expect(mail.status).toEqual(200);
+
+    const tokens = await API.post('/v1/auth/log-in', data);
+
+    const response = await API.post(
+      '/v1/auth/verify',
+      { code: mail.data.body.text.match(/\b\d{6}\b/)[0] },
+      {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      },
+    );
+
+    expect(response.status).toEqual(201);
+    expect(response.data.payload.message).toEqual(
+      'Account successfully verified', // todo
+    );
   });
 });

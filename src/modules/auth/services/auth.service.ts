@@ -3,9 +3,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
+import { EnvConfig } from '../../../shared/config/configuration';
 import { AccountVerificationDao } from '../../../shared/dao/account-verification.dao';
 import {
   SessionDao,
@@ -32,7 +34,10 @@ import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
 export class AuthService {
+  private projectName: string;
+
   constructor(
+    private readonly configService: ConfigService<EnvConfig>,
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
@@ -41,7 +46,9 @@ export class AuthService {
     private readonly handlebarsService: HandlebarsService,
     private readonly accountVerificationDao: AccountVerificationDao,
     private readonly accountVerificationService: AccountVerificationService,
-  ) {}
+  ) {
+    this.projectName = this.configService.getOrThrow('PROJECT_NAME');
+  }
 
   /**
    * Register a new user
@@ -121,7 +128,7 @@ export class AuthService {
       data: {
         userId: newUser.id,
         code: generateVerificationCode(),
-        expiresAt: new Date(new Date().getTime() + 10 * 60 * 1000), // current data + 10 minuts
+        expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
       },
     });
 
@@ -135,6 +142,7 @@ export class AuthService {
         code: newAccountVerification.code,
         expiresAt: newAccountVerification.expiresAt,
         year: new Date().getFullYear(),
+        projectName: this.projectName,
       }),
     });
 
@@ -267,8 +275,6 @@ export class AuthService {
    * Logic:
    * 1. Check is account verification code valid
    * 2. Set user verifyed field to true
-   *
-   * @returnd string
    */
   async accountVerification({
     userId,
@@ -276,7 +282,7 @@ export class AuthService {
   }: {
     userId: string;
     code: string;
-  }): Promise<string> {
+  }): Promise<void> {
     const accountVerificationRecord =
       await this.accountVerificationDao.getByUserId(userId);
 
@@ -287,7 +293,40 @@ export class AuthService {
 
     // 2. Set user verifyed field to true
     await this.accountVerificationService.verifyUserAccount(userId);
+  }
 
-    return 'todo';
+  /**
+   * Send new verification email
+   *
+   * 1. Get user by id
+   * 2. Create account veryfication record in DB
+   * 3. Send veryfication email
+   */
+  async sendVerificatioEmail(userId: string): Promise<void> {
+    // 1. Get user by id
+    const user = await this.userDao.getById({ id: userId });
+
+    // 2. Create account veryfication record in DB
+    const newAccountVerification = await this.accountVerificationDao.create({
+      data: {
+        userId: user.id,
+        code: generateVerificationCode(),
+        expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
+      },
+    });
+
+    // 3. Send veryfication email
+    await this.mailService.sendEmail({
+      to: user.email,
+      subject: 'verification approval',
+      html: await this.handlebarsService.render('verification-email', {
+        name: user.username,
+        email: user.email,
+        code: newAccountVerification.code,
+        expiresAt: newAccountVerification.expiresAt,
+        year: new Date().getFullYear(),
+        projectName: this.projectName,
+      }),
+    });
   }
 }

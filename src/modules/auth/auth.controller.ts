@@ -28,8 +28,11 @@ import {
   RegisterRequestBodyDto,
   UpdateSessionRequestBody,
 } from '../../shared/dto/controllers/auth/request-body.dto';
-import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
-import { AccountVerificationDto } from '../../shared/dto/entities/account-verification.dto';
+import {
+  AccountVerificationResponseBodyDto,
+  type LoginResponseBodyDto,
+  sendVerificatioEmailResponseBodyDto,
+} from '../../shared/dto/controllers/auth/response-body.dto';
 import {
   SessionDto,
   SessionPageableDto,
@@ -160,7 +163,7 @@ export class AuthController {
   })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
-  @ApiAbstractResponse(AccountVerificationDto)
+  @ApiAbstractResponse(AccountVerificationResponseBodyDto)
   @Post('verify/')
   async accountVerification(
     @GetUserFromRequest() user: JwtTokenPayload,
@@ -175,6 +178,25 @@ export class AuthController {
       code: data.code,
     });
 
-    return 'todo';
+    return 'Account successfully verified';
+  }
+
+  @ApiOperation({
+    summary: 'Send new verification email',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @ApiAbstractResponse(sendVerificatioEmailResponseBodyDto)
+  @Post('verify/send/')
+  async sendVerificationEmail(
+    @GetUserFromRequest() user: JwtTokenPayload,
+  ): Promise<string> {
+    this.logger.info(
+      `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
+    );
+
+    await this.authService.sendVerificatioEmail(user.id);
+
+    return 'Verification email sent successfully';
   }
 }
