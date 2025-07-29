@@ -129,8 +129,8 @@ describe('Auth Tests', () => {
     });
   });
 
-  describe('Get session', () => {
-    test('/v1/auth/sessions/ - OK', async () => {
+  describe('Sessions', () => {
+    test('Get - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -156,10 +156,8 @@ describe('Auth Tests', () => {
         token: expect.any(String),
       });
     });
-  });
 
-  describe('Update session', () => {
-    test('/v1/auth/sessions/ - OK', async () => {
+    test('Update - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -203,10 +201,8 @@ describe('Auth Tests', () => {
         response.data.payload.updatedAt,
       );
     });
-  });
 
-  describe('Delete session', () => {
-    test('/v1/auth/sessions/ - OK', async () => {
+    test('Delete - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -241,10 +237,8 @@ describe('Auth Tests', () => {
 
       expect(response.status).toEqual(404);
     });
-  });
 
-  describe('Session pagination', () => {
-    test('/v1/auth/sessions/ - OK - default pagination', async () => {
+    test('Pagination - OK - default pagination', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -283,7 +277,7 @@ describe('Auth Tests', () => {
       expect(response_2.data.payload.items.length).toEqual(3);
     });
 
-    test('/v1/auth/sessions/ - OK - custom pagination', async () => {
+    test('Pagination - OK - custom pagination', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -330,7 +324,7 @@ describe('Auth Tests', () => {
 
   // Todo Account verification
 
-  test('/v1/auth/verify/ - OK - account verification', async () => {
+  test('Account verification - OK', async () => {
     const data = {
       email: faker.internet.email(),
       username: faker.internet.username(),
