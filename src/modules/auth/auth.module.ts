@@ -5,7 +5,7 @@ import { AccountVerificationDao } from '../../shared/dao/account-verification.da
 import { SessionDao } from '../../shared/dao/session.dao';
 import { UserDao } from '../../shared/dao/user.dao';
 import { DtoMapper } from '../../shared/services/dto.mapper';
-import { AccountVerificationService } from '../accountVerification/services/accountVerification.service';
+import { AccountVerificationService } from '../account-verification/services/account-verification.service';
 import { HandlebarsService } from '../handlebars/services/handlebars.service';
 import { MailService } from '../mail/services/mail.service';
 import { AuthController } from './auth.controller';
@@ -21,9 +21,9 @@ import { JwtInternalService } from './services/jwt-internal.service';
     AccountVerificationDao,
     DtoMapper,
     SessionDao,
+    AccountVerificationService,
     MailService,
     HandlebarsService,
-    AccountVerificationService,
   ],
   imports: [JwtModule],
   exports: [AuthService, JwtInternalService],

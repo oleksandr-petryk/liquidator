@@ -31,7 +31,7 @@ import {
 import {
   AccountVerificationResponseBodyDto,
   type LoginResponseBodyDto,
-  sendVerificatioEmailResponseBodyDto,
+  SendVerificatioEmailResponseBodyDto,
 } from '../../shared/dto/controllers/auth/response-body.dto';
 import {
   SessionDto,
@@ -164,7 +164,7 @@ export class AuthController {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(AccountVerificationResponseBodyDto)
-  @Post('verify/')
+  @Post('verify')
   async accountVerification(
     @GetUserFromRequest() user: JwtTokenPayload,
     @Body() data: AccountVerificationRequestBody,
@@ -186,8 +186,8 @@ export class AuthController {
   })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
-  @ApiAbstractResponse(sendVerificatioEmailResponseBodyDto)
-  @Post('verify/send/')
+  @ApiAbstractResponse(SendVerificatioEmailResponseBodyDto)
+  @Post('verify/send')
   async sendVerificationEmail(
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<string> {

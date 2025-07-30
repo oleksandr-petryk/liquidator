@@ -12,11 +12,10 @@ import { NodeEnvEnum } from '../enums/app.enum';
 export const EnvConfigZ = z.object({
   NODE_ENV: z.nativeEnum(NodeEnvEnum).default(NodeEnvEnum.prod),
 
-  PROJECT_NAME: z.string(),
-
-  INBUCKET_PORT: z.string(),
-
-  APP_EMAIL: z.string(),
+  EMAIL_FROM: z.string(),
+  EMAIL_HOST: z.string(),
+  EMAIL_PORT: z.string().transform((value) => +value),
+  EMAIL_SECURE: z.string().transform((value) => value === 'true'),
 
   APP_HEALTH_LIVE: z.string(),
   APP_VERSION: z.string(),
@@ -51,11 +50,10 @@ export function configurationLoader(): EnvConfig {
   const envConfig = EnvConfigZ.parse({
     ...process.env,
 
-    PROJECT_NAME: process.env.PROJECT_NAME,
-
-    INBUCKET_PORT: process.env.INBUCKET_PORT,
-
-    APP_EMAIL: process.env.APP_EMAIL,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    EMAIL_HOST: process.env.EMAIL_HOST,
+    EMAIL_PORT: process.env.EMAIL_PORT,
+    EMAIL_SECURE: process.env.EMAIL_SECURE,
 
     APP_VERSION: process.env.APP_VERSION || APP_DEFAULT_VERSION,
     APP_HEALTH_LIVE: process.env.APP_HEALTH_LIVE || APP_HEALTH_LIVE,

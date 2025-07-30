@@ -8,19 +8,26 @@ import { EnvConfig } from '../../../shared/config/configuration';
 @Injectable()
 export class MailService {
   private email: string;
+  private host: string;
+  private port: number;
+  private secure: boolean;
+  private transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService<EnvConfig>) {
-    this.email = this.configService.getOrThrow('APP_EMAIL');
-  }
+    this.email = this.configService.getOrThrow('EMAIL_FROM');
+    this.host = this.configService.getOrThrow('EMAIL_HOST');
+    this.port = this.configService.getOrThrow('EMAIL_PORT');
+    this.secure = this.configService.getOrThrow('EMAIL_SECURE');
 
-  private transporter = nodemailer.createTransport({
-    host: 'localhost',
-    port: 2500,
-    secure: false,
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+    this.transporter = nodemailer.createTransport({
+      host: this.host,
+      port: this.port,
+      secure: this.secure,
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+  }
 
   async sendEmail({
     to,

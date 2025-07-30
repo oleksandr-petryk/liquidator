@@ -16,7 +16,7 @@ export class AccountVerificationResponseBodyDto {
   message!: 'Account successfully verified';
 }
 
-export class sendVerificatioEmailResponseBodyDto {
+export class SendVerificatioEmailResponseBodyDto {
   @ApiProperty({
     description: 'Verification email sent successfully',
     type: String,

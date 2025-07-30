@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  GoneException,
   Inject,
   Injectable,
   Logger,
@@ -9,7 +8,6 @@ import {
 import { eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
-import { user } from '../modules/drizzle/schemas';
 import { accountVerification } from '../modules/drizzle/schemas/account-verification';
 import { nonNullableUtils } from '../utils/db.util';
 import { BaseDao } from './base.dao';
@@ -29,7 +27,7 @@ export class AccountVerificationDao extends BaseDao<
 
   constructor(
     @Inject(DRIZZLE_CONNECTION)
-    private readonly postgresDatabase: Drizzle,
+    public readonly postgresDatabase: Drizzle,
   ) {
     super(accountVerification, postgresDatabase, {
       entityName: {
@@ -69,21 +67,5 @@ export class AccountVerificationDao extends BaseDao<
         'Account verification record not found, id: ' + userId,
       ),
     );
-  }
-
-  public async canVerifyAccount(userId: string): Promise<void> {
-    if ((await this.getByUserId(userId)).expiresAt < new Date()) {
-      throw new GoneException('The code has expired');
-    }
-
-    if (
-      (
-        await this.postgres.query.user.findFirst({
-          where: eq(user.id, userId),
-        })
-      )?.verifyed === true
-    ) {
-      throw new BadRequestException('User is already verified');
-    }
   }
 }

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
-import { AccountVerificationModule } from './modules/accountVerification/accountVerification.module';
+import { AccountVerificationModule } from './modules/account-verification/account-verification.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HandlebarsModule } from './modules/handlebars/handlebars.module';
 import { MailModule } from './modules/mail/mail.module';

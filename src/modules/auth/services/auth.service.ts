@@ -3,11 +3,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
-import { EnvConfig } from '../../../shared/config/configuration';
 import { AccountVerificationDao } from '../../../shared/dao/account-verification.dao';
 import {
   SessionDao,
@@ -26,29 +24,20 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../../shared/interfaces/jwt-token.interface';
-import { generateVerificationCode } from '../../../shared/utils/db.util';
-import { AccountVerificationService } from '../../accountVerification/services/accountVerification.service';
-import { HandlebarsService } from '../../handlebars/services/handlebars.service';
-import { MailService } from '../../mail/services/mail.service';
+import { templatesEnum } from '../../../templates/templateNames';
+import { AccountVerificationService } from '../../account-verification/services/account-verification.service';
 import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
 export class AuthService {
-  private projectName: string;
-
   constructor(
-    private readonly configService: ConfigService<EnvConfig>,
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
-    private readonly mailService: MailService,
-    private readonly handlebarsService: HandlebarsService,
     private readonly accountVerificationDao: AccountVerificationDao,
     private readonly accountVerificationService: AccountVerificationService,
-  ) {
-    this.projectName = this.configService.getOrThrow('PROJECT_NAME');
-  }
+  ) {}
 
   /**
    * Register a new user
@@ -59,8 +48,7 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
-   * 6. Create account veryfication record in DB
-   * 7. Send veryfication email
+   * 6. Create account veryfication record in DB and send veryfication email
    *
    * @returns new user
    */
@@ -123,27 +111,12 @@ export class AuthService {
       },
     });
 
-    // 6. Create account veryfication record in DB
-    const newAccountVerification = await this.accountVerificationDao.create({
-      data: {
-        userId: newUser.id,
-        code: generateVerificationCode(),
-        expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
-      },
-    });
-
-    // 7. Send veryfication email
-    await this.mailService.sendEmail({
-      to: newUser.email,
-      subject: 'verification approval',
-      html: await this.handlebarsService.render('verification-email', {
-        name: newUser.username,
-        email: newUser.email,
-        code: newAccountVerification.code,
-        expiresAt: newAccountVerification.expiresAt,
-        year: new Date().getFullYear(),
-        projectName: this.projectName,
-      }),
+    // 6. Create account veryfication record in DB and send veryfication email
+    await this.accountVerificationService.sendRequest({
+      template: templatesEnum.verificationEmail,
+      username: newUser.username,
+      email: newUser.email,
+      id: newUser.id,
     });
 
     return newUser;
@@ -299,34 +272,18 @@ export class AuthService {
    * Send new verification email
    *
    * 1. Get user by id
-   * 2. Create account veryfication record in DB
-   * 3. Send veryfication email
+   * 2. Create account veryfication record in DB and send veryfication email
    */
   async sendVerificatioEmail(userId: string): Promise<void> {
     // 1. Get user by id
     const user = await this.userDao.getById({ id: userId });
 
-    // 2. Create account veryfication record in DB
-    const newAccountVerification = await this.accountVerificationDao.create({
-      data: {
-        userId: user.id,
-        code: generateVerificationCode(),
-        expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
-      },
-    });
-
-    // 3. Send veryfication email
-    await this.mailService.sendEmail({
-      to: user.email,
-      subject: 'verification approval',
-      html: await this.handlebarsService.render('verification-email', {
-        name: user.username,
-        email: user.email,
-        code: newAccountVerification.code,
-        expiresAt: newAccountVerification.expiresAt,
-        year: new Date().getFullYear(),
-        projectName: this.projectName,
-      }),
+    // 2. Create account veryfication record in DB and send veryfication email
+    await this.accountVerificationService.sendRequest({
+      template: templatesEnum.verificationEmail,
+      username: user.username,
+      email: user.email,
+      id: user.id,
     });
   }
 }
