@@ -5,7 +5,6 @@ import { API, expectApiError } from './helpers/api';
 
 describe('Auth Tests', () => {
   describe('Register', () => {
-    // todo check if mail exist
     test('/auth/register/ - OK', async () => {
       const data = {
         email: faker.internet.email(),
@@ -322,36 +321,70 @@ describe('Auth Tests', () => {
     });
   });
 
-  // Todo Account verification
+  describe('Account verification', () => {
+    test('Account verification - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
 
-  test('Account verification - OK', async () => {
-    const data = {
-      email: faker.internet.email(),
-      username: faker.internet.username(),
-      password: faker.internet.password(),
-    };
+      await API.post('/v1/auth/register', data);
 
-    await API.post('/v1/auth/register', data);
+      const mail = await axios.get(
+        `http://localhost:9000/api/v1/mailbox/${data.email}/1`,
+      );
 
-    const mail = await axios.get(
-      `http://localhost:9000/api/v1/mailbox/${data.email}/1`,
-    );
+      expect(mail.status).toEqual(200);
 
-    expect(mail.status).toEqual(200);
+      const tokens = await API.post('/v1/auth/log-in', data);
 
-    const tokens = await API.post('/v1/auth/log-in', data);
-
-    const response = await API.post(
-      '/v1/auth/verify',
-      { code: mail.data.body.text.match(/\b\d{6}\b/)[0] },
-      {
-        headers: {
-          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+      const response = await API.post(
+        '/v1/auth/verify',
+        { code: mail.data.body.text.match(/\b\d{6}\b/)[0] },
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
         },
-      },
-    );
+      );
 
-    expect(response.status).toEqual(201);
-    expect(response.data.payload).toEqual('Account successfully verified');
+      expect(response.status).toEqual(201);
+      expect(response.data.payload).toEqual('Account successfully verified');
+    });
+
+    test('Account verification email resending - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const mail_1 = await axios.get(
+        `http://localhost:9000/api/v1/mailbox/${data.email}/1`,
+      );
+
+      expect(mail_1.status).toEqual(200);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      await API.post(
+        '/v1/auth/verify/send',
+        {},
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        },
+      );
+
+      const mail_2 = await axios.get(
+        `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
+      );
+
+      expect(mail_2.status).toEqual(200);
+    });
   });
 });
