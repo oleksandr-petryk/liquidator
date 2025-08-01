@@ -8,4 +8,7 @@ export const SWAGGER_TAGS = {
   auth: {
     title: 'Auth',
   },
+  s3: {
+    title: 'S3',
+  },
 } satisfies SwaggerTags;
