@@ -168,7 +168,7 @@ export class AuthController {
   async accountVerification(
     @GetUserFromRequest() user: JwtTokenPayload,
     @Body() data: AccountVerificationRequestBody,
-  ): Promise<string> {
+  ): Promise<AccountVerificationResponseBodyDto> {
     this.logger.info(
       `${this.accountVerification.name}, user: ${JSON.stringify(user)}, data: ${JSON.stringify(data)}`,
     );
@@ -178,7 +178,7 @@ export class AuthController {
       code: data.code,
     });
 
-    return 'Account successfully verified';
+    return { message: 'Account successfully verified' };
   }
 
   @ApiOperation({
@@ -190,13 +190,13 @@ export class AuthController {
   @Post('verify/send')
   async sendVerificationEmail(
     @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<string> {
+  ): Promise<SendVerificatioEmailResponseBodyDto> {
     this.logger.info(
       `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
     );
 
     await this.authService.sendVerificatioEmail(user.id);
 
-    return 'Verification email sent successfully';
+    return { message: 'Verification email sent successfully' };
   }
 }

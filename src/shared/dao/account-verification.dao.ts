@@ -27,7 +27,7 @@ export class AccountVerificationDao extends BaseDao<
 
   constructor(
     @Inject(DRIZZLE_CONNECTION)
-    public readonly postgresDatabase: Drizzle,
+    private readonly postgresDatabase: Drizzle,
   ) {
     super(accountVerification, postgresDatabase, {
       entityName: {
@@ -47,8 +47,8 @@ export class AccountVerificationDao extends BaseDao<
   }: {
     db?: Drizzle;
     userId: string;
-  }): Promise<AccountVerificationSelectModel> {
-    const [find] = await db
+  }): Promise<AccountVerificationSelectModel[]> {
+    const find = await db
       .select()
       .from(accountVerification)
       .where(eq(accountVerification.userId, userId));
@@ -58,7 +58,7 @@ export class AccountVerificationDao extends BaseDao<
 
   public async getByUserId(
     userId: string,
-  ): Promise<AccountVerificationSelectModel> {
+  ): Promise<AccountVerificationSelectModel[]> {
     const result = await this.findByUserId({ userId });
 
     return nonNullableUtils(

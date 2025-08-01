@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -116,7 +112,7 @@ export class AuthService {
       template: templatesEnum.verificationEmail,
       username: newUser.username,
       email: newUser.email,
-      id: newUser.id,
+      userId: newUser.id,
     });
 
     return newUser;
@@ -246,8 +242,7 @@ export class AuthService {
    * Account verification
    *
    * Logic:
-   * 1. Check is account verification code valid
-   * 2. Set user verifyed field to true
+   * 1. Check is account can verify and set user verifyed field to true
    */
   async accountVerification({
     userId,
@@ -256,34 +251,29 @@ export class AuthService {
     userId: string;
     code: string;
   }): Promise<void> {
-    const accountVerificationRecord =
-      await this.accountVerificationDao.getByUserId(userId);
-
-    // 1. Check is account verification code valid
-    if (accountVerificationRecord.code !== code) {
-      throw new UnauthorizedException();
-    }
-
-    // 2. Set user verifyed field to true
-    await this.accountVerificationService.verifyUserAccount(userId);
+    // 1. Check is account can verify and set user verifyed field to true
+    await this.accountVerificationService.verifyUserAccount({ userId, code });
   }
 
   /**
    * Send new verification email
    *
-   * 1. Get user by id
-   * 2. Create account veryfication record in DB and send veryfication email
+   * 1. Check
+   * 2. Get user by id
+   * 3. Create account veryfication record in DB and send veryfication email
    */
   async sendVerificatioEmail(userId: string): Promise<void> {
-    // 1. Get user by id
+    await this.accountVerificationService.canVerifyAccount({ userId });
+
+    // 2. Get user by id
     const user = await this.userDao.getById({ id: userId });
 
-    // 2. Create account veryfication record in DB and send veryfication email
+    // 3. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
       template: templatesEnum.verificationEmail,
       username: user.username,
       email: user.email,
-      id: user.id,
+      userId: user.id,
     });
   }
 }

@@ -1,12 +1,15 @@
-import { BadRequestException, GoneException, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import {
+  BadRequestException,
+  GoneException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 import {
   AccountVerificationDao,
   AccountVerificationSelectModel,
 } from '../../../shared/dao/account-verification.dao';
 import { UserDao } from '../../../shared/dao/user.dao';
-import { user } from '../../../shared/modules/drizzle/schemas';
 import { generateVerificationCode } from '../../../shared/utils/db.util';
 import { HandlebarsService } from '../../handlebars/services/handlebars.service';
 import { MailService } from '../../mail/services/mail.service';
@@ -20,29 +23,51 @@ export class AccountVerificationService {
     private readonly handlebarsService: HandlebarsService,
   ) {}
 
-  public async canVerifyAccount(userId: string): Promise<void> {
+  public async canVerifyAccount({
+    userId,
+    code,
+  }: {
+    userId: string;
+    code?: string;
+  }): Promise<void> {
+    const accountVerificationRecords =
+      await this.accountVerificationDao.getByUserId(userId);
+
     if (
-      (await this.accountVerificationDao.getByUserId(userId)).expiresAt <
-      new Date()
+      code !== undefined &&
+      !accountVerificationRecords.some((record) => {
+        if (record.code === code) {
+          return true;
+        }
+      })
+    ) {
+      throw new UnauthorizedException('Code wrong');
+    }
+
+    if (
+      code !== undefined &&
+      accountVerificationRecords.some((record) => {
+        if (record.expiresAt < new Date()) {
+          return true;
+        }
+      })
     ) {
       throw new GoneException('The code has expired');
     }
 
-    if (
-      (
-        await this.accountVerificationDao.postgresDatabase.query.user.findFirst(
-          {
-            where: eq(user.id, userId),
-          },
-        )
-      )?.verifyed === true
-    ) {
+    if ((await this.userDao.findById({ id: userId }))?.verifyed === true) {
       throw new BadRequestException('User is already verified');
     }
   }
 
-  public async verifyUserAccount(userId: string): Promise<void> {
-    await this.canVerifyAccount(userId);
+  public async verifyUserAccount({
+    userId,
+    code,
+  }: {
+    userId: string;
+    code: string;
+  }): Promise<void> {
+    await this.canVerifyAccount({ userId, code });
 
     await this.userDao.update({
       data: { verifyed: true },
@@ -54,16 +79,16 @@ export class AccountVerificationService {
     template,
     username,
     email,
-    id,
+    userId,
   }: {
     template: string;
     username: string;
     email: string;
-    id: string;
+    userId: string;
   }): Promise<AccountVerificationSelectModel> {
     const accountVerificationRecord = await this.accountVerificationDao.create({
       data: {
-        userId: id,
+        userId: userId,
         code: generateVerificationCode(),
         expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
       },
