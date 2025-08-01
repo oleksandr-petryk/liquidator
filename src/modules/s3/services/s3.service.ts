@@ -83,12 +83,12 @@ export class S3Service {
 
   public async getPicture({
     bucket,
-    id,
+    userId,
   }: {
     bucket: string;
-    id: string;
+    userId: string;
   }): Promise<{ url: string }> {
-    const user = await this.userDao.findById({ id });
+    const user = await this.userDao.findById({ id: userId });
 
     if (!user.pictureId) {
       throw new BadRequestException('User dont have picture');
@@ -107,13 +107,26 @@ export class S3Service {
 
   public async deletePicture({
     bucket,
-    key,
+    userId,
   }: {
     bucket: string;
-    key: string;
+    userId: string;
   }): Promise<void> {
-    await this.client.send(
-      new DeleteObjectCommand({ Bucket: bucket, Key: key }),
-    );
+    const user = await this.userDao.findById({ id: userId });
+
+    if (!user.pictureId) {
+      throw new BadRequestException('User already dont have picture');
+    }
+
+    if (
+      (await this.userDao.findManyByPictureId({ pictureId: user.pictureId }))
+        .length < 2
+    ) {
+      await this.client.send(
+        new DeleteObjectCommand({ Bucket: bucket, Key: user.pictureId }),
+      );
+    }
+
+    await this.userDao.update({ data: { pictureId: null }, id: userId });
   }
 }

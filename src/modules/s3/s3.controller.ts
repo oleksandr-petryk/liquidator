@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  Delete,
   Get,
   Post,
   Req,
@@ -46,7 +47,7 @@ export class S3Controller {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @Post()
-  async setAccountPicture(
+  async uploadPicture(
     @Req() req: FastifyRequest,
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<{ message: string }> {
@@ -66,12 +67,26 @@ export class S3Controller {
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @Get()
-  async getFile(
+  async getPicture(
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<{ url: string }> {
     return await this.s3Service.getPicture({
       bucket: this.bucket,
-      id: user.id,
+      userId: user.id,
     });
+  }
+
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Delete()
+  async deletePicture(
+    @GetUserFromRequest() user: JwtTokenPayload,
+  ): Promise<{ message: string }> {
+    await this.s3Service.deletePicture({
+      bucket: this.bucket,
+      userId: user.id,
+    });
+
+    return { message: 'picture succesfuly deleted' };
   }
 }

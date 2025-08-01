@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { picture } from '../modules/drizzle/schemas';

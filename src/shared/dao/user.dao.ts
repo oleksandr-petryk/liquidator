@@ -37,6 +37,21 @@ export class UserDao extends BaseDao<typeof user> {
     });
   }
 
+  async findManyByPictureId({
+    db = this.postgresDatabase,
+    pictureId,
+  }: {
+    db?: Drizzle;
+    pictureId: string;
+  }): Promise<UserSelectModel[]> {
+    const find = await db
+      .select()
+      .from(user)
+      .where(eq(user.pictureId, pictureId));
+
+    return find as UserSelectModel[];
+  }
+
   public async findByEmail({
     db = this.postgresDatabase,
     email,
