@@ -30,27 +30,16 @@ export class AccountVerificationService {
     userId: string;
     code?: string;
   }): Promise<void> {
-    const accountVerificationRecords =
+    const accountVerificationRecord =
       await this.accountVerificationDao.getByUserId(userId);
 
-    if (
-      code !== undefined &&
-      !accountVerificationRecords.some((record) => {
-        if (record.code === code) {
-          return true;
-        }
-      })
-    ) {
+    if (code !== undefined && accountVerificationRecord.code !== code) {
       throw new UnauthorizedException('Code wrong');
     }
 
     if (
       code !== undefined &&
-      accountVerificationRecords.some((record) => {
-        if (record.expiresAt < new Date()) {
-          return true;
-        }
-      })
+      accountVerificationRecord.expiresAt < new Date()
     ) {
       throw new GoneException('The code has expired');
     }

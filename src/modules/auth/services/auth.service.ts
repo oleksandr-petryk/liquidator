@@ -258,11 +258,12 @@ export class AuthService {
   /**
    * Send new verification email
    *
-   * 1. Check
+   * 1. Check is account can verify
    * 2. Get user by id
    * 3. Create account veryfication record in DB and send veryfication email
    */
   async sendVerificatioEmail(userId: string): Promise<void> {
+    // 1. Check is account can verify
     await this.accountVerificationService.canVerifyAccount({ userId });
 
     // 2. Get user by id

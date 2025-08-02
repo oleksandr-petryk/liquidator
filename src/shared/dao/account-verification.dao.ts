@@ -47,18 +47,18 @@ export class AccountVerificationDao extends BaseDao<
   }: {
     db?: Drizzle;
     userId: string;
-  }): Promise<AccountVerificationSelectModel[]> {
+  }): Promise<AccountVerificationSelectModel> {
     const find = await db
       .select()
       .from(accountVerification)
       .where(eq(accountVerification.userId, userId));
 
-    return find;
+    return find[find.length - 1];
   }
 
   public async getByUserId(
     userId: string,
-  ): Promise<AccountVerificationSelectModel[]> {
+  ): Promise<AccountVerificationSelectModel> {
     const result = await this.findByUserId({ userId });
 
     return nonNullableUtils(
