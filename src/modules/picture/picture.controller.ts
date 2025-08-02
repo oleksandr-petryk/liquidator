@@ -21,17 +21,17 @@ import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
 import { GetUserFromRequest } from '../../shared/decorators/get-user-from-request.decorator';
 import { JwtAccessGuard } from '../../shared/guards/auth.guard';
 import { JwtTokenPayload } from '../../shared/interfaces/jwt-token.interface';
-import { S3Service } from './services/s3.service';
+import { PictureService } from './services/picture.service';
 
-@ApiTags(SWAGGER_TAGS.s3.title)
-@Controller(`${APP_DEFAULT_V1_PREFIX}/s3`)
-export class S3Controller {
+@ApiTags(SWAGGER_TAGS.picture.title)
+@Controller(`${APP_DEFAULT_V1_PREFIX}/picture`)
+export class PictureController {
   private readonly bucket: string;
-  constructor(private readonly s3Service: S3Service) {
-    this.bucket = 'picture';
+  constructor(private readonly pictureService: PictureService) {
+    this.bucket = 'pictures';
   }
 
-  @ApiOperation({ summary: 'Upload PNG file' })
+  @ApiOperation({ summary: 'Upload picture' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -56,33 +56,35 @@ export class S3Controller {
       throw new BadRequestException();
     }
 
-    await this.s3Service.uploadPicture({
+    await this.pictureService.uploadPicture({
       file,
       bucket: this.bucket,
-      id: user.id,
+      userId: user.id,
     });
     return { message: 'Uploaded' };
   }
 
+  @ApiOperation({ summary: 'Get picture' })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @Get()
   async getPicture(
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<{ url: string }> {
-    return await this.s3Service.getPicture({
+    return await this.pictureService.getPicture({
       bucket: this.bucket,
       userId: user.id,
     });
   }
 
+  @ApiOperation({ summary: 'Delete picture' })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @Delete()
   async deletePicture(
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<{ message: string }> {
-    await this.s3Service.deletePicture({
+    await this.pictureService.deletePicture({
       bucket: this.bucket,
       userId: user.id,
     });

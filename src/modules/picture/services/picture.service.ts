@@ -1,8 +1,6 @@
 import {
-  CreateBucketCommand,
   DeleteObjectCommand,
   GetObjectCommand,
-  ListBucketsCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -16,7 +14,7 @@ import { PictureDao } from '../../../shared/dao/pictures.dao';
 import { UserDao } from '../../../shared/dao/user.dao';
 
 @Injectable()
-export class S3Service {
+export class PictureService {
   private readonly streamPipeline = promisify(pipeline);
 
   private readonly client: S3Client;
@@ -36,30 +34,26 @@ export class S3Service {
     });
   }
 
-  private async createBucket(bucket: string): Promise<void> {
-    if (
-      !(await this.client.send(new ListBucketsCommand({}))).Buckets?.some(
-        (b) => {
-          if (b.Name === bucket) {
-            return true;
-          }
-        },
-      )
-    ) {
-      await this.client.send(new CreateBucketCommand({ Bucket: bucket }));
-    }
-  }
-
   async uploadPicture({
     file,
     bucket,
-    id,
+    userId,
   }: {
     file: MultipartFile;
     bucket: string;
-    id: string;
+    userId: string;
   }): Promise<void> {
-    await this.createBucket(bucket);
+    const user = await this.userDao.findById({ id: userId });
+
+    if (
+      user.pictureId &&
+      (await this.userDao.findManyByPictureId({ pictureId: user.pictureId }))
+        .length < 2
+    ) {
+      await this.client.send(
+        new DeleteObjectCommand({ Bucket: bucket, Key: user.pictureId }),
+      );
+    }
 
     const picture = await this.pictureDao.create({
       data: {
@@ -67,7 +61,7 @@ export class S3Service {
       },
     });
 
-    await this.userDao.update({ data: { pictureId: picture.id }, id });
+    await this.userDao.update({ data: { pictureId: picture.id }, id: userId });
 
     const buffer = await file.toBuffer();
 

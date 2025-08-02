@@ -4,13 +4,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { PictureDao } from '../../shared/dao/pictures.dao';
 import { UserDao } from '../../shared/dao/user.dao';
 import { JwtInternalService } from '../auth/services/jwt-internal.service';
-import { S3Controller } from './s3.controller';
-import { S3Service } from './services/s3.service';
+import { PictureController } from './picture.controller';
+import { PictureService } from './services/picture.service';
 
 @Module({
   imports: [JwtModule],
-  providers: [S3Service, JwtInternalService, PictureDao, UserDao],
-  exports: [S3Service],
-  controllers: [S3Controller],
+  providers: [PictureService, JwtInternalService, PictureDao, UserDao],
+  exports: [PictureService],
+  controllers: [PictureController],
 })
-export class S3Module {}
+export class PictureModule {}
