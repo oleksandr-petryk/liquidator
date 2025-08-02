@@ -350,7 +350,9 @@ describe('Auth Tests', () => {
       );
 
       expect(response.status).toEqual(201);
-      expect(response.data.payload).toEqual('Account successfully verified');
+      expect(response.data.payload.message).toEqual(
+        'Account successfully verified',
+      );
     });
 
     test('Account verification email resending - OK', async () => {
