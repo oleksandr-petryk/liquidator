@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -14,11 +15,16 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { UUID } from 'crypto';
 import { FastifyRequest } from 'fastify';
 
 import { APP_DEFAULT_V1_PREFIX } from '../../shared/const/app.const';
 import { SWAGGER_TAGS } from '../../shared/const/swagger.const';
+import { PictureSelectModel } from '../../shared/dao/pictures.dao';
+import { ApiAbstractResponse } from '../../shared/decorators/api-abstract-response.decorator';
 import { GetUserFromRequest } from '../../shared/decorators/get-user-from-request.decorator';
+import { GetPictureResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
+import { PictureDto } from '../../shared/dto/entities/picture.dto';
 import { JwtAccessGuard } from '../../shared/guards/auth.guard';
 import { JwtTokenPayload } from '../../shared/interfaces/jwt-token.interface';
 import { PictureService } from './services/picture.service';
@@ -45,35 +51,34 @@ export class PictureController {
     },
   })
   @ApiBasicAuth('Bearer')
+  @ApiAbstractResponse(PictureDto)
   @UseGuards(JwtAccessGuard)
   @Post()
   async uploadPicture(
     @Req() req: FastifyRequest,
     @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<{ message: string }> {
+  ): Promise<PictureSelectModel> {
     const file = await req.file();
     if (!file) {
       throw new BadRequestException();
     }
 
-    await this.pictureService.uploadPicture({
+    return await this.pictureService.uploadPicture({
       file,
       bucket: this.bucket,
       userId: user.id,
     });
-    return { message: 'Uploaded' };
   }
 
   @ApiOperation({ summary: 'Get picture' })
-  @ApiBasicAuth('Bearer')
-  @UseGuards(JwtAccessGuard)
-  @Get()
+  @ApiAbstractResponse(GetPictureResponseBodyDto)
+  @Get(':pictureId')
   async getPicture(
-    @GetUserFromRequest() user: JwtTokenPayload,
+    @Param('pictureId') pictureId: UUID,
   ): Promise<{ url: string }> {
     return await this.pictureService.getPicture({
       bucket: this.bucket,
-      userId: user.id,
+      pictureId: pictureId,
     });
   }
 
@@ -83,12 +88,10 @@ export class PictureController {
   @Delete()
   async deletePicture(
     @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<{ message: string }> {
+  ): Promise<void> {
     await this.pictureService.deletePicture({
       bucket: this.bucket,
       userId: user.id,
     });
-
-    return { message: 'picture succesfuly deleted' };
   }
 }

@@ -10,8 +10,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 
-import { PictureDao } from '../../../shared/dao/pictures.dao';
+import {
+  PictureDao,
+  PictureSelectModel,
+} from '../../../shared/dao/pictures.dao';
 import { UserDao } from '../../../shared/dao/user.dao';
+import { GetPictureResponseBodyDto } from '../../../shared/dto/controllers/auth/response-body.dto';
 
 @Injectable()
 export class PictureService {
@@ -34,6 +38,15 @@ export class PictureService {
     });
   }
 
+  /**
+   * Upload picture
+   * 1. Create new picture record
+   * 2. Set user pictureId
+   * 3. Delete old s3 file and picture record if exists
+   * 4. Push image to s3
+   *
+   * @returns PictureSelectModel
+   */
   async uploadPicture({
     file,
     bucket,
@@ -42,29 +55,35 @@ export class PictureService {
     file: MultipartFile;
     bucket: string;
     userId: string;
-  }): Promise<void> {
+  }): Promise<PictureSelectModel> {
     const user = await this.userDao.findById({ id: userId });
 
-    if (
-      user.pictureId &&
-      (await this.userDao.findManyByPictureId({ pictureId: user.pictureId }))
-        .length < 2
-    ) {
-      await this.client.send(
-        new DeleteObjectCommand({ Bucket: bucket, Key: user.pictureId }),
-      );
-    }
+    const oldPictureId = user.pictureId;
 
+    // 1. Create new picture record
     const picture = await this.pictureDao.create({
       data: {
         picture: file.filename,
       },
     });
 
-    await this.userDao.update({ data: { pictureId: picture.id }, id: userId });
+    // 2. Set user pictureId
+    await this.userDao.update({
+      data: { pictureId: picture.id },
+      id: userId,
+    });
 
+    // 3. Delete old s3 object and picture record if exists
+    if (oldPictureId !== null) {
+      await this.client.send(
+        new DeleteObjectCommand({ Bucket: bucket, Key: oldPictureId }),
+      );
+
+      await this.pictureDao.delete({ id: oldPictureId });
+    }
+
+    // 4. Push image to s3
     const buffer = await file.toBuffer();
-
     await this.client.send(
       new PutObjectCommand({
         Bucket: bucket,
@@ -73,32 +92,47 @@ export class PictureService {
         ContentType: file.mimetype,
       }),
     );
+
+    return picture;
   }
 
+  /**
+   * Get picture
+   * 1. Check if picture exist
+   * 2. Make url to picture
+   *
+   * @returns url to picture
+   */
   public async getPicture({
     bucket,
-    userId,
+    pictureId,
   }: {
     bucket: string;
-    userId: string;
-  }): Promise<{ url: string }> {
-    const user = await this.userDao.findById({ id: userId });
-
-    if (!user.pictureId) {
-      throw new BadRequestException('User dont have picture');
+    pictureId: string;
+  }): Promise<GetPictureResponseBodyDto> {
+    // 1. Check if picture exist
+    if (!(await this.pictureDao.findById({ id: pictureId }))) {
+      throw new BadRequestException('Picture not found');
     }
 
+    // 2. Make url to picture
     const url = await getSignedUrl(
       this.client,
       new GetObjectCommand({
         Bucket: bucket,
-        Key: user.pictureId,
+        Key: pictureId,
       }),
       { expiresIn: 3600 },
     );
     return { url };
   }
 
+  /**
+   * Upload picture
+   * 1. Check if user hace picture
+   * 2. Set user pictureId to null
+   * 3. Delete s3 file and picture record
+   */
   public async deletePicture({
     bucket,
     userId,
@@ -106,21 +140,21 @@ export class PictureService {
     bucket: string;
     userId: string;
   }): Promise<void> {
+    // 1. Check if user hace picture
     const user = await this.userDao.findById({ id: userId });
-
     if (!user.pictureId) {
       throw new BadRequestException('User already dont have picture');
     }
 
-    if (
-      (await this.userDao.findManyByPictureId({ pictureId: user.pictureId }))
-        .length < 2
-    ) {
-      await this.client.send(
-        new DeleteObjectCommand({ Bucket: bucket, Key: user.pictureId }),
-      );
-    }
+    const pictureId = user.pictureId;
 
+    // 2. Set user pictureId to null
     await this.userDao.update({ data: { pictureId: null }, id: userId });
+
+    // 3. Delete s3 file and picture record
+    await this.client.send(
+      new DeleteObjectCommand({ Bucket: bucket, Key: pictureId }),
+    );
+    await this.pictureDao.delete({ id: pictureId });
   }
 }

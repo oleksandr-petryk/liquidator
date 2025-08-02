@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD CONSTRAINT "user_picture_id_unique" UNIQUE("picture_id");

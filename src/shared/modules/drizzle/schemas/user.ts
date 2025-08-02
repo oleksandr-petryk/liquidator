@@ -19,7 +19,9 @@ export const user = pgTable('user', {
   lastName: varchar('last_name', { length: 35 }),
   dateOfBirth: timestamp('date_of_birth'),
   gender: GenderEnum(),
-  pictureId: uuid('picture_id').references(() => picture.id),
+  pictureId: uuid('picture_id')
+    .unique()
+    .references(() => picture.id),
   password: varchar({ length: 128 }).notNull(),
   recoveryEmailAddress: varchar('recovery_email_address', { length: 320 }),
   ...drizzleTimestamps,
