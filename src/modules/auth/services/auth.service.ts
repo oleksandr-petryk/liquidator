@@ -20,7 +20,7 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../../shared/interfaces/jwt-token.interface';
-import { templatesEnum } from '../../../templates/templateNames';
+import { TemplatesEnum } from '../../../templates/templateNames';
 import { AccountVerificationService } from '../../account-verification/services/account-verification.service';
 import { JwtInternalService } from './jwt-internal.service';
 
@@ -109,7 +109,7 @@ export class AuthService {
 
     // 6. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
-      template: templatesEnum.verificationEmail,
+      template: TemplatesEnum.verificationEmail,
       username: newUser.username,
       email: newUser.email,
       userId: newUser.id,
@@ -271,7 +271,7 @@ export class AuthService {
 
     // 3. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
-      template: templatesEnum.verificationEmail,
+      template: TemplatesEnum.verificationEmail,
       username: user.username,
       email: user.email,
       userId: user.id,

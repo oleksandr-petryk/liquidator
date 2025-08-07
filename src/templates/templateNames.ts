@@ -1,3 +1,3 @@
-export enum templatesEnum {
+export enum TemplatesEnum {
   verificationEmail = 'verification-email',
 }

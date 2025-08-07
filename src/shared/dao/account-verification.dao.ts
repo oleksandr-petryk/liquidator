@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { accountVerification } from '../modules/drizzle/schemas/account-verification';
@@ -48,12 +49,14 @@ export class AccountVerificationDao extends BaseDao<
     db?: Drizzle;
     userId: string;
   }): Promise<AccountVerificationSelectModel> {
-    const find = await db
+    const [result] = await db
       .select()
       .from(accountVerification)
-      .where(eq(accountVerification.userId, userId));
+      .where(eq(accountVerification.userId, userId))
+      .orderBy(desc(accountVerification.createdAt))
+      .limit(1);
 
-    return find[find.length - 1];
+    return result;
   }
 
   public async getByUserId(
