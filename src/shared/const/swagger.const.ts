@@ -9,6 +9,6 @@ export const SWAGGER_TAGS = {
     title: 'Auth',
   },
   picture: {
-    title: 'picture',
+    title: 'Picture',
   },
 } satisfies SwaggerTags;

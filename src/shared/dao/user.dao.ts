@@ -49,7 +49,7 @@ export class UserDao extends BaseDao<typeof user> {
       .from(user)
       .where(eq(user.pictureId, pictureId));
 
-    return find as UserSelectModel[];
+    return find;
   }
 
   public async findByEmail({

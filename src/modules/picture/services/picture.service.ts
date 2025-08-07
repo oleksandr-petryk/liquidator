@@ -7,9 +7,11 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { MultipartFile } from '@fastify/multipart';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 
+import { EnvConfig } from '../../../shared/config/configuration';
 import {
   PictureDao,
   PictureSelectModel,
@@ -23,17 +25,30 @@ export class PictureService {
 
   private readonly client: S3Client;
 
+  private endpoint: string;
+  private region: string;
+  private accessKeyId: string;
+  private secretAccessKey: string;
+
   constructor(
     private readonly pictureDao: PictureDao,
     private readonly userDao: UserDao,
+    private readonly configService: ConfigService<EnvConfig>,
   ) {
+    this.endpoint = this.configService.getOrThrow('S3_ENDPOINT');
+    this.region = this.configService.getOrThrow('S3_REGION');
+    this.accessKeyId = this.configService.getOrThrow('S3_ACCESS_KEY_ID');
+    this.secretAccessKey = this.configService.getOrThrow(
+      'S3_SECRET_ACCESS_KEY',
+    );
+
     this.client = new S3Client({
-      endpoint: 'http://localhost:4566',
-      region: 'us-east-1',
+      endpoint: this.endpoint,
+      region: this.region,
       forcePathStyle: true,
       credentials: {
-        accessKeyId: 'test', // todo
-        secretAccessKey: 'test', // too todo
+        accessKeyId: this.accessKeyId,
+        secretAccessKey: this.secretAccessKey,
       },
     });
   }
@@ -111,7 +126,9 @@ export class PictureService {
     pictureId: string;
   }): Promise<GetPictureResponseBodyDto> {
     // 1. Check if picture exist
-    if (!(await this.pictureDao.findById({ id: pictureId }))) {
+    const pictureCandidate = await this.pictureDao.findById({ id: pictureId });
+
+    if (!pictureCandidate) {
       throw new BadRequestException('Picture not found');
     }
 
@@ -143,7 +160,7 @@ export class PictureService {
     // 1. Check if user hace picture
     const user = await this.userDao.findById({ id: userId });
     if (!user.pictureId) {
-      throw new BadRequestException('User already dont have picture');
+      throw new BadRequestException('User do not have picture');
     }
 
     const pictureId = user.pictureId;
