@@ -5,6 +5,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './modules/auth/auth.module';
 import { PictureModule } from './modules/picture/picture.module';
 import { PlatformModule } from './modules/platform/platform.module';
+import { S3Module } from './modules/s3/s3.module';
 import { configurationLoader } from './shared/config/configuration';
 import { DrizzleModule } from './shared/modules/drizzle/drizzle.module';
 import { KafkaModule } from './shared/modules/kafka/kafka.module';
@@ -46,6 +47,7 @@ const DEFAULT_MODULES = [
     PgModule,
     PlatformModule,
     RedisModule,
+    S3Module,
     PictureModule,
   ],
 })
