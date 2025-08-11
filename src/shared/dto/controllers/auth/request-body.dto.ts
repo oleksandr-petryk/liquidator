@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -25,6 +26,10 @@ export class RegisterRequestBodyDto {
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(320)
+  @Matches(/^[A-Za-z0-9@._\-+]+$/, {
+    message:
+      'Only letters (a-z), numbers (0-9), and special charters are allowed',
+  })
   email!: string;
 
   @ApiProperty({
@@ -152,4 +157,19 @@ export class UpdateSessionRequestBody {
   @MinLength(1)
   @MaxLength(128)
   name!: string;
+}
+
+export class AccountVerificationRequestBody {
+  @ApiProperty({
+    description: 'Verification code',
+    type: String,
+    example: '123456',
+    minLength: 6,
+    maxLength: 6,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  @MaxLength(6)
+  code!: string;
 }

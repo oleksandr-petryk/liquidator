@@ -11,4 +11,7 @@ export const SWAGGER_TAGS = {
   picture: {
     title: 'Picture',
   },
+  mail: {
+    title: 'Mail',
+  },
 } satisfies SwaggerTags;

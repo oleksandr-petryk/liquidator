@@ -2,6 +2,9 @@
  * JWT payload
  */
 export interface JwtTokenPayload {
+  /**
+   * User ID
+   */
   id: string;
 }
 

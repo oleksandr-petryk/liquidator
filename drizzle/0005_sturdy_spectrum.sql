@@ -1,0 +1,1 @@
+ALTER TABLE "password_reset_request" ADD COLUMN "expires_at" timestamp NOT NULL;

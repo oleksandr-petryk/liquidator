@@ -1,6 +1,6 @@
 {
-  "id": "6cfda845-391d-41c1-be51-c52ed0dae9c3",
-  "prevId": "059633bc-e618-48e4-babc-e296a5102dda",
+  "id": "a2ab8962-6d42-47e2-8f47-9c505acf10ce",
+  "prevId": "a33a0608-f1f3-4902-b9cd-09cdd8e780a7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -115,11 +115,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "updated_at": {
-          "name": "updated_at",
+        "expires_at": {
+          "name": "expires_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -127,6 +127,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -562,13 +568,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "username"
-          ]
-        },
-        "user_picture_id_unique": {
-          "name": "user_picture_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "picture_id"
           ]
         }
       },

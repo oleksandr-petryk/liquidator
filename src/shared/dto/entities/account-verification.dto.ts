@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 
 import { PasswordResetRequestSelectModel } from '../../dao/password-reset-request.dao';
 
-export class PasswordResetRequestDto
+export class AccountVerificationDto
   implements Record<keyof Omit<PasswordResetRequestSelectModel, 'user'>, any>
 {
   @ApiProperty({
@@ -51,7 +51,7 @@ export class PasswordResetRequestDto
   })
   updatedAt!: Date | null;
 
-  constructor(props: PasswordResetRequestDto) {
+  constructor(props: AccountVerificationDto) {
     Object.assign(this, props);
   }
 }

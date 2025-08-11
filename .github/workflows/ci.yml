@@ -46,6 +46,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     name: Lint
     steps:
       - uses: actions/checkout@v3
@@ -72,6 +73,7 @@ jobs:
 
   test-unit:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     name: Unit tests
     steps:
       - name: Checkout repository
@@ -101,6 +103,7 @@ jobs:
 
   test-e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     name: E2E tests
     services:
       postgres:
@@ -150,6 +153,7 @@ jobs:
 
   test-load:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     name: Load test
     services:
       postgres:

@@ -104,21 +104,6 @@ export class UserDao extends BaseDao<typeof user> {
     }
   }
 
-  public async getByUsername({
-    db = this.postgresDatabase,
-    username,
-  }: {
-    db?: Drizzle;
-    username: string;
-  }): Promise<UserSelectModel> {
-    const result = await this.findByUsername({ db, username });
-
-    return nonNullableUtils(
-      result,
-      new BadRequestException('User not found, username: ' + username),
-    );
-  }
-
   public async findByPhoneNumber({
     db = this.postgresDatabase,
     phoneNumber,
@@ -136,20 +121,5 @@ export class UserDao extends BaseDao<typeof user> {
       this.logger.error(`An error occurred when trying to findByPhoneNumber`);
       throw error;
     }
-  }
-
-  public async getByPhoneNumber({
-    db = this.postgresDatabase,
-    phoneNumber,
-  }: {
-    db?: Drizzle;
-    phoneNumber: string;
-  }): Promise<UserSelectModel> {
-    const result = await this.findByPhoneNumber({ db, phoneNumber });
-
-    return nonNullableUtils(
-      result,
-      new BadRequestException('User not found, phoneNumber: ' + phoneNumber),
-    );
   }
 }

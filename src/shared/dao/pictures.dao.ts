@@ -1,5 +1,5 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { picture } from '../modules/drizzle/schemas';
@@ -22,9 +22,5 @@ export class PictureDao extends BaseDao<typeof picture> {
         plural: 'picture',
       },
     });
-  }
-
-  private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Picture not found');
   }
 }
