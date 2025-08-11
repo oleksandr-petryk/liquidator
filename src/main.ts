@@ -6,10 +6,10 @@ import {
 } from '@nestjs/platform-fastify';
 import { Logger, PinoLogger } from 'nestjs-pino';
 
+import type { EnvConfig } from './5_shared/config/configuration';
+import { applyMiddlewares } from './5_shared/config/middlewares';
+import { setupSwagger } from './5_shared/config/swagger';
 import { AppModule } from './app.module';
-import { applyMiddlewares } from './middlewares';
-import type { EnvConfig } from './shared/config/configuration';
-import { setupSwagger } from './swagger';
 
 /**
  * Startup Nest.js application
