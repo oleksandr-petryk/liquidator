@@ -234,7 +234,7 @@ describe('Auth Tests', () => {
         }),
       );
 
-      expect(response.status).toEqual(404);
+      expect(response.status).toEqual(400);
     });
 
     test('Pagination - OK - default pagination', async () => {

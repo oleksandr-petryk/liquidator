@@ -1,14 +1,8 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { user } from '../modules/drizzle/schemas';
-import { nonNullableUtils } from '../utils/db.util';
 import { BaseDao } from './base.dao';
 import { PasswordResetRequestSelectModel } from './password-reset-request.dao';
 import { PictureSelectModel } from './pictures.dao';
@@ -67,21 +61,6 @@ export class UserDao extends BaseDao<typeof user> {
       this.logger.error(`An error occurred when trying to findByEmail`);
       throw error;
     }
-  }
-
-  public async getByEmail({
-    db = this.postgresDatabase,
-    email,
-  }: {
-    db?: Drizzle;
-    email: string;
-  }): Promise<UserSelectModel> {
-    const result = await this.findByEmail({ db, email });
-
-    return nonNullableUtils(
-      result,
-      new BadRequestException('User not found, email: ' + email),
-    );
   }
 
   public async findByUsername({

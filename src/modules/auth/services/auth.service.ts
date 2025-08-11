@@ -21,6 +21,7 @@ import {
 } from '../../../shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../../templates/templateNames';
 import { AccountVerificationService } from '../../account-verification/services/account-verification.service';
+import { SessionService } from '../../session/services/session.service';
 import { UserService } from '../../user/services/user.service';
 import { JwtInternalService } from './jwt-internal.service';
 
@@ -30,6 +31,7 @@ export class AuthService {
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
+    private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
@@ -134,7 +136,7 @@ export class AuthService {
     const emailLowerCase = data.email.toLowerCase();
 
     // 1. Check if user exist
-    const user = await this.userDao.getByEmail({ email: emailLowerCase });
+    const user = await this.userService.getByEmail({ email: emailLowerCase });
 
     // 2. Check if password is correct
     const passwordCheck = await bcrypt.compare(data.password, user.password);
@@ -212,7 +214,7 @@ export class AuthService {
     name: string;
   }): Promise<SessionSelectModel> {
     // 1. Check if session exist
-    await this.sessionDao.getSessionById({ id: id });
+    await this.sessionService.getById({ id });
 
     // 2. Update session name
     return await this.sessionDao.updateSession({
@@ -232,7 +234,7 @@ export class AuthService {
    */
   async deleteSession(id: string): Promise<void> {
     // 1. Check if session exist
-    await this.sessionDao.getSessionById({ id: id });
+    await this.sessionService.getById({ id });
 
     // 2. Delete session
     await this.sessionDao.delete({ id: id });
