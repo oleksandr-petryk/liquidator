@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { HandlebarsModule } from './modules/handlebars/handlebars.module';
 import { MailModule } from './modules/mail/mail.module';
 import { PlatformModule } from './modules/platform/platform.module';
+import { UserModule } from './modules/user/user.module';
 import { configurationLoader } from './shared/config/configuration';
 import { DrizzleModule } from './shared/modules/drizzle/drizzle.module';
 import { KafkaModule } from './shared/modules/kafka/kafka.module';
@@ -51,6 +52,7 @@ const DEFAULT_MODULES = [
     MailModule,
     HandlebarsModule,
     AccountVerificationModule,
+    UserModule,
   ],
 })
 export class AppModule {}

@@ -1,15 +1,9 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 import { desc } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
 import { accountVerification } from '../modules/drizzle/schemas/account-verification';
-import { nonNullableUtils } from '../utils/db.util';
 import { BaseDao } from './base.dao';
 
 export type AccountVerificationInsertModel = InferInsertModel<
@@ -52,18 +46,5 @@ export class AccountVerificationDao extends BaseDao<
       .limit(1);
 
     return result;
-  }
-
-  public async getByUserId(
-    userId: string,
-  ): Promise<AccountVerificationSelectModel> {
-    const result = await this.findByUserId({ userId });
-
-    return nonNullableUtils(
-      result,
-      new BadRequestException(
-        'Account verification record not found, id: ' + userId,
-      ),
-    );
   }
 }

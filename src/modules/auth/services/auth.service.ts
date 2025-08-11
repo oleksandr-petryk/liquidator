@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PinoLogger } from 'nestjs-pino';
 
-import { AccountVerificationDao } from '../../../shared/dao/account-verification.dao';
 import {
   SessionDao,
   SessionSelectModel,
@@ -22,6 +21,7 @@ import {
 } from '../../../shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../../templates/templateNames';
 import { AccountVerificationService } from '../../account-verification/services/account-verification.service';
+import { UserService } from '../../user/services/user.service';
 import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class AuthService {
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
-    private readonly accountVerificationDao: AccountVerificationDao,
+    private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
   ) {}
 
@@ -267,7 +267,7 @@ export class AuthService {
     await this.accountVerificationService.canVerifyAccount({ userId });
 
     // 2. Get user by id
-    const user = await this.userDao.getById({ id: userId });
+    const user = await this.userService.getById({ id: userId });
 
     // 3. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({

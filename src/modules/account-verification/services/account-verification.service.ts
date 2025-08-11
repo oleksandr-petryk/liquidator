@@ -10,7 +10,10 @@ import {
   AccountVerificationSelectModel,
 } from '../../../shared/dao/account-verification.dao';
 import { UserDao } from '../../../shared/dao/user.dao';
-import { generateVerificationCode } from '../../../shared/utils/db.util';
+import {
+  generateVerificationCode,
+  nonNullableUtils,
+} from '../../../shared/utils/db.util';
 import { HandlebarsService } from '../../handlebars/services/handlebars.service';
 import { MailService } from '../../mail/services/mail.service';
 
@@ -23,6 +26,19 @@ export class AccountVerificationService {
     private readonly handlebarsService: HandlebarsService,
   ) {}
 
+  public async getByUserId(
+    userId: string,
+  ): Promise<AccountVerificationSelectModel> {
+    const result = await this.accountVerificationDao.findByUserId({ userId });
+
+    return nonNullableUtils(
+      result,
+      new BadRequestException(
+        'Account verification record not found, id: ' + userId,
+      ),
+    );
+  }
+
   public async canVerifyAccount({
     userId,
     code,
@@ -30,8 +46,7 @@ export class AccountVerificationService {
     userId: string;
     code?: string;
   }): Promise<void> {
-    const accountVerificationRecord =
-      await this.accountVerificationDao.getByUserId(userId);
+    const accountVerificationRecord = await this.getByUserId(userId);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
       throw new UnauthorizedException('Code wrong');
