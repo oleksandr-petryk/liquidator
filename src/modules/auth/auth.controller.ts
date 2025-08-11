@@ -23,11 +23,16 @@ import {
 } from '../../shared/decorators/user-agent-and-ip.decorator';
 import { PaginationQueryDto } from '../../shared/dto/common/pagination-query.dto';
 import {
+  AccountVerificationRequestBody,
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
   UpdateSessionRequestBody,
 } from '../../shared/dto/controllers/auth/request-body.dto';
-import type { LoginResponseBodyDto } from '../../shared/dto/controllers/auth/response-body.dto';
+import {
+  AccountVerificationResponseBodyDto,
+  type LoginResponseBodyDto,
+  SendVerificatioEmailResponseBodyDto,
+} from '../../shared/dto/controllers/auth/response-body.dto';
 import {
   SessionDto,
   SessionPageableDto,
@@ -151,5 +156,47 @@ export class AuthController {
     );
 
     await this.authService.deleteSession(sessionId);
+  }
+
+  @ApiOperation({
+    summary: 'Account verification',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @ApiAbstractResponse(AccountVerificationResponseBodyDto)
+  @Post('verify')
+  async accountVerification(
+    @GetUserFromRequest() user: JwtTokenPayload,
+    @Body() data: AccountVerificationRequestBody,
+  ): Promise<AccountVerificationResponseBodyDto> {
+    this.logger.info(
+      `${this.accountVerification.name}, user: ${JSON.stringify(user)}, data: ${JSON.stringify(data)}`,
+    );
+
+    await this.authService.accountVerification({
+      userId: user.id,
+      code: data.code,
+    });
+
+    return { message: 'Account successfully verified' };
+  }
+
+  @ApiOperation({
+    summary: 'Send new verification email',
+  })
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @ApiAbstractResponse(SendVerificatioEmailResponseBodyDto)
+  @Post('verify/send')
+  async sendVerificationEmail(
+    @GetUserFromRequest() user: JwtTokenPayload,
+  ): Promise<SendVerificatioEmailResponseBodyDto> {
+    this.logger.info(
+      `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
+    );
+
+    await this.authService.sendVerificatioEmail(user.id);
+
+    return { message: 'Verification email sent successfully' };
   }
 }

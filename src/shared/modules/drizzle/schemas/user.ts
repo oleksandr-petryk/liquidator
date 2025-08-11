@@ -1,7 +1,14 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  pgTable,
+  timestamp,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core';
 import { Status } from 'src/shared/enums/db.enum';
 
+import { accountVerification } from './account-verification';
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
 import { GenderEnum, StatusEnum } from './enums';
@@ -12,6 +19,7 @@ import { teamToUser } from './team-to-user';
 export const user = pgTable('user', {
   ...drizzlePrimaryKey,
   status: StatusEnum().default(Status.Published).notNull(),
+  verifyed: boolean().default(false).notNull(),
   email: varchar({ length: 320 }).notNull().unique(),
   phoneNumber: varchar('phone_number', { length: 15 }).unique(),
   username: varchar({ length: 15 }).notNull().unique(),
@@ -31,5 +39,6 @@ export const userRelations = relations(user, ({ one, many }) => ({
     references: [picture.id],
   }),
   passwordResetRequest: many(passwordResetRequest),
+  accountVerification: many(accountVerification),
   teamToUser: many(teamToUser),
 }));

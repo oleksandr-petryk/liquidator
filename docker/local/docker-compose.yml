@@ -4,7 +4,7 @@ services:
     hostname: postgres
     container_name: postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -30,7 +30,7 @@ services:
     image: redis/redisinsight:2.68
     container_name: redis-insight
     ports:
-      - "5540:5540"
+      - '5540:5540'
     depends_on:
       - redis
     volumes:
@@ -43,7 +43,7 @@ services:
     hostname: zookeeper
     container_name: zookeeper
     ports:
-      - "32181:32181"
+      - '32181:32181'
     environment:
       - ZOOKEEPER_CLIENT_PORT=32181
       - ALLOW_ANONYMOUS_LOGIN=yes
@@ -55,8 +55,8 @@ services:
     hostname: kafka
     container_name: kafka
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - '9092:9092'
+      - '29092:29092'
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:32181
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -73,7 +73,7 @@ services:
     image: provectuslabs/kafka-ui:v0.7.2
     container_name: kafka-ui
     ports:
-      - "8182:8080"
+      - '8182:8080'
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
@@ -82,31 +82,17 @@ services:
     networks:
       - default_network
 
-  minio:
-    image: minio/minio
-    hostname: minio
-    container_name: minio
-    environment:
-      - MINIO_ROOT_USER=root
-      - MINIO_ROOT_PASSWORD=root1234
-    volumes:
-      - ./data/minio:/data
+  inbucket:
+    image: inbucket/inbucket:latest
+    container_name: inbucket
     ports:
-      - '9000:9000'
-      - '9001:9001'
-    command: server /data --console-address ":9001"
-
-  # UI: http://localhost:9000
-  # Info: https://github.com/inbucket/inbucket/wiki/REST-API
-  mailserver:
-    image: inbucket/inbucket
-    container_name: mailserver
-    ports:
-      - 9002:9000
-      - 2502:2500
-      - 1102:1100
+      - 9000:9000
+      - 2500:2500
     environment:
-      - INBUCKET_MAILBOXNAMING=full
+      - INBUCKET_HTTP_ADDR=:9000
+      - INBUCKET_SMTP_ADDR=:2500
+      - INBUCKET_STORAGE_TYPE=memory
+      - INBUCKET_LOGLEVEL=info
     networks:
       - default_network
 

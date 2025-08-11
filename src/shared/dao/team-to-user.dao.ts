@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 import { Drizzle, DRIZZLE_CONNECTION } from '../modules/drizzle/drizzle.module';
@@ -27,9 +27,5 @@ export class TeamToUserDao extends BaseDao<typeof teamToUser> {
         plural: 'team-to-user',
       },
     });
-  }
-
-  private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Team to user relation not found');
   }
 }

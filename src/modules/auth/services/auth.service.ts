@@ -19,6 +19,9 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../../shared/interfaces/jwt-token.interface';
+import { TemplatesEnum } from '../../../templates/templateNames';
+import { AccountVerificationService } from '../../account-verification/services/account-verification.service';
+import { UserService } from '../../user/services/user.service';
 import { JwtInternalService } from './jwt-internal.service';
 
 @Injectable()
@@ -28,6 +31,8 @@ export class AuthService {
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
     private readonly jwtInternalService: JwtInternalService,
+    private readonly userService: UserService,
+    private readonly accountVerificationService: AccountVerificationService,
   ) {}
 
   /**
@@ -39,6 +44,7 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
+   * 6. Create account veryfication record in DB and send veryfication email
    *
    * @returns new user
    */
@@ -88,7 +94,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
     // 5. Create new user in DB
-    return this.userDao.create({
+    const newUser = await this.userDao.create({
       data: {
         email: emailLowerCase,
         username: usernameLowerCase,
@@ -100,6 +106,16 @@ export class AuthService {
         gender: data.gender,
       },
     });
+
+    // 6. Create account veryfication record in DB and send veryfication email
+    await this.accountVerificationService.sendRequest({
+      template: TemplatesEnum.verificationEmail,
+      username: newUser.username,
+      email: newUser.email,
+      userId: newUser.id,
+    });
+
+    return newUser;
   }
 
   /**
@@ -171,7 +187,6 @@ export class AuthService {
     user: JwtTokenPayload,
     pagination: DrizzlePagination,
   ): Promise<Listable<SessionSelectModel>> {
-    // 1. Get list of sessions
     const response = await this.sessionDao.listSessionsByUserId({
       userId: user.id,
       pagination,
@@ -221,5 +236,45 @@ export class AuthService {
 
     // 2. Delete session
     await this.sessionDao.delete({ id: id });
+  }
+
+  /**
+   * Account verification
+   *
+   * Logic:
+   * 1. Check is account can verify and set user verifyed field to true
+   */
+  async accountVerification({
+    userId,
+    code,
+  }: {
+    userId: string;
+    code: string;
+  }): Promise<void> {
+    // 1. Check is account can verify and set user verifyed field to true
+    await this.accountVerificationService.verifyUserAccount({ userId, code });
+  }
+
+  /**
+   * Send new verification email
+   *
+   * 1. Check is account can verify
+   * 2. Get user by id
+   * 3. Create account veryfication record in DB and send veryfication email
+   */
+  async sendVerificatioEmail(userId: string): Promise<void> {
+    // 1. Check is account can verify
+    await this.accountVerificationService.canVerifyAccount({ userId });
+
+    // 2. Get user by id
+    const user = await this.userService.getById({ id: userId });
+
+    // 3. Create account veryfication record in DB and send veryfication email
+    await this.accountVerificationService.sendRequest({
+      template: TemplatesEnum.verificationEmail,
+      username: user.username,
+      email: user.email,
+      userId: user.id,
+    });
   }
 }

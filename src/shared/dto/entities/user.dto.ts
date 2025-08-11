@@ -32,6 +32,14 @@ export class UserDto
   status!: Status;
 
   @ApiProperty({
+    description: 'Is account verifyed',
+    type: Boolean,
+    example: true,
+    default: false,
+  })
+  verifyed!: boolean;
+
+  @ApiProperty({
     description: 'User email',
     type: String,
     example: 'any@mail.com',
