@@ -3,7 +3,6 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 import { desc } from 'drizzle-orm';
@@ -36,10 +35,6 @@ export class AccountVerificationDao extends BaseDao<
         plural: 'account-verification',
       },
     });
-  }
-
-  private notFound(message?: string): never {
-    throw new NotFoundException(message || 'Account verification not found');
   }
 
   async findByUserId({
