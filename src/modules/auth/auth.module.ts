@@ -8,6 +8,7 @@ import { DtoMapper } from '../../shared/services/dto.mapper';
 import { AccountVerificationService } from '../account-verification/services/account-verification.service';
 import { HandlebarsService } from '../handlebars/services/handlebars.service';
 import { MailService } from '../mail/services/mail.service';
+import { SessionService } from '../session/services/session.service';
 import { UserService } from '../user/services/user.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
@@ -24,6 +25,7 @@ import { JwtInternalService } from './services/jwt-internal.service';
     DtoMapper,
     SessionDao,
     UserService,
+    SessionService,
     MailService,
     HandlebarsService,
   ],

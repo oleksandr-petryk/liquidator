@@ -90,6 +90,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+      - name: Make init scripts executable
+        run: chmod +x ./docker/ci/localstack/init/create-bucket.sh
       - name: Start docker
         run: yarn docker:ci:start
       - name: Install packages
@@ -132,6 +134,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+      - name: Make init scripts executable
+        run: chmod +x ./docker/ci/localstack/init/create-bucket.sh
       - name: Start Docker
         run: yarn docker:ci:start
       - name: Install packages
@@ -180,6 +184,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+      - name: Make init scripts executable
+        run: chmod +x ./docker/ci/localstack/init/create-bucket.sh
       - name: Start docker
         run: yarn docker:ci:start
       - name: Install packages

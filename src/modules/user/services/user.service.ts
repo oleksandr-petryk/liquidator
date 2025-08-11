@@ -20,6 +20,19 @@ export class UserService {
     );
   }
 
+  public async getByEmail({
+    email,
+  }: {
+    email: string;
+  }): Promise<UserSelectModel> {
+    const result = await this.userDao.findByEmail({ email });
+
+    return nonNullableUtils(
+      result,
+      new BadRequestException('User not found, email: ' + email),
+    );
+  }
+
   public async getByPhoneNumber({
     phoneNumber,
   }: {

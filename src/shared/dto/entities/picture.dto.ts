@@ -14,7 +14,7 @@ export class PictureDto implements Record<keyof PictureSelectModel, any> {
   @ApiProperty({
     description: 'Picture URL',
     type: String,
-    example: `/pictures/${randomUUID}.png`,
+    example: `/pictures/c9d9b0da-e651-43ac-82c4-cf5be5b6dd9a.png`,
     maxLength: 256,
   })
   picture!: string;

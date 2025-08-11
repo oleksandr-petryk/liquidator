@@ -97,7 +97,7 @@ export class BaseDao<T extends Table<any>> {
   }): Promise<InferSelectModel<T>> {
     const updated = await db
       .update(this.daoInstance)
-      .set(data as InferInsertModel<T>)
+      .set(data as Partial<InferInsertModel<T>>)
       .where(eq((this.daoInstance as any).id, id));
     return updated as InferSelectModel<T>;
   }

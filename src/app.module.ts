@@ -6,7 +6,10 @@ import { AccountVerificationModule } from './modules/account-verification/accoun
 import { AuthModule } from './modules/auth/auth.module';
 import { HandlebarsModule } from './modules/handlebars/handlebars.module';
 import { MailModule } from './modules/mail/mail.module';
+import { PictureModule } from './modules/picture/picture.module';
 import { PlatformModule } from './modules/platform/platform.module';
+import { S3Module } from './modules/s3/s3.module';
+import { SessionModule } from './modules/session/session.module';
 import { UserModule } from './modules/user/user.module';
 import { configurationLoader } from './shared/config/configuration';
 import { DrizzleModule } from './shared/modules/drizzle/drizzle.module';
@@ -49,10 +52,13 @@ const DEFAULT_MODULES = [
     PgModule,
     PlatformModule,
     RedisModule,
+    S3Module,
+    PictureModule,
     MailModule,
     HandlebarsModule,
     AccountVerificationModule,
     UserModule,
+    SessionModule,
   ],
 })
 export class AppModule {}

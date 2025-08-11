@@ -8,6 +8,9 @@ export const SWAGGER_TAGS = {
   auth: {
     title: 'Auth',
   },
+  picture: {
+    title: 'Picture',
+  },
   mail: {
     title: 'Mail',
   },

@@ -1,5 +1,5 @@
 {
-  "id": "a33a0608-f1f3-4902-b9cd-09cdd8e780a7",
+  "id": "6cfda845-391d-41c1-be51-c52ed0dae9c3",
   "prevId": "059633bc-e618-48e4-babc-e296a5102dda",
   "version": "7",
   "dialect": "postgresql",
@@ -562,6 +562,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "username"
+          ]
+        },
+        "user_picture_id_unique": {
+          "name": "user_picture_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "picture_id"
           ]
         }
       },

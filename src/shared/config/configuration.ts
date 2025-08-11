@@ -23,6 +23,11 @@ export const EnvConfigZ = z.object({
   APP_SWAGGER_URL: z.string(),
   APP_OPENAPI_JSON_URL: z.string(),
 
+  S3_ENDPOINT: z.string(),
+  S3_REGION: z.string(),
+  S3_ACCESS_KEY_ID: z.string(),
+  S3_SECRET_ACCESS_KEY: z.string(),
+
   PORT: z.number().transform((value) => +value),
 
   JWT_ACCESS_KEY_PRIVATE: z.string(),
@@ -62,6 +67,11 @@ export function configurationLoader(): EnvConfig {
     APP_SWAGGER_URL: process.env.APP_SWAGGER_URL || APP_DEFAULT_SWAGGER_URL,
     APP_OPENAPI_JSON_URL:
       process.env.APP_OPENAPI_JSON_URL || APP_DEFAULT_OPENAPI_JSON_URL,
+
+    S3_ENDPOINT: process.env.S3_ENDPOINT,
+    S3_REGION: process.env.S3_REGION,
+    S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
 
     PORT: +process.env.PORT!,
 

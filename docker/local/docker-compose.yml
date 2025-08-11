@@ -95,6 +95,21 @@ services:
       - INBUCKET_LOGLEVEL=info
     networks:
       - default_network
+      
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - '4566:4566'
+      - '4571:4571'
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/localstack-data
+    volumes:
+      - ./localstack/init:/etc/localstack/init/ready.d
+      - ./data/localstack:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
   default_network:
