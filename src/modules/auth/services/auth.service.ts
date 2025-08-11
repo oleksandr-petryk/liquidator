@@ -19,7 +19,7 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../../shared/interfaces/jwt-token.interface';
-import { TemplatesEnum } from '../../../templates/templateNames';
+import { TemplatesEnum } from '../../../templates/template-names';
 import { AccountVerificationService } from '../../account-verification/services/account-verification.service';
 import { SessionService } from '../../session/services/session.service';
 import { UserService } from '../../user/services/user.service';
