@@ -13,16 +13,15 @@ import { GetPictureResponseBodyDto } from '../../../shared/dto/controllers/auth/
 import { S3Service } from '../../s3/services/s3.service';
 
 @Injectable()
-export class PictureService extends S3Service {
+export class PictureService {
   private readonly streamPipeline = promisify(pipeline);
 
   constructor(
     protected readonly configService: ConfigService,
     private readonly pictureDao: PictureDao,
     private readonly userDao: UserDao,
-  ) {
-    super(configService);
-  }
+    private readonly s3Service: S3Service,
+  ) {}
 
   /**
    * Upload picture
@@ -61,14 +60,14 @@ export class PictureService extends S3Service {
 
     // 3. Delete old s3 object and picture record if exists
     if (oldPictureId !== null) {
-      await this.delete({ bucket: bucket, key: oldPictureId });
+      await this.s3Service.delete({ bucket: bucket, key: oldPictureId });
 
       await this.pictureDao.delete({ id: oldPictureId });
     }
 
     // 4. Push image to s3
     const buffer = await file.toBuffer();
-    this.upload({
+    this.s3Service.upload({
       bucket: bucket,
       key: picture.id,
       body: buffer,
@@ -100,7 +99,7 @@ export class PictureService extends S3Service {
     }
 
     // 2. Make url to picture
-    const url = await this.getUrl({
+    const url = await this.s3Service.getUrl({
       bucket: bucket,
       key: pictureId,
     });
@@ -137,6 +136,6 @@ export class PictureService extends S3Service {
     await this.pictureDao.delete({ id: pictureId });
 
     // 4. Delete s3 file
-    this.delete({ bucket: bucket, key: pictureId });
+    this.s3Service.delete({ bucket: bucket, key: pictureId });
   }
 }
