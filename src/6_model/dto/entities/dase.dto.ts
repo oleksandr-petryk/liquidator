@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { ApiHideProperty } from '@nestjs/swagger';
 
-import { PageablePayloadDto } from '../pageable-payload.dto';
+import { PageablePayloadDto } from '../common/pageable-payload.dto';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars
 export function PageableDto<T extends Type>(item: T) {

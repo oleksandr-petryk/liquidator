@@ -10,7 +10,7 @@ import {
 } from '../../3_componentes/dao/pictures.dao';
 import { UserDao } from '../../3_componentes/dao/user.dao';
 import { S3Service } from '../../3_componentes/s3/s3.service';
-import { GetPictureResponseBodyDto } from '../../6_model/dto/common/io/auth/response-body.dto';
+import { GetPictureResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 
 @Injectable()
 export class PictureService {

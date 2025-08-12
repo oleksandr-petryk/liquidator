@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { OrganizationSelectModel } from '../../../../3_componentes/dao/organization.dao';
-import { Status } from '../../../../5_shared/enums/db.enum';
+import { TeamSelectModel } from '../../../3_componentes/dao/team.dao';
+import { Status } from '../../../5_shared/enums/db.enum';
 import { PictureDto } from './picture.dto';
 
-export class OrganizationDto
-  implements Record<keyof OrganizationSelectModel, any>
+export class TeamDto
+  implements Record<keyof Omit<TeamSelectModel, 'teamToUser'>, any>
 {
   @ApiProperty({
     description: 'ID',
@@ -16,35 +16,35 @@ export class OrganizationDto
   id!: string;
 
   @ApiProperty({
-    description: 'Status',
+    description: 'Team name',
     type: String,
-    enum: Status,
-    example: Status.Published,
-    nullable: true,
-  })
-  status!: Status | null;
-
-  @ApiProperty({
-    description: 'Org name',
-    type: String,
-    example: 'Li',
+    example: 'Dev',
   })
   name!: string;
 
   @ApiProperty({
-    description: 'Org slug',
+    description: 'Team status',
     type: String,
-    example: 'li',
+    enum: Status,
+    example: Status.Published,
   })
-  slug!: string;
+  status!: Status;
 
   @ApiProperty({
-    description: 'Org picture ID',
+    description: 'Team picture ID',
     type: String,
-    example: randomUUID(),
+    example: `/pictures/${randomUUID()}.png`,
     nullable: true,
   })
   pictureId!: string | null;
+
+  @ApiProperty({
+    description: 'Is default team',
+    type: Boolean,
+    example: false,
+    default: false,
+  })
+  isDefault!: boolean;
 
   @ApiProperty({
     description: 'Picture',
@@ -68,7 +68,7 @@ export class OrganizationDto
   })
   updatedAt!: Date | null;
 
-  constructor(props: OrganizationDto) {
+  constructor(props: TeamDto) {
     Object.assign(this, props);
   }
 }

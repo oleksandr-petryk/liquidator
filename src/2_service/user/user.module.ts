@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { UserDao } from '../../3_componentes/dao/user.dao';
+import { DaoModule } from '../../3_componentes/dao/dao.module';
 import { UserService } from './user.service';
 
 @Module({
-  providers: [UserService, UserDao],
+  imports: [DaoModule],
+  providers: [UserService],
   exports: [UserService],
 })
 export class UserModule {}

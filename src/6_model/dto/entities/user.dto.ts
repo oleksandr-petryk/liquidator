@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { UserSelectModel } from '../../../../3_componentes/dao/user.dao';
-import { Gender, Status } from '../../../../5_shared/enums/db.enum';
+import { UserSelectModel } from '../../../3_componentes/dao/user.dao';
+import { Gender, Status } from '../../../5_shared/enums/db.enum';
 import { PictureDto } from './picture.dto';
 
 export class UserDto

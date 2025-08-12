@@ -8,7 +8,7 @@ import {
 } from 'drizzle-orm';
 
 import { Drizzle } from '../../4_low/drizzle/drizzle.module';
-import { DEFAULT_DB_BATCH_SIZE } from '../../5_shared/config/const/db';
+import { DEFAULT_DB_BATCH_SIZE } from '../../5_shared/config/const/db.const';
 
 export class BaseDao<T extends Table<any>> {
   private readonly baseLogger = new Logger(BaseDao.name);

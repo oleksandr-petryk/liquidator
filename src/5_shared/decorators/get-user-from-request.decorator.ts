@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { JwtTokenPayload } from '../types/interfaces/jwt-token.interface';
+import { JwtTokenPayload } from '../interfaces/jwt-token.interface';
 
 export const GetUserFromRequest = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): JwtTokenPayload => {

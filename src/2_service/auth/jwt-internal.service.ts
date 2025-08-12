@@ -7,7 +7,7 @@ import { EnvConfig } from '../../5_shared/config/configuration';
 import {
   JwtTokenPayload,
   JwtTokensPair,
-} from '../../5_shared/types/interfaces/jwt-token.interface';
+} from '../../5_shared/interfaces/jwt-token.interface';
 
 /**
  * Internal JWT tokens service

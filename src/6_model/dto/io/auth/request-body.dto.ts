@@ -13,7 +13,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { Gender } from '../../../../../5_shared/enums/db.enum';
+import { Gender } from '../../../../5_shared/enums/db.enum';
 
 export class RegisterRequestBodyDto {
   @ApiProperty({

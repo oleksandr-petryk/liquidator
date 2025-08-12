@@ -5,7 +5,7 @@ import {
   JwtAccessToken,
   JwtRefreshToken,
   JwtTokensPair,
-} from '../../../../5_shared/types/interfaces/jwt-token.interface';
+} from '../../../5_shared/interfaces/jwt-token.interface';
 
 export class JwtAccessTokenDto implements JwtAccessToken {
   @ApiProperty({

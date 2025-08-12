@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { SessionDao } from '../../3_componentes/dao/session.dao';
+import { DaoModule } from '../../3_componentes/dao/dao.module';
 import { SessionService } from './session.service';
 
 @Module({
-  providers: [SessionService, SessionDao],
+  imports: [DaoModule],
+  providers: [SessionService],
   exports: [SessionService],
 })
 export class SessionModule {}

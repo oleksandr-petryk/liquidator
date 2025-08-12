@@ -8,16 +8,16 @@ import { SessionSelectModel } from '../../3_componentes/dao/session.dao';
 import { TeamSelectModel } from '../../3_componentes/dao/team.dao';
 import { TeamToUserSelectModel } from '../../3_componentes/dao/team-to-user.dao';
 import { UserSelectModel } from '../../3_componentes/dao/user.dao';
-import { JwtTokensPair } from '../../5_shared/types/interfaces/jwt-token.interface';
-import { AccountVerificationDto } from './common/entities/account-verification.dto';
-import { JwtTokensPairDto } from './common/entities/jwt-token.dto';
-import { OrganizationDto } from './common/entities/organization.dto';
-import { PasswordResetRequestDto } from './common/entities/password-reset-request.dto';
-import { PictureDto } from './common/entities/picture.dto';
-import { SessionDto } from './common/entities/session.dto';
-import { TeamDto } from './common/entities/team.dto';
-import { TeamToUserDto } from './common/entities/team-to-user.dto';
-import { UserDto } from './common/entities/user.dto';
+import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
+import { AccountVerificationDto } from './entities/account-verification.dto';
+import { JwtTokensPairDto } from './entities/jwt-token.dto';
+import { OrganizationDto } from './entities/organization.dto';
+import { PasswordResetRequestDto } from './entities/password-reset-request.dto';
+import { PictureDto } from './entities/picture.dto';
+import { SessionDto } from './entities/session.dto';
+import { TeamDto } from './entities/team.dto';
+import { TeamToUserDto } from './entities/team-to-user.dto';
+import { UserDto } from './entities/user.dto';
 
 @Injectable()
 export class DtoMapper {

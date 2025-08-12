@@ -23,25 +23,25 @@ import {
   UserAgentAndIp,
 } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { JwtAccessGuard } from '../../5_shared/guards/auth.guard';
-import { JwtTokenPayload } from '../../5_shared/types/interfaces/jwt-token.interface';
+import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
+import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
+import { DtoMapper } from '../../6_model/dto/dto.mapper';
 import {
   SessionDto,
   SessionPageableDto,
-} from '../../6_model/dto/common/entities/session.dto';
+} from '../../6_model/dto/entities/session.dto';
 import {
   AccountVerificationRequestBody,
   LoginRequestBodyDto,
   RegisterRequestBodyDto,
   UpdateSessionRequestBody,
-} from '../../6_model/dto/common/io/auth/request-body.dto';
+} from '../../6_model/dto/io/auth/request-body.dto';
 import {
   AccountVerificationResponseBodyDto,
   LoginResponseBodyDto,
   SendVerificatioEmailResponseBodyDto,
-} from '../../6_model/dto/common/io/auth/response-body.dto';
-import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
-import { DtoMapper } from '../../6_model/dto/dto.mapper';
+} from '../../6_model/dto/io/auth/response-body.dto';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
 @Controller(`${APP_DEFAULT_V1_PREFIX}/auth`)

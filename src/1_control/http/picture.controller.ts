@@ -25,9 +25,9 @@ import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
 import { GetUserFromRequest } from '../../5_shared/decorators/get-user-from-request.decorator';
 import { JwtAccessGuard } from '../../5_shared/guards/auth.guard';
-import { JwtTokenPayload } from '../../5_shared/types/interfaces/jwt-token.interface';
-import { PictureDto } from '../../6_model/dto/common/entities/picture.dto';
-import { GetPictureResponseBodyDto } from '../../6_model/dto/common/io/auth/response-body.dto';
+import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
+import { PictureDto } from '../../6_model/dto/entities/picture.dto';
+import { GetPictureResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 
 @ApiTags(SWAGGER_TAGS.picture.title)
 @Controller(`${APP_DEFAULT_V1_PREFIX}/picture`)

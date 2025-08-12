@@ -6,7 +6,7 @@ import { EnvConfig } from '../../5_shared/config/configuration';
 import {
   GetAppVersionResponseBodyDto,
   GetHealthResponseBodyDto,
-} from '../../6_model/dto/common/io/app/response-body.dto';
+} from '../../6_model/dto/io/app/response-body.dto';
 
 /**
  * Platform service

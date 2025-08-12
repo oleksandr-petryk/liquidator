@@ -11,8 +11,8 @@ import {
   Drizzle,
   DRIZZLE_CONNECTION,
 } from '../../4_low/drizzle/drizzle.module';
-import { Listable } from '../../5_shared/types/interfaces/abstract.interface';
-import { DrizzlePagination } from '../../5_shared/types/interfaces/db.interface';
+import { Listable } from '../../5_shared/interfaces/abstract.interface';
+import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
 import { session } from '../../6_model/db';
 import { BaseDao } from './base.dao';
 

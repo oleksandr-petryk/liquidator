@@ -12,14 +12,14 @@ import {
   UserSelectModel,
 } from '../../3_componentes/dao/user.dao';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
-import { TemplatesEnum } from '../../5_shared/enums/template-names';
-import { Listable } from '../../5_shared/types/interfaces/abstract.interface';
-import { DrizzlePagination } from '../../5_shared/types/interfaces/db.interface';
+import { Listable } from '../../5_shared/interfaces/abstract.interface';
+import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
 import {
   JwtTokenPayload,
   JwtTokensPair,
-} from '../../5_shared/types/interfaces/jwt-token.interface';
-import { RegisterRequestBodyDto } from '../../6_model/dto/common/io/auth/request-body.dto';
+} from '../../5_shared/interfaces/jwt-token.interface';
+import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
+import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';

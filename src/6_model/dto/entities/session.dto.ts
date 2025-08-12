@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { SessionSelectModel } from '../../../../3_componentes/dao/session.dao';
+import { SessionSelectModel } from '../../../3_componentes/dao/session.dao';
 import { PageableDto } from './dase.dto';
 
 export class SessionDto implements SessionSelectModel {

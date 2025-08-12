@@ -1,5 +1,5 @@
 import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
-import { DrizzlePagination } from '../types/interfaces/db.interface';
+import { DrizzlePagination } from '../interfaces/db.interface';
 
 /**
  * Throw error if value is falsy
