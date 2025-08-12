@@ -2,20 +2,21 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
-import { AccountVerificationModule } from './modules/account-verification/account-verification.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { HandlebarsModule } from './modules/handlebars/handlebars.module';
-import { MailModule } from './modules/mail/mail.module';
-import { PictureModule } from './modules/picture/picture.module';
-import { PlatformModule } from './modules/platform/platform.module';
-import { S3Module } from './modules/s3/s3.module';
-import { SessionModule } from './modules/session/session.module';
-import { UserModule } from './modules/user/user.module';
-import { configurationLoader } from './shared/config/configuration';
-import { DrizzleModule } from './shared/modules/drizzle/drizzle.module';
-import { KafkaModule } from './shared/modules/kafka/kafka.module';
-import { PgModule } from './shared/modules/pg/pg.module';
-import { RedisModule } from './shared/modules/redis/redis.module';
+import { AccountVerificationModule } from './2_service/account-verification/account-verification.module';
+import { AuthModule } from './2_service/auth/auth.module';
+import { PictureModule } from './2_service/picture/picture.module';
+import { PlatformModule } from './2_service/platform/platform.module';
+import { SessionModule } from './2_service/session/session.module';
+import { UserModule } from './2_service/user/user.module';
+import { DaoModule } from './3_componentes/dao/dao.module';
+import { HandlebarsModule } from './3_componentes/handlebars/handlebars.module';
+import { MailModule } from './3_componentes/mail/mail.module';
+import { S3Module } from './3_componentes/s3/s3.module';
+import { DrizzleModule } from './4_low/drizzle/drizzle.module';
+import { KafkaModule } from './4_low/kafka/kafka.module';
+import { PgModule } from './4_low/pg/pg.module';
+import { RedisModule } from './4_low/redis/redis.module';
+import { configurationLoader } from './5_shared/config/configuration';
 
 const DEFAULT_MODULES = [
   ConfigModule.forRoot({
@@ -59,6 +60,7 @@ const DEFAULT_MODULES = [
     AccountVerificationModule,
     UserModule,
     SessionModule,
+    DaoModule,
   ],
 })
 export class AppModule {}

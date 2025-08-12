@@ -1,4 +1,4 @@
-import { APP_HEALTH_LIVE } from '../../src/shared/const/app.const';
+import { APP_HEALTH_LIVE } from '../../src/5_shared/config/const/app.const';
 import { API } from './helpers/api';
 
 describe('Platform Tests', () => {

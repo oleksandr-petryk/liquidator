@@ -1,0 +1,46 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PinoLogger } from 'nestjs-pino';
+
+import { EnvConfig } from '../../5_shared/config/configuration';
+import {
+  GetAppVersionResponseBodyDto,
+  GetHealthResponseBodyDto,
+} from '../../6_model/dto/io/app/response-body.dto';
+
+/**
+ * Platform service
+ */
+@Injectable()
+export class PlatformControllerService {
+  private appVersion: string;
+  private appHealth: string;
+
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly configService: ConfigService<EnvConfig>,
+  ) {
+    this.appVersion = this.configService.getOrThrow('APP_VERSION');
+    this.appHealth = this.configService.getOrThrow('APP_HEALTH_LIVE');
+  }
+
+  /**
+   * Get application health
+   * @returns live
+   */
+  getHealth(): GetHealthResponseBodyDto {
+    return {
+      status: this.appHealth,
+    };
+  }
+
+  /**
+   * Get application version
+   * @returns version
+   */
+  getVersion(): GetAppVersionResponseBodyDto {
+    return {
+      version: this.appVersion,
+    };
+  }
+}
