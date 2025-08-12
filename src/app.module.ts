@@ -17,6 +17,7 @@ import { KafkaModule } from './4_low/kafka/kafka.module';
 import { PgModule } from './4_low/pg/pg.module';
 import { RedisModule } from './4_low/redis/redis.module';
 import { configurationLoader } from './5_shared/config/configuration';
+import { TemporalWorkerModule } from './4_low/temporal-worker/temporal-worker.module';
 
 const DEFAULT_MODULES = [
   ConfigModule.forRoot({
@@ -47,6 +48,7 @@ const DEFAULT_MODULES = [
 @Module({
   imports: [
     ...DEFAULT_MODULES,
+    TemporalWorkerModule,
     AuthModule,
     DrizzleModule,
     KafkaModule,

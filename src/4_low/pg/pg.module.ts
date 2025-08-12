@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
+import { EnvConfig } from '../../5_shared/config/configuration';
 
 export const POSTGRES_CONNECTION = 'POSTGRES_CONNECTION';
 export const CONNECT_TIMEOUT_IN_SECONDS = 30;
@@ -12,7 +13,9 @@ export const IDLE_CONNECTION_TIMEOUT_IN_SECONDS = 10;
     {
       provide: POSTGRES_CONNECTION,
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService): Promise<Pool> => {
+      useFactory: async (
+        configService: ConfigService<EnvConfig>,
+      ): Promise<Pool> => {
         const pool = new Pool({
           connectionString: configService.get<string>('POSTGRES_DB_URI'),
           // ssl: true,

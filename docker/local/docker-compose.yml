@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_MULTIPLE_DATABASES: '"db-dev","db-test"'
+      POSTGRES_MULTIPLE_DATABASES: '"db-dev","db-test","db-temporal-worker"'
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ../scripts/init-multi-postgres-databases.sh:/docker-entrypoint-initdb.d/init-multi-postgres-databases.sh
@@ -95,7 +95,7 @@ services:
       - INBUCKET_LOGLEVEL=info
     networks:
       - default_network
-      
+
   localstack:
     image: localstack/localstack
     container_name: localstack
@@ -110,6 +110,36 @@ services:
       - ./localstack/init:/etc/localstack/init/ready.d
       - ./data/localstack:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+
+  temporal:
+    image: temporalio/auto-setup:1.28.0.0
+    container_name: temporal-worker
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=admin
+      - POSTGRES_PWD=admin
+      - POSTGRES_SEEDS=postgres
+      - POSTGRES_DB=db-temporal-worker
+      - TEMPORAL_ADDRESS=temporal-worker:7233
+    depends_on:
+      - postgres
+    networks:
+      - default_network
+
+  temporal-ui:
+    image: temporalio/ui:2.39.0
+    container_name: temporal-worker-ui
+    ports:
+      - "8080:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal-worker:7233
+    depends_on:
+      - temporal
+    networks:
+      - default_network
 
 networks:
   default_network:

@@ -47,6 +47,10 @@ export const EnvConfigZ = z.object({
 
   KAFKA_BROKERS: z.array(z.string()),
   KAFKA_FROM_BEGINNING: z.boolean().default(true),
+
+  TEMPORAL_ADDRESS: z.string(),
+  TEMPORAL_NAMESPACE: z.string(),
+  TEMPORAL_API_KEY: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof EnvConfigZ>;
