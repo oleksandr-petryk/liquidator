@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 
 import { JwtInternalService } from '../../2_service/auth/jwt-internal.service';
+import { RedisService } from '../../4_low/redis/redis.service';
 import {
   AUTHORIZATION_HEADER_NAME,
   USER_ROLE_REQUIRED_METADATA_KEY,
@@ -45,14 +46,21 @@ export class JwtAccessGuard implements CanActivate {
   constructor(
     private readonly jwtInternalService: JwtInternalService,
     private readonly reflector: Reflector,
+    private readonly redisService: RedisService,
   ) {}
 
-  public canActivate(context: ExecutionContext): boolean | never {
+  public async canActivate(
+    context: ExecutionContext,
+  ): Promise<boolean | never> {
     const request = context.switchToHttp().getRequest<FastifyRequestType>();
 
     const { accessToken } = getAuthData(context, this.reflector);
 
     if (!accessToken) {
+      throw new UnauthorizedException();
+    }
+
+    if (await this.redisService.getValue({ key: accessToken })) {
       throw new UnauthorizedException();
     }
 

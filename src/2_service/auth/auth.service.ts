@@ -11,6 +11,7 @@ import {
   UserInsertModel,
   UserSelectModel,
 } from '../../3_componentes/dao/user.dao';
+import { RedisService } from '../../4_low/redis/redis.service';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { Listable } from '../../5_shared/interfaces/abstract.interface';
 import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
@@ -35,6 +36,7 @@ export class AuthService {
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
+    private readonly redisService: RedisService,
   ) {}
 
   /**
@@ -230,13 +232,26 @@ export class AuthService {
    *
    * Logic:
    * 1. Check if session exist
-   * 2. Delete session
+   * 2. Save token in redis
+   * 3. Delete session
    */
-  async deleteSession(id: string): Promise<void> {
+  async deleteSession({
+    id,
+    accessToken,
+  }: {
+    id: string;
+    accessToken: string;
+  }): Promise<void> {
     // 1. Check if session exist
     await this.sessionService.getById({ id });
 
-    // 2. Delete session
+    // 2. Save token in redis
+    await this.redisService.setValue({
+      key: accessToken,
+      value: accessToken,
+    });
+
+    // 3. Delete session
     await this.sessionDao.delete({ id: id });
   }
 
