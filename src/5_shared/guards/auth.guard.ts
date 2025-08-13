@@ -60,14 +60,14 @@ export class JwtAccessGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    if (await this.redisService.getValue({ key: accessToken })) {
-      throw new UnauthorizedException();
-    }
-
     try {
       request.user = this.jwtInternalService.verifyAccessToken(accessToken);
     } catch (error) {
       throw new UnauthorizedException(error);
+    }
+
+    if (await this.redisService.getValue({ key: accessToken })) {
+      throw new UnauthorizedException();
     }
 
     return true;

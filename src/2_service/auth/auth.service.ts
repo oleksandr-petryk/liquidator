@@ -161,6 +161,7 @@ export class AuthService {
             : userAgentAndIp.userAgent || '',
         userId: user.id,
         token: tokensPair.refreshToken,
+        expiresAt: new Date(new Date().getTime() + 900000),
       },
     });
 
@@ -231,7 +232,7 @@ export class AuthService {
    * Delete session by id
    *
    * Logic:
-   * 1. Check if session exist
+   * 1. Get session if exist
    * 2. Save token in redis
    * 3. Delete session
    */
@@ -242,8 +243,8 @@ export class AuthService {
     id: string;
     accessToken: string;
   }): Promise<void> {
-    // 1. Check if session exist
-    await this.sessionService.getById({ id });
+    // 1. Get session if exist
+    const session = await this.sessionService.getById({ id });
 
     // 2. Save token in redis
     await this.redisService.setValue({

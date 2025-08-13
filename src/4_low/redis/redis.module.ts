@@ -3,11 +3,13 @@ import Redis from 'ioredis';
 
 import { RedisService } from './redis.service';
 
+const REDIS_CLIENT = 'REDIS_CLIENT';
+
 @Global()
 @Module({
   providers: [
     {
-      provide: 'REDIS_CLIENT',
+      provide: REDIS_CLIENT,
       useFactory: (): Redis => {
         return new Redis({
           host: 'localhost',

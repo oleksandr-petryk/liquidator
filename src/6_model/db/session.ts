@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
@@ -12,6 +12,7 @@ export const session = pgTable('session', {
     .references(() => user.id)
     .notNull(),
   name: varchar('name', { length: 128 }),
+  expiresAt: timestamp('expires_at').notNull(),
   ...drizzleTimestamps,
 });
 

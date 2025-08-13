@@ -1,9 +1,12 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
+import { getAuthData } from '../guards/auth.guard';
 
 export const GetAccessTokenFromRequest = createParamDecorator(
   (_: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
+    ctx.switchToHttp().getRequest();
 
-    return request.headers['authorization'].split(' ').slice(1).join(' ');
+    return getAuthData(ctx, new Reflector());
   },
 );

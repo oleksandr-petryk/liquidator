@@ -72,6 +72,7 @@ export class DtoMapper {
       userId: data.userId,
       token: data.token,
       name: data.name,
+      expiresAt: data.expiresAt,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };

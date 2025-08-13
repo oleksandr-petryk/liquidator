@@ -36,6 +36,13 @@ export class SessionDto implements SessionSelectModel {
   name!: string | null;
 
   @ApiProperty({
+    description: 'Token expiration date',
+    type: Date,
+    example: new Date(),
+  })
+  expiresAt!: Date;
+
+  @ApiProperty({
     description: 'Date created',
     type: Date,
     example: new Date(),
