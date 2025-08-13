@@ -17,7 +17,6 @@ import { AuthService } from '../../2_service/auth/auth.service';
 import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
-import { GetAccessTokenFromRequest } from '../../5_shared/decorators/get-access-token-from-request';
 import { GetUserFromRequest } from '../../5_shared/decorators/get-user-from-request.decorator';
 import {
   GetUserAgentAndIp,
@@ -114,7 +113,17 @@ export class AuthController {
     );
 
     return new SessionPageableDto({
-      items: result.items.map((i) => this.dtoMapper.mapSessionDto(i)),
+      items: result.items.map((i) => {
+        const session = this.dtoMapper.mapSessionDto(i);
+
+        if (i.jti === user.jti) {
+          session.thisDevice = true;
+        } else {
+          session.thisDevice = false;
+        }
+
+        return session;
+      }),
       count: result.count,
     });
   }

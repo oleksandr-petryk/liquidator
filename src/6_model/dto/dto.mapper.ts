@@ -66,12 +66,14 @@ export class DtoMapper {
     };
   }
 
-  public mapSessionDto(data: SessionSelectModel): SessionDto {
+  public mapSessionDto(
+    data: SessionSelectModel & { thisDevice?: boolean },
+  ): SessionDto {
     return {
       id: data.id,
       userId: data.userId,
       name: data.name,
-      expiresAt: data.expiresAt,
+      thisDevice: data.thisDevice,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
