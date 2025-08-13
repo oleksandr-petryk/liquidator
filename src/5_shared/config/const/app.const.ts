@@ -11,4 +11,6 @@ export const APP_DEFAULT_V1_PREFIX = 'v1';
 export const APP_DEFAULT_PAGINATION_PAGE = 1;
 export const APP_DEFAULT_PAGINATION_SIZE = 10;
 
+export const APP_DEFAULT_TTL = 600;
+
 export const APP_TEMPORAL_WORKER_TASK_QUEUE = 'liquidator-worker-task-queue';

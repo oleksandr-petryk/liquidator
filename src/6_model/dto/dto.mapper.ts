@@ -70,8 +70,8 @@ export class DtoMapper {
     return {
       id: data.id,
       userId: data.userId,
-      token: data.token,
       name: data.name,
+      expiresAt: data.expiresAt,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
