@@ -35,6 +35,7 @@ export class SessionDto
     description: 'Current device',
     type: Boolean,
     example: true,
+    default: false,
   })
   thisDevice?: boolean;
 

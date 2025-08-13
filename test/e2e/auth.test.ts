@@ -319,6 +319,35 @@ describe('Auth Tests', () => {
 
       expect(response_2.data.payload.items.length).toEqual(4);
     });
+
+    test('Get thisDevice - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/log-in', data);
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const response = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      expect(response.status).toEqual(200);
+      expect(response.data.payload.items[1]).toMatchObject({
+        id: expect.any(String),
+        thisDevice: false,
+      });
+      expect(response.data.payload.items[0]).toMatchObject({
+        id: expect.any(String),
+        thisDevice: true,
+      });
+    });
   });
 
   describe('Account verification', () => {
