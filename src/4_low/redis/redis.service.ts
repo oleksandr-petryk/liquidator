@@ -23,7 +23,7 @@ export class RedisService implements OnModuleDestroy {
     ttl = APP_DEFAULT_TTL,
   }: {
     key: string;
-    value: string;
+    value: string | number | Buffer;
     ttl?: number;
   }): Promise<void> {
     await this.redis.set(key, value, 'EX', ttl);

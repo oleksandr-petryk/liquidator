@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import * as crypto from 'crypto';
 
 import { JwtInternalService } from '../../2_service/auth/jwt-internal.service';
 import { RedisService } from '../../4_low/redis/redis.service';
@@ -66,7 +67,11 @@ export class JwtAccessGuard implements CanActivate {
       throw new UnauthorizedException(error);
     }
 
-    if (await this.redisService.getValue({ key: accessToken })) {
+    if (
+      await this.redisService.getValue({
+        key: crypto.createHash('sha256').update(accessToken).digest('hex'),
+      })
+    ) {
       throw new UnauthorizedException();
     }
 

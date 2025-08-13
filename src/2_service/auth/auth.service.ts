@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
 import {
@@ -244,12 +245,12 @@ export class AuthService {
     accessToken: string;
   }): Promise<void> {
     // 1. Get session if exist
-    const session = await this.sessionService.getById({ id });
+    await this.sessionService.getById({ id });
 
     // 2. Save token in redis
     await this.redisService.setValue({
-      key: accessToken,
-      value: accessToken,
+      key: crypto.createHash('sha256').update(accessToken).digest('hex'),
+      value: 1,
     });
 
     // 3. Delete session
