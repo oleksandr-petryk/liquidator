@@ -102,6 +102,13 @@ export class UserDto
   gender!: Gender | null;
 
   @ApiProperty({
+    description: 'Picture id',
+    type: String,
+    example: randomUUID(),
+  })
+  pictureId?: string | null;
+
+  @ApiProperty({
     description: 'Recovery email address',
     type: String,
     example: 'recovery@mamil.com',
