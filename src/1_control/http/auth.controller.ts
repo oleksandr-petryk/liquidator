@@ -150,14 +150,13 @@ export class AuthController {
   @ApiAbstractResponse(SessionDto)
   @Delete('sessions/:sessionId')
   async deleteSession(
-    @GetAccessTokenFromRequest() accessToken: string,
     @Param('sessionId', ParseUUIDPipe) sessionId: string,
   ): Promise<void> {
     this.logger.info(
       `${this.deleteSession.name}, session id: ${JSON.stringify(sessionId)}`,
     );
 
-    await this.authService.deleteSession({ id: sessionId, accessToken });
+    await this.authService.deleteSession({ id: sessionId });
   }
 
   @ApiOperation({

@@ -3,7 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { SessionSelectModel } from '../../../3_componentes/dao/session.dao';
 import { PageableDto } from './dase.dto';
 
-export class SessionDto implements SessionSelectModel {
+export class SessionDto
+  implements Omit<SessionSelectModel, 'jti' | 'refreshTokenHash'>
+{
   constructor(props: SessionDto) {
     Object.assign(this, props);
   }
@@ -21,12 +23,6 @@ export class SessionDto implements SessionSelectModel {
     example: '3fb9b295-995e-464a-94fa-e853617f6adf',
   })
   userId!: string;
-
-  @ApiProperty({
-    description: 'Tokens',
-    type: String,
-  })
-  token!: string;
 
   @ApiProperty({
     description: 'Session name',

@@ -7,7 +7,8 @@ import { user } from './user';
 
 export const session = pgTable('session', {
   ...drizzlePrimaryKey,
-  token: varchar('token', { length: 2048 }).notNull(),
+  jti: uuid('jti').notNull(),
+  refreshTokenHash: varchar('refresh_token_hash', { length: 64 }).notNull(),
   userId: uuid('picture_id')
     .references(() => user.id)
     .notNull(),

@@ -6,6 +6,11 @@ export interface JwtTokenPayload {
    * User ID
    */
   id: string;
+
+  /**
+   * Unique token ID
+   */
+  jti: string;
 }
 
 /**

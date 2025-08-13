@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
 import {
@@ -13,6 +15,7 @@ import {
   UserSelectModel,
 } from '../../3_componentes/dao/user.dao';
 import { RedisService } from '../../4_low/redis/redis.service';
+import { EnvConfig } from '../../5_shared/config/configuration';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { Listable } from '../../5_shared/interfaces/abstract.interface';
 import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
@@ -38,6 +41,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
     private readonly redisService: RedisService,
+    private readonly configService: ConfigService<EnvConfig>,
   ) {}
 
   /**
@@ -127,10 +131,10 @@ export class AuthService {
    * Login
    *
    * Logic:
-   * 1. Check if user exist
-   * 2. Check if password is correct
-   * 3. Generate tokens
-   * 4. Create session
+   * 1. Check if a user exists
+   * 2. Check if a password is correct
+   * 3. Create a session
+   * 4. Generate tokens
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
@@ -148,9 +152,12 @@ export class AuthService {
       throw new BadRequestException('Incorrect password');
     }
 
+    const jti = randomUUID();
+
     // 3. Generate tokens
     const tokensPair = this.jwtInternalService.generatePairTokens({
       id: user.id,
+      jti,
     });
 
     // 4. Create session
@@ -161,7 +168,11 @@ export class AuthService {
             ? userAgentAndIp.userAgent.slice(0, 6) + '...'
             : userAgentAndIp.userAgent || '',
         userId: user.id,
-        token: tokensPair.refreshToken,
+        refreshTokenHash: crypto
+          .createHash('sha256')
+          .update(tokensPair.refreshToken)
+          .digest('hex'),
+        jti,
         expiresAt: new Date(new Date().getTime() + 900000),
       },
     });
@@ -237,20 +248,15 @@ export class AuthService {
    * 2. Save token in redis
    * 3. Delete session
    */
-  async deleteSession({
-    id,
-    accessToken,
-  }: {
-    id: string;
-    accessToken: string;
-  }): Promise<void> {
+  async deleteSession({ id }: { id: string }): Promise<void> {
     // 1. Get session if exist
-    await this.sessionService.getById({ id });
+    const session = await this.sessionService.getById({ id });
 
     // 2. Save token in redis
     await this.redisService.setValue({
-      key: crypto.createHash('sha256').update(accessToken).digest('hex'),
+      key: session.jti,
       value: 1,
+      ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
     });
 
     // 3. Delete session
