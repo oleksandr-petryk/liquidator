@@ -21,10 +21,11 @@ import { UserDto } from './entities/user.dto';
 
 @Injectable()
 export class DtoMapper {
-  public mapUserDto(data: UserSelectModel): UserDto {
+  public mapUserDto(
+    data: Omit<UserSelectModel, 'status' | 'password'>,
+  ): Omit<UserDto, 'status'> {
     return {
       id: data.id,
-      status: data.status,
       verifyed: data.verifyed,
       username: data.username,
       email: data.email,
@@ -33,6 +34,7 @@ export class DtoMapper {
       dateOfBirth: data.dateOfBirth,
       gender: data.gender,
       phoneNumber: data.phoneNumber,
+      pictureId: data.pictureId,
       picture: data.picture,
       recoveryEmailAddress: data.recoveryEmailAddress,
       createdAt: data.createdAt,

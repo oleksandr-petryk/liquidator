@@ -39,6 +39,7 @@ import {
 } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   AccountVerificationResponseBodyDto,
+  GetUserResponseBodyDto,
   LoginResponseBodyDto,
   SendVerificatioEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
@@ -104,7 +105,7 @@ export class AuthController {
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SessionPageableDto> {
     this.logger.info(
-      `${this.getListOfSessions.name}, user Id: ${JSON.stringify(user)}, query: ${JSON.stringify(query)}`,
+      `${this.getListOfSessions.name}, user: ${JSON.stringify(user)}, query: ${JSON.stringify(query)}`,
     );
 
     const result = await this.authService.getListOfSessions(
@@ -208,5 +209,24 @@ export class AuthController {
     await this.authService.sendVerificatioEmail(user.id);
 
     return { message: 'Verification email sent successfully' };
+  }
+
+  @ApiOperation({
+    summary: 'Get user information',
+  })
+  @ApiAbstractResponse(GetUserResponseBodyDto)
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Get('user')
+  async getUser(
+    @GetUserFromRequest() user: JwtTokenPayload,
+  ): Promise<GetUserResponseBodyDto> {
+    this.logger.info(
+      `${this.getListOfSessions.name}, user: ${JSON.stringify(user)}`,
+    );
+
+    const userInfo = await this.authService.getUser(user.id);
+
+    return this.dtoMapper.mapUserDto(userInfo);
   }
 }

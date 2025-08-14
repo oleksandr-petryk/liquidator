@@ -25,6 +25,7 @@ import {
 } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
+import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -300,5 +301,14 @@ export class AuthService {
       email: user.email,
       userId: user.id,
     });
+  }
+
+  async getUser(userId: string): Promise<GetUserResponseBodyDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, status, ...user } = await this.userDao.findById({
+      id: userId,
+    });
+
+    return user;
   }
 }
