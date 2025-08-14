@@ -13,7 +13,7 @@ import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
 import {
-  generateVerificationCode,
+  generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
 
@@ -93,8 +93,8 @@ export class AccountVerificationService {
     const accountVerificationRecord = await this.accountVerificationDao.create({
       data: {
         userId: userId,
-        code: generateVerificationCode(),
-        expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
+        code: generate6DigitsCode(),
+        expiresAt: new Date(new Date().getTime() + 42200000), // current date + 12 hours (1000 * 60 * 60 * 12)
       },
     });
 

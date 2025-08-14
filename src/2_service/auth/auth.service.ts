@@ -278,13 +278,13 @@ export class AuthService {
     userId: string;
     code: string;
   }): Promise<void> {
-    // 1. Check is account can verify and set user verifyed field to true
     await this.accountVerificationService.verifyUserAccount({ userId, code });
   }
 
   /**
    * Send new verification email
    *
+   * Logic:
    * 1. Check is account can verify
    * 2. Get user by id
    * 3. Create account veryfication record in DB and send veryfication email
@@ -306,20 +306,27 @@ export class AuthService {
   }
 
   /**
-   * Send new verification email
+   * Send new password reset email
    *
-   * 1. Check if user can send request
-   * 2. Get user by id
-   * 3. Create password reset request record in DB and send password reset email
+   * Logic:
+   * 1. Get user by id
+   * 2. Check if user exist
+   * 3. Check if user can send request
+   * 4. Create password reset request record in DB and send password reset email
    */
-  async sendPasswordResetRequestEmail(userId: string): Promise<void> {
-    // 1. Check if user can send request
-    await this.passwordResetRequestService.canSendRequest(userId);
+  async sendPasswordResetRequestEmail(email: string): Promise<void> {
+    // 1. Get user by email
+    const user = await this.userDao.findByEmail({ email });
 
-    // 2. Get user by id
-    const user = await this.userService.getById({ id: userId });
+    // 2. Check if user exist
+    if (!user) {
+      return;
+    }
 
-    // 3. Create account veryfication record in DB and send veryfication email
+    // 3. Check if user can send request
+    await this.passwordResetRequestService.canSendRequest(user.id);
+
+    // 4. Create account veryfication record in DB and send veryfication email
     await this.passwordResetRequestService.sendRequest({
       template: TemplatesEnum.emailReset,
       username: user.username,
@@ -328,6 +335,14 @@ export class AuthService {
     });
   }
 
+  /**
+   * Get user info
+   *
+   * Logic:
+   * 1. Get user info
+   *
+   * @returns user info
+   */
   async getUser(userId: string): Promise<GetUserResponseBodyDto> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, status, ...user } = await this.userDao.findById({
@@ -335,5 +350,27 @@ export class AuthService {
     });
 
     return user;
+  }
+
+  /**
+   * Password reset
+   *
+   * Logic:
+   * 1. Check if user can reset password, hash password and change password in db
+   */
+  async passwordReset({
+    email,
+    code,
+    newPassword,
+  }: {
+    email: string;
+    code: string;
+    newPassword: string;
+  }): Promise<void> {
+    await this.passwordResetRequestService.passwordReset({
+      email,
+      code,
+      newPassword,
+    });
   }
 }

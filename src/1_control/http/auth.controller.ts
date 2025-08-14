@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -34,14 +35,15 @@ import {
 import {
   AccountVerificationRequestBody,
   LoginRequestBodyDto,
+  PasswordResetRequestBody,
   RegisterRequestBodyDto,
+  SendPasswordResetEmailRequestBody,
   UpdateSessionRequestBody,
 } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   AccountVerificationResponseBodyDto,
   GetUserResponseBodyDto,
   LoginResponseBodyDto,
-  SendPasswordResetEmailResponseBodyDto,
   SendVerificatioEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
 
@@ -234,19 +236,28 @@ export class AuthController {
   @ApiOperation({
     summary: 'Send password reset email',
   })
-  @ApiBasicAuth('Bearer')
-  @UseGuards(JwtAccessGuard)
-  @ApiAbstractResponse(SendPasswordResetEmailResponseBodyDto)
+  @HttpCode(200)
   @Post('password-reset/send')
   async sendPasswordResetRequestEmail(
-    @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<SendPasswordResetEmailResponseBodyDto> {
+    @Body() data: SendPasswordResetEmailRequestBody,
+  ): Promise<void> {
     this.logger.info(
-      `${this.sendPasswordResetRequestEmail.name}, user: ${JSON.stringify(user)}`,
+      `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
     );
 
-    await this.authService.sendPasswordResetRequestEmail(user.id);
+    await this.authService.sendPasswordResetRequestEmail(data.email);
+  }
 
-    return { message: 'Password reset email sent successfully' };
+  @ApiOperation({
+    summary: 'Password reset',
+  })
+  @HttpCode(200)
+  @Patch('password-reset')
+  async PasswordReset(@Body() data: PasswordResetRequestBody): Promise<void> {
+    this.logger.info(
+      `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    await this.authService.passwordReset(data);
   }
 }

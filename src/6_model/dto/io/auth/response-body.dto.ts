@@ -38,17 +38,6 @@ export class SendVerificatioEmailResponseBodyDto {
   message!: 'Verification email sent successfully';
 }
 
-export class SendPasswordResetEmailResponseBodyDto {
-  @ApiProperty({
-    description: 'Password reset email sent message',
-    type: String,
-    example: 'Password reset email sent successfully',
-  })
-  @IsNotEmpty()
-  @IsString()
-  message!: 'Password reset email sent successfully';
-}
-
 export class GetUserResponseBodyDto extends OmitType(UserDto, [
   'status',
   'picture',

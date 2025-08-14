@@ -1,9 +1,10 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
+  GoneException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
 import {
   PasswordResetRequestDao,
@@ -12,14 +13,16 @@ import {
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
 import {
-  generateVerificationCode,
+  generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class PasswordResetRequestService {
   constructor(
-    private readonly PasswordResetRequestDao: PasswordResetRequestDao,
+    private readonly passwordResetRequestDao: PasswordResetRequestDao,
+    private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
   ) {}
@@ -27,7 +30,7 @@ export class PasswordResetRequestService {
   public async getByUserId(
     userId: string,
   ): Promise<Omit<PasswordResetRequestSelectModel, 'user'>> {
-    const result = await this.PasswordResetRequestDao.findByUserId({ userId });
+    const result = await this.passwordResetRequestDao.findByUserId({ userId });
 
     return nonNullableUtils(
       result,
@@ -37,37 +40,56 @@ export class PasswordResetRequestService {
     );
   }
 
+  public async canResetPassword({
+    userId,
+    code,
+  }: {
+    userId: string;
+    code: string;
+  }): Promise<void> {
+    const passwordResetRequestRecord = await this.getByUserId(userId);
+
+    if (passwordResetRequestRecord.code !== code) {
+      throw new UnauthorizedException('Code wrong');
+    }
+
+    if (passwordResetRequestRecord.expiresAt < new Date()) {
+      throw new GoneException('The code has expired');
+    }
+  }
+
+  async passwordReset({
+    email,
+    code,
+    newPassword,
+  }: {
+    email: string;
+    code: string;
+    newPassword: string;
+  }): Promise<void> {
+    const user = await this.userService.getByEmail({ email });
+
+    this.canResetPassword({ userId: user.id, code });
+
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    this.userService.changePassword({
+      newPassword: hashedPassword,
+      userId: user.id,
+    });
+  }
+
   public async canSendRequest(userId: string): Promise<void> {
-    const records = await this.PasswordResetRequestDao.findManyByUserId({
+    const records = await this.passwordResetRequestDao.findManyByUserId({
       userId,
     });
 
     if (records.length !== 0) {
       if (records.length >= 10) {
-        throw new HttpException(
-          'You send too many password reset requests',
-          HttpStatus.TOO_MANY_REQUESTS,
-        );
+        return;
       }
-
-      console.log(
-        new Date(records[records.length - 1].createdAt).getTime(),
-        '<========= time',
-      );
-
-      console.log('Now:', new Date());
-      console.log(
-        'Last request:',
-        new Date(records[records.length - 1].createdAt),
-      );
-
-      console.log(new Date().getTime(), '<====== cur');
-
-      console.log(
-        (new Date(records[records.length - 1].createdAt).getTime() -
-          new Date().getTime()) /
-          1000,
-      );
 
       if (
         (new Date().getTime() -
@@ -75,10 +97,7 @@ export class PasswordResetRequestService {
           1000 <
         60
       ) {
-        throw new HttpException(
-          'Please wait 1 minute before requesting a password change again',
-          HttpStatus.TOO_MANY_REQUESTS,
-        );
+        return;
       }
     }
   }
@@ -94,12 +113,12 @@ export class PasswordResetRequestService {
     email: string;
     userId: string;
   }): Promise<Omit<PasswordResetRequestSelectModel, 'user'>> {
-    const accountVerificationRecord = await this.PasswordResetRequestDao.create(
+    const accountVerificationRecord = await this.passwordResetRequestDao.create(
       {
         data: {
           userId: userId,
-          code: generateVerificationCode(),
-          expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
+          code: generate6DigitsCode(),
+          expiresAt: new Date(new Date().getTime() + 600000), // current date + 10 minuts (1000 * 60 * 10)
         },
       },
     );
@@ -110,7 +129,7 @@ export class PasswordResetRequestService {
       html: await this.handlebarsService.render(template, {
         name: username,
         email: email,
-        resetLink: 'in work',
+        code: accountVerificationRecord.code,
         expiresAt: accountVerificationRecord.expiresAt,
         year: new Date().getFullYear(),
       }),

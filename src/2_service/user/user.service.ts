@@ -54,4 +54,14 @@ export class UserService {
       new BadRequestException('User not found, id: ' + id),
     );
   }
+
+  public async changePassword({
+    newPassword,
+    userId,
+  }: {
+    newPassword: string;
+    userId: string;
+  }): Promise<void> {
+    await this.userDao.update({ data: { password: newPassword }, id: userId });
+  }
 }
