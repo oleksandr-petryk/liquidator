@@ -25,7 +25,9 @@ import {
 } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
+import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
+import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
 import { JwtInternalService } from './jwt-internal.service';
@@ -40,6 +42,7 @@ export class AuthService {
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
+    private readonly passwordResetRequestService: PasswordResetRequestService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService<EnvConfig>,
   ) {}
@@ -133,8 +136,8 @@ export class AuthService {
    * Logic:
    * 1. Check if a user exists
    * 2. Check if a password is correct
-   * 3. Create a session
-   * 4. Generate tokens
+   * 3. Generate tokens
+   * 4. Create a session
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
@@ -173,7 +176,6 @@ export class AuthService {
           .update(tokensPair.refreshToken)
           .digest('hex'),
         jti,
-        expiresAt: new Date(new Date().getTime() + 900000),
       },
     });
 
@@ -301,5 +303,37 @@ export class AuthService {
       email: user.email,
       userId: user.id,
     });
+  }
+
+  /**
+   * Send new verification email
+   *
+   * 1. Check if user can send request
+   * 2. Get user by id
+   * 3. Create password reset request record in DB and send password reset email
+   */
+  async sendPasswordResetRequestEmail(userId: string): Promise<void> {
+    // 1. Check if user can send request
+    await this.passwordResetRequestService.canSendRequest(userId);
+
+    // 2. Get user by id
+    const user = await this.userService.getById({ id: userId });
+
+    // 3. Create account veryfication record in DB and send veryfication email
+    await this.passwordResetRequestService.sendRequest({
+      template: TemplatesEnum.verificationEmail,
+      username: user.username,
+      email: user.email,
+      userId: user.id,
+    });
+  }
+
+  async getUser(userId: string): Promise<GetUserResponseBodyDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, status, ...user } = await this.userDao.findById({
+      id: userId,
+    });
+
+    return user;
   }
 }

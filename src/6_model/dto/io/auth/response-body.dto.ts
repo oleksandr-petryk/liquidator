@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 import { JwtTokensPairDto } from '../../entities/jwt-token.dto';
+import { UserDto } from '../../entities/user.dto';
 
 export class LoginResponseBodyDto extends JwtTokensPairDto {}
 
@@ -36,3 +37,19 @@ export class SendVerificatioEmailResponseBodyDto {
   @IsString()
   message!: 'Verification email sent successfully';
 }
+
+export class SendPasswordResetEmailResponseBodyDto {
+  @ApiProperty({
+    description: 'Password reset email sent message',
+    type: String,
+    example: 'Password reset email sent successfully',
+  })
+  @IsNotEmpty()
+  @IsString()
+  message!: 'Password reset email sent successfully';
+}
+
+export class GetUserResponseBodyDto extends OmitType(UserDto, [
+  'status',
+  'picture',
+]) {}

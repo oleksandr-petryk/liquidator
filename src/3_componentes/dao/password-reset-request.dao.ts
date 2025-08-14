@@ -1,5 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import {
+  desc,
+  eq,
+  type InferInsertModel,
+  type InferSelectModel,
+} from 'drizzle-orm';
 
 import {
   Drizzle,
@@ -34,5 +39,37 @@ export class PasswordResetRequestDao extends BaseDao<
         plural: 'password-reset-request',
       },
     });
+  }
+
+  async findByUserId({
+    db = this.postgres,
+    userId,
+  }: {
+    db?: Drizzle;
+    userId: string;
+  }): Promise<Omit<PasswordResetRequestSelectModel, 'user'>> {
+    const [result] = await db
+      .select()
+      .from(passwordResetRequest)
+      .where(eq(passwordResetRequest.userId, userId))
+      .orderBy(desc(passwordResetRequest.createdAt))
+      .limit(1);
+
+    return result;
+  }
+
+  async findManyByUserId({
+    db = this.postgres,
+    userId,
+  }: {
+    db?: Drizzle;
+    userId: string;
+  }): Promise<Omit<PasswordResetRequestSelectModel, 'user'>[]> {
+    const result = await db
+      .select()
+      .from(passwordResetRequest)
+      .where(eq(passwordResetRequest.userId, userId));
+
+    return result;
   }
 }

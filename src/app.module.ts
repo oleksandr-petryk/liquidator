@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 
 import { AccountVerificationModule } from './2_service/account-verification/account-verification.module';
 import { AuthModule } from './2_service/auth/auth.module';
+import { PasswordResetRequestModule } from './2_service/password-reset-request/password-reset-request.module';
 import { PictureModule } from './2_service/picture/picture.module';
 import { PlatformModule } from './2_service/platform/platform.module';
 import { SessionModule } from './2_service/session/session.module';
@@ -58,6 +59,7 @@ const DEFAULT_MODULES = [
     MailModule,
     HandlebarsModule,
     AccountVerificationModule,
+    PasswordResetRequestModule,
     UserModule,
     SessionModule,
     DaoModule,
