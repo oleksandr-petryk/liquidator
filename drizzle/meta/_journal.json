@@ -85,6 +85,20 @@
       "when": 1755106305877,
       "tag": "0011_public_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1755196435873,
+      "tag": "0012_light_night_thrasher",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1755196812840,
+      "tag": "0013_adorable_omega_sentinel",
+      "breakpoints": true
     }
   ]
 }

@@ -9,7 +9,6 @@ import {
   PasswordResetRequestDao,
   PasswordResetRequestSelectModel,
 } from '../../3_componentes/dao/password-reset-request.dao';
-import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
 import {
@@ -21,7 +20,6 @@ import {
 export class PasswordResetRequestService {
   constructor(
     private readonly PasswordResetRequestDao: PasswordResetRequestDao,
-    private readonly userDao: UserDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
   ) {}
@@ -52,10 +50,29 @@ export class PasswordResetRequestService {
         );
       }
 
-      if (
+      console.log(
+        new Date(records[records.length - 1].createdAt).getTime(),
+        '<========= time',
+      );
+
+      console.log('Now:', new Date());
+      console.log(
+        'Last request:',
+        new Date(records[records.length - 1].createdAt),
+      );
+
+      console.log(new Date().getTime(), '<====== cur');
+
+      console.log(
         (new Date(records[records.length - 1].createdAt).getTime() -
           new Date().getTime()) /
-          1000 >
+          1000,
+      );
+
+      if (
+        (new Date().getTime() -
+          new Date(records[records.length - 1].createdAt).getTime()) /
+          1000 <
         60
       ) {
         throw new HttpException(
@@ -89,11 +106,11 @@ export class PasswordResetRequestService {
 
     await this.mailService.sendEmail({
       to: email,
-      subject: 'verification approval',
+      subject: 'Password reset',
       html: await this.handlebarsService.render(template, {
         name: username,
         email: email,
-        code: accountVerificationRecord.code,
+        resetLink: 'in work',
         expiresAt: accountVerificationRecord.expiresAt,
         year: new Date().getFullYear(),
       }),

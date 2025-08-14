@@ -321,13 +321,13 @@ export class AuthService {
 
     // 3. Create account veryfication record in DB and send veryfication email
     await this.passwordResetRequestService.sendRequest({
-      template: TemplatesEnum.verificationEmail,
+      template: TemplatesEnum.emailReset,
       username: user.username,
       email: user.email,
       userId: user.id,
     });
   }
-  
+
   async getUser(userId: string): Promise<GetUserResponseBodyDto> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, status, ...user } = await this.userDao.findById({
