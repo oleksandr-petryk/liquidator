@@ -134,8 +134,8 @@ export class AuthService {
    * Logic:
    * 1. Check if a user exists
    * 2. Check if a password is correct
-   * 3. Create a session
-   * 4. Generate tokens
+   * 3. Generate tokens
+   * 4. Create a session
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
@@ -174,7 +174,6 @@ export class AuthService {
           .update(tokensPair.refreshToken)
           .digest('hex'),
         jti,
-        expiresAt: new Date(new Date().getTime() + 900000),
       },
     });
 

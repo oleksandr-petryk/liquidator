@@ -40,22 +40,6 @@ export class UserDto
   verifyed!: boolean;
 
   @ApiProperty({
-    description: 'User email',
-    type: String,
-    example: 'any@mail.com',
-    nullable: false,
-  })
-  email!: string;
-
-  @ApiProperty({
-    description: 'User phone number',
-    type: String,
-    example: '+111111111111',
-    nullable: true,
-  })
-  phoneNumber!: string | null;
-
-  @ApiProperty({
     description: 'Username',
     type: String,
     example: 'JohnDoe',
@@ -63,7 +47,15 @@ export class UserDto
     minLength: 4,
     nullable: true,
   })
-  username!: string | null;
+  username!: string;
+
+  @ApiProperty({
+    description: 'User email',
+    type: String,
+    example: 'any@mail.com',
+    nullable: false,
+  })
+  email!: string;
 
   @ApiProperty({
     description: 'First name',
@@ -102,11 +94,19 @@ export class UserDto
   gender!: Gender | null;
 
   @ApiProperty({
+    description: 'User phone number',
+    type: String,
+    example: '+111111111111',
+    nullable: true,
+  })
+  phoneNumber!: string | null;
+
+  @ApiProperty({
     description: 'Picture id',
     type: String,
     example: randomUUID(),
   })
-  pictureId?: string | null;
+  pictureId!: string | null;
 
   @ApiProperty({
     description: 'Recovery email address',
