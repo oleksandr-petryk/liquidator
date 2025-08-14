@@ -327,7 +327,7 @@ export class AuthService {
       userId: user.id,
     });
   }
-
+  
   async getUser(userId: string): Promise<GetUserResponseBodyDto> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, status, ...user } = await this.userDao.findById({

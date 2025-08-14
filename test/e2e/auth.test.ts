@@ -152,7 +152,6 @@ describe('Auth Tests', () => {
       expect(response.data.payload.count).toEqual(3);
       expect(response.data.payload.items[0]).toMatchObject({
         id: expect.any(String),
-        token: expect.any(String),
       });
     });
 
@@ -191,7 +190,6 @@ describe('Auth Tests', () => {
       expect(response.data.payload).toMatchObject({
         id: expect.any(String),
         userId: expect.any(String),
-        token: expect.any(String),
         name: 'john',
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
@@ -234,7 +232,7 @@ describe('Auth Tests', () => {
         }),
       );
 
-      expect(response.status).toEqual(400);
+      expect(response.status).toEqual(401);
     });
 
     test('Pagination - OK - default pagination', async () => {
@@ -261,7 +259,6 @@ describe('Auth Tests', () => {
       expect(response_1.data.payload.items.length).toEqual(10);
       expect(response_1.data.payload.items[0]).toMatchObject({
         id: expect.any(String),
-        token: expect.any(String),
       });
 
       const response_2 = await API.get('/v1/auth/sessions', {
@@ -304,7 +301,6 @@ describe('Auth Tests', () => {
       expect(response_1.data.payload.items.length).toEqual(9);
       expect(response_1.data.payload.items[0]).toMatchObject({
         id: expect.any(String),
-        token: expect.any(String),
       });
 
       const response_2 = await API.get('/v1/auth/sessions', {
@@ -318,6 +314,35 @@ describe('Auth Tests', () => {
       });
 
       expect(response_2.data.payload.items.length).toEqual(4);
+    });
+
+    test('Get thisDevice - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/log-in', data);
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const response = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      expect(response.status).toEqual(200);
+      expect(response.data.payload.items[1]).toMatchObject({
+        id: expect.any(String),
+        thisDevice: false,
+      });
+      expect(response.data.payload.items[0]).toMatchObject({
+        id: expect.any(String),
+        thisDevice: true,
+      });
     });
   });
 
@@ -387,6 +412,43 @@ describe('Auth Tests', () => {
       );
 
       expect(mail_2.status).toEqual(200);
+    });
+  });
+
+  describe('Get user', () => {
+    test('Get user - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const response = await API.get('/v1/auth/user', {
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+        },
+      });
+
+      expect(response.status).toEqual(200);
+      expect(response.data.payload).toMatchObject({
+        id: expect.any(String),
+        verifyed: false,
+        email: data.email.toLowerCase(),
+        phoneNumber: null,
+        username: data.username.toLowerCase(),
+        firstName: null,
+        lastName: null,
+        dateOfBirth: null,
+        gender: null,
+        pictureId: null,
+        recoveryEmailAddress: null,
+        createdAt: expect.any(String),
+        updatedAt: null,
+      });
     });
   });
 });
