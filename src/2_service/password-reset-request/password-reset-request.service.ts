@@ -106,7 +106,7 @@ export class PasswordResetRequestService {
 
     await this.mailService.sendEmail({
       to: user.email,
-      subject: 'Password reset',
+      subject: 'Password changed',
       html: await this.handlebarsService.render(
         TemplatesEnum.passwordChangedNotification,
         {
@@ -143,12 +143,10 @@ export class PasswordResetRequestService {
   }
 
   public async sendRequest({
-    template,
     username,
     email,
     userId,
   }: {
-    template: string;
     username: string;
     email: string;
     userId: string;
@@ -166,7 +164,7 @@ export class PasswordResetRequestService {
     await this.mailService.sendEmail({
       to: email,
       subject: 'Password reset',
-      html: await this.handlebarsService.render(template, {
+      html: await this.handlebarsService.render(TemplatesEnum.emailReset, {
         name: username,
         email: email,
         code: accountVerificationRecord.code,

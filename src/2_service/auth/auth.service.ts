@@ -23,7 +23,6 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../5_shared/interfaces/jwt-token.interface';
-import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   GetUserResponseBodyDto,
@@ -124,7 +123,6 @@ export class AuthService {
 
     // 6. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
-      template: TemplatesEnum.verificationEmail,
       username: newUser.username,
       email: newUser.email,
       userId: newUser.id,
@@ -301,7 +299,6 @@ export class AuthService {
 
     // 3. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
-      template: TemplatesEnum.verificationEmail,
       username: user.username,
       email: user.email,
       userId: user.id,
@@ -333,7 +330,6 @@ export class AuthService {
 
     // 4. Create account veryfication record in DB and send veryfication email
     await this.passwordResetRequestService.sendRequest({
-      template: TemplatesEnum.emailReset,
       username: user.username,
       email: user.email,
       userId: user.id,

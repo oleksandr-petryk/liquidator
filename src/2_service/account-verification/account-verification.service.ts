@@ -12,6 +12,7 @@ import {
 import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
+import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import {
   generate6DigitsCode,
   nonNullableUtils,
@@ -80,12 +81,10 @@ export class AccountVerificationService {
   }
 
   public async sendRequest({
-    template,
     username,
     email,
     userId,
   }: {
-    template: string;
     username: string;
     email: string;
     userId: string;
@@ -101,13 +100,16 @@ export class AccountVerificationService {
     await this.mailService.sendEmail({
       to: email,
       subject: 'verification approval',
-      html: await this.handlebarsService.render(template, {
-        name: username,
-        email: email,
-        code: accountVerificationRecord.code,
-        expiresAt: accountVerificationRecord.expiresAt,
-        year: new Date().getFullYear(),
-      }),
+      html: await this.handlebarsService.render(
+        TemplatesEnum.verificationEmail,
+        {
+          name: username,
+          email: email,
+          code: accountVerificationRecord.code,
+          expiresAt: accountVerificationRecord.expiresAt,
+          year: new Date().getFullYear(),
+        },
+      ),
     });
 
     return accountVerificationRecord;

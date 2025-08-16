@@ -531,5 +531,90 @@ describe('Auth Tests', () => {
 
       expect(response.status).toEqual(201);
     });
+
+    test('Password change - valid old password - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const newPassword = 'testPassword';
+
+      await API.patch(
+        '/v1/auth/password-change',
+        {
+          oldPassword: data.password,
+          newPassword: newPassword,
+        },
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        },
+      );
+
+      const mail = await axios.get(
+        `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
+      );
+
+      expect(mail.status).toEqual(200);
+      expect(mail.data.subject).toEqual('Password changed');
+
+      const response = await API.post('/v1/auth/log-in', {
+        email: data.email,
+        password: newPassword,
+      });
+
+      expect(response.status).toEqual(201);
+    });
+
+    test('Password change - invalid old password - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const newPassword = 'testPassword';
+
+      await expectApiError(() =>
+        API.patch(
+          '/v1/auth/password-change',
+          {
+            oldPassword: 'invalid password',
+            newPassword: newPassword,
+          },
+          {
+            headers: {
+              Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+            },
+          },
+        ),
+      );
+
+      const mail = await expectApiError(() =>
+        axios.get(`http://localhost:9000/api/v1/mailbox/${data.email}/2`),
+      );
+
+      expect(mail.status).toEqual(404);
+
+      const response = await expectApiError(() =>
+        API.post('/v1/auth/log-in', {
+          email: data.email,
+          password: newPassword,
+        }),
+      );
+
+      expect(response.status).toEqual(400);
+    });
   });
 });
