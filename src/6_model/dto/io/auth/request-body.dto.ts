@@ -234,3 +234,29 @@ export class PasswordResetRequestBody {
   @MaxLength(128)
   newPassword!: string;
 }
+
+export class PasswordChangeRequestBody {
+  @ApiProperty({
+    description: 'Old user password',
+    type: String,
+    example: '123123',
+    minLength: 8,
+    maxLength: 128,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  oldPassword!: string;
+
+  @ApiProperty({
+    description: 'New user password',
+    type: String,
+    example: '321321',
+    minLength: 8,
+    maxLength: 128,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  newPassword!: string;
+}

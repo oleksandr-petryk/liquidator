@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import {
@@ -8,6 +8,7 @@ import {
 import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
+import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { UserService } from '../user/user.service';
@@ -72,6 +73,48 @@ export class PasswordResetRequestService {
     this.userService.changePassword({
       newPassword: hashedPassword,
       userId: user.id,
+    });
+
+    return { message: 'Password successfully changed' };
+  }
+
+  async passwordChange({
+    userId,
+    oldPassword,
+    newPassword,
+  }: {
+    userId: string;
+    oldPassword: string;
+    newPassword: string;
+  }): Promise<PasswordResetResponseBodyDto | undefined> {
+    const user = await this.userDao.findById({ id: userId });
+
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
+
+    if (!passwordCheck) {
+      throw new BadRequestException('Incorrect password');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    this.userService.changePassword({
+      newPassword: hashedPassword,
+      userId: user.id,
+    });
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      subject: 'Password reset',
+      html: await this.handlebarsService.render(
+        TemplatesEnum.passwordChangedNotification,
+        {
+          name: user.username,
+          email: user.email,
+          year: new Date().getFullYear(),
+        },
+      ),
     });
 
     return { message: 'Password successfully changed' };

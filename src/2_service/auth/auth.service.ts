@@ -378,4 +378,20 @@ export class AuthService {
       newPassword,
     });
   }
+
+  async passwordChange({
+    userId,
+    oldPassword,
+    newPassword,
+  }: {
+    userId: string;
+    oldPassword: string;
+    newPassword: string;
+  }): Promise<PasswordResetResponseBodyDto | undefined> {
+    return await this.passwordResetRequestService.passwordChange({
+      userId,
+      oldPassword,
+      newPassword,
+    });
+  }
 }

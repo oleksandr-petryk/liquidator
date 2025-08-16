@@ -35,6 +35,7 @@ import {
 import {
   AccountVerificationRequestBody,
   LoginRequestBodyDto,
+  PasswordChangeRequestBody,
   PasswordResetRequestBody,
   RegisterRequestBodyDto,
   SendPasswordResetEmailRequestBody,
@@ -254,7 +255,7 @@ export class AuthController {
   })
   @ApiAbstractResponse(PasswordResetResponseBodyDto)
   @Patch('password-reset')
-  async PasswordReset(
+  async passwordReset(
     @Body() data: PasswordResetRequestBody,
   ): Promise<PasswordResetResponseBodyDto | undefined> {
     this.logger.info(
@@ -262,5 +263,23 @@ export class AuthController {
     );
 
     return await this.authService.passwordReset(data);
+  }
+
+  @ApiOperation({
+    summary: 'Password change',
+  })
+  @ApiAbstractResponse(PasswordResetResponseBodyDto)
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Patch('password-change')
+  async changePassword(
+    @GetUserFromRequest() user: JwtTokenPayload,
+    @Body() data: PasswordChangeRequestBody,
+  ): Promise<PasswordResetResponseBodyDto | undefined> {
+    this.logger.info(
+      `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    return await this.authService.passwordChange({ userId: user.id, ...data });
   }
 }
