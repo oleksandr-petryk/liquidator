@@ -1,21 +1,15 @@
-import {
-  BadRequestException,
-  GoneException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import {
   PasswordResetRequestDao,
   PasswordResetRequestSelectModel,
 } from '../../3_componentes/dao/password-reset-request.dao';
+import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
-import {
-  generate6DigitsCode,
-  nonNullableUtils,
-} from '../../5_shared/utils/db.util';
+import { generate6DigitsCode } from '../../5_shared/utils/db.util';
+import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -25,36 +19,22 @@ export class PasswordResetRequestService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly userDao: UserDao,
   ) {}
 
-  public async getByUserId(
-    userId: string,
-  ): Promise<Omit<PasswordResetRequestSelectModel, 'user'>> {
-    const result = await this.passwordResetRequestDao.findByUserId({ userId });
-
-    return nonNullableUtils(
-      result,
-      new BadRequestException(
-        'Account verification record not found, id: ' + userId,
-      ),
-    );
-  }
-
-  public async canResetPassword({
-    userId,
+  public canResetPassword({
+    passwordResetRequestRecord,
     code,
   }: {
-    userId: string;
+    passwordResetRequestRecord: Omit<PasswordResetRequestSelectModel, 'user'>;
     code: string;
-  }): Promise<void> {
-    const passwordResetRequestRecord = await this.getByUserId(userId);
-
+  }): void | boolean {
     if (passwordResetRequestRecord.code !== code) {
-      throw new UnauthorizedException();
+      return false;
     }
 
     if (passwordResetRequestRecord.expiresAt < new Date()) {
-      throw new GoneException();
+      return false;
     }
   }
 
@@ -66,10 +46,24 @@ export class PasswordResetRequestService {
     email: string;
     code: string;
     newPassword: string;
-  }): Promise<void> {
-    const user = await this.userService.getByEmail({ email });
+  }): Promise<PasswordResetResponseBodyDto | undefined> {
+    const user = await this.userDao.findByEmail({ email });
 
-    this.canResetPassword({ userId: user.id, code });
+    if (!user) {
+      return;
+    }
+
+    const passwordResetRequestRecord =
+      await this.passwordResetRequestDao.findByUserId({ userId: user.id });
+
+    if (
+      this.canResetPassword({
+        passwordResetRequestRecord,
+        code,
+      }) === false
+    ) {
+      return;
+    }
 
     const saltRounds = 10; // TODO: use different salt each time
 
@@ -79,6 +73,8 @@ export class PasswordResetRequestService {
       newPassword: hashedPassword,
       userId: user.id,
     });
+
+    return { message: 'Password successfully changed' };
   }
 
   public async canSendRequest(userId: string): Promise<boolean> {

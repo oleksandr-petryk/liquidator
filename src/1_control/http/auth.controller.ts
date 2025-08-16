@@ -44,6 +44,7 @@ import {
   AccountVerificationResponseBodyDto,
   GetUserResponseBodyDto,
   LoginResponseBodyDto,
+  PasswordResetResponseBodyDto,
   SendVerificatioEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
 
@@ -251,13 +252,15 @@ export class AuthController {
   @ApiOperation({
     summary: 'Password reset',
   })
-  @HttpCode(200)
+  @ApiAbstractResponse(PasswordResetResponseBodyDto)
   @Patch('password-reset')
-  async PasswordReset(@Body() data: PasswordResetRequestBody): Promise<void> {
+  async PasswordReset(
+    @Body() data: PasswordResetRequestBody,
+  ): Promise<PasswordResetResponseBodyDto | undefined> {
     this.logger.info(
       `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
     );
 
-    await this.authService.passwordReset(data);
+    return await this.authService.passwordReset(data);
   }
 }

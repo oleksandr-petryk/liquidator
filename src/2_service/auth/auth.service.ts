@@ -25,7 +25,10 @@ import {
 } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
-import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
+import {
+  GetUserResponseBodyDto,
+  PasswordResetResponseBodyDto,
+} from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
@@ -368,8 +371,8 @@ export class AuthService {
     email: string;
     code: string;
     newPassword: string;
-  }): Promise<void> {
-    await this.passwordResetRequestService.passwordReset({
+  }): Promise<PasswordResetResponseBodyDto | undefined> {
+    return await this.passwordResetRequestService.passwordReset({
       email,
       code,
       newPassword,
