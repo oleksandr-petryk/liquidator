@@ -155,7 +155,7 @@ describe('Auth Tests', () => {
       });
     });
 
-    test('Update - OK', async () => {
+    test('Get thisDevice - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -164,75 +164,24 @@ describe('Auth Tests', () => {
 
       await API.post('/v1/auth/register', data);
 
+      await API.post('/v1/auth/log-in', data);
       const tokens = await API.post('/v1/auth/log-in', data);
 
-      const session = await API.get('/v1/auth/sessions', {
+      const response = await API.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
       });
-
-      const id = session.data.payload.items[0].id;
-
-      const response = await API.patch(
-        `/v1/auth/sessions/${id}`,
-        {
-          name: 'john',
-        },
-        {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
-        },
-      );
 
       expect(response.status).toEqual(200);
-      expect(response.data.payload).toMatchObject({
+      expect(response.data.payload.items[1]).toMatchObject({
         id: expect.any(String),
-        userId: expect.any(String),
-        name: 'john',
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
+        thisDevice: false,
       });
-      expect(session.data.payload.items[0].updatedAt).not.toBe(
-        response.data.payload.updatedAt,
-      );
-    });
-
-    test('Delete - OK', async () => {
-      const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
-      };
-
-      await API.post('/v1/auth/register', data);
-
-      const tokens = await API.post('/v1/auth/log-in', data);
-
-      const session = await API.get('/v1/auth/sessions', {
-        headers: {
-          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-        },
+      expect(response.data.payload.items[0]).toMatchObject({
+        id: expect.any(String),
+        thisDevice: true,
       });
-
-      const id = session.data.payload.items[0].id;
-
-      await API.delete(`/v1/auth/sessions/${id}`, {
-        headers: {
-          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-        },
-      });
-
-      const response = await expectApiError(() =>
-        API.delete(`/v1/auth/sessions/${id}`, {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
-        }),
-      );
-
-      expect(response.status).toEqual(401);
     });
 
     test('Pagination - OK - default pagination', async () => {
@@ -316,7 +265,7 @@ describe('Auth Tests', () => {
       expect(response_2.data.payload.items.length).toEqual(4);
     });
 
-    test('Get thisDevice - OK', async () => {
+    test('Update - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -325,24 +274,95 @@ describe('Auth Tests', () => {
 
       await API.post('/v1/auth/register', data);
 
-      await API.post('/v1/auth/log-in', data);
       const tokens = await API.post('/v1/auth/log-in', data);
 
-      const response = await API.get('/v1/auth/sessions', {
+      const session = await API.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
       });
 
+      const id = session.data.payload.items[0].id;
+
+      const response = await API.patch(
+        `/v1/auth/sessions/${id}`,
+        {
+          name: 'john',
+        },
+        {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        },
+      );
+
       expect(response.status).toEqual(200);
-      expect(response.data.payload.items[1]).toMatchObject({
+      expect(response.data.payload).toMatchObject({
         id: expect.any(String),
-        thisDevice: false,
+        userId: expect.any(String),
+        name: 'john',
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       });
-      expect(response.data.payload.items[0]).toMatchObject({
-        id: expect.any(String),
-        thisDevice: true,
+      expect(session.data.payload.items[0].updatedAt).not.toBe(
+        response.data.payload.updatedAt,
+      );
+    });
+
+    test('Delete - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens_1 = await API.post('/v1/auth/log-in', data);
+      const tokens_2 = await API.post('/v1/auth/log-in', data);
+      await API.post('/v1/auth/log-in', data);
+
+      const session = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
+        },
       });
+
+      const id = session.data.payload.items[2].id;
+
+      await API.delete(`/v1/auth/sessions/${id}`, {
+        headers: {
+          Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
+        },
+      });
+
+      const response_1 = await expectApiError(() =>
+        API.delete(`/v1/auth/sessions/${id}`, {
+          headers: {
+            Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
+          },
+        }),
+      );
+
+      expect(response_1.status).toEqual(401);
+
+      const response_2 = await expectApiError(() =>
+        API.get('/v1/auth/sessions', {
+          headers: {
+            Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
+          },
+        }),
+      );
+
+      expect(response_2.status).toEqual(401);
+
+      const response_3 = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + tokens_2.data.payload.accessToken,
+        },
+      });
+
+      expect(response_3.status).toEqual(200);
     });
   });
 
@@ -449,6 +469,16 @@ describe('Auth Tests', () => {
         createdAt: expect.any(String),
         updatedAt: null,
       });
+    });
+  });
+
+  describe('Password reset', () => {
+    test('Send password reset email - OK', async () => {
+      // Todo
+    });
+
+    test('Password reset - OK', async () => {
+      // Todo
     });
   });
 });
