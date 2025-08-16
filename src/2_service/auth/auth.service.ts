@@ -324,7 +324,9 @@ export class AuthService {
     }
 
     // 3. Check if user can send request
-    await this.passwordResetRequestService.canSendRequest(user.id);
+    if (!(await this.passwordResetRequestService.canSendRequest(user.id))) {
+      return;
+    }
 
     // 4. Create account veryfication record in DB and send veryfication email
     await this.passwordResetRequestService.sendRequest({

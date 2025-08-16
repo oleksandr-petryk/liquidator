@@ -474,11 +474,62 @@ describe('Auth Tests', () => {
 
   describe('Password reset', () => {
     test('Send password reset email - OK', async () => {
-      // Todo
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/password-reset/send/', data);
+
+      const mail_1 = await axios.get(
+        `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
+      );
+
+      expect(mail_1.status).toEqual(200);
+      expect(mail_1.data.subject).toEqual('Password reset');
+
+      const mail_2 = await expectApiError(() =>
+        axios.get(`http://localhost:9000/api/v1/mailbox/${data.email}/3`),
+      );
+
+      expect(mail_2.status).toEqual(404);
     });
 
     test('Password reset - OK', async () => {
-      // Todo
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      await API.post('/v1/auth/password-reset/send/', data);
+
+      const mail = await axios.get(
+        `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
+      );
+
+      expect(mail.status).toEqual(200);
+      expect(mail.data.subject).toEqual('Password reset');
+
+      const newPassword = 'testPassword';
+
+      await API.patch('/v1/auth/password-reset', {
+        email: data.email,
+        code: mail.data.body.text.match(/\b\d{6}\b/)[0],
+        newPassword: newPassword,
+      });
+
+      const response = await API.post('/v1/auth/log-in', {
+        email: data.email,
+        password: newPassword,
+      });
+
+      expect(response.status).toEqual(201);
     });
   });
 });

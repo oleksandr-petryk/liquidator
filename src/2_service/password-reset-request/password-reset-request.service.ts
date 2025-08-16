@@ -50,11 +50,11 @@ export class PasswordResetRequestService {
     const passwordResetRequestRecord = await this.getByUserId(userId);
 
     if (passwordResetRequestRecord.code !== code) {
-      throw new UnauthorizedException('Code wrong');
+      throw new UnauthorizedException();
     }
 
     if (passwordResetRequestRecord.expiresAt < new Date()) {
-      throw new GoneException('The code has expired');
+      throw new GoneException();
     }
   }
 
@@ -81,14 +81,14 @@ export class PasswordResetRequestService {
     });
   }
 
-  public async canSendRequest(userId: string): Promise<void> {
+  public async canSendRequest(userId: string): Promise<boolean> {
     const records = await this.passwordResetRequestDao.findManyByUserId({
       userId,
     });
 
     if (records.length !== 0) {
       if (records.length >= 10) {
-        return;
+        return false;
       }
 
       if (
@@ -97,9 +97,10 @@ export class PasswordResetRequestService {
           1000 <
         60
       ) {
-        return;
+        return false;
       }
     }
+    return true;
   }
 
   public async sendRequest({
