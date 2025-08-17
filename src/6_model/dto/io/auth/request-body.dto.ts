@@ -173,3 +173,90 @@ export class AccountVerificationRequestBody {
   @MaxLength(6)
   code!: string;
 }
+
+export class SendPasswordResetEmailRequestBody {
+  @ApiProperty({
+    description: 'User email',
+    type: String,
+    example: 'example@gmail.com',
+    maxLength: 320,
+    minLength: 5,
+  })
+  @IsNotEmpty()
+  @IsEmail()
+  @MaxLength(320)
+  @Matches(/^[A-Za-z0-9@._\-+]+$/, {
+    message:
+      'Only letters (a-z), numbers (0-9), and special charters are allowed',
+  })
+  email!: string;
+}
+
+export class PasswordResetRequestBody {
+  @ApiProperty({
+    description: 'User email',
+    type: String,
+    example: 'example@gmail.com',
+    maxLength: 320,
+    minLength: 5,
+  })
+  @IsNotEmpty()
+  @IsEmail()
+  @MaxLength(320)
+  @Matches(/^[A-Za-z0-9@._\-+]+$/, {
+    message:
+      'Only letters (a-z), numbers (0-9), and special charters are allowed',
+  })
+  email!: string;
+
+  @ApiProperty({
+    description: 'Code',
+    type: String,
+    example: '123456',
+    minLength: 6,
+    maxLength: 6,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  @MaxLength(6)
+  code!: string;
+
+  @ApiProperty({
+    description: 'New user password',
+    type: String,
+    example: '123123',
+    minLength: 8,
+    maxLength: 128,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  newPassword!: string;
+}
+
+export class PasswordChangeRequestBody {
+  @ApiProperty({
+    description: 'Old user password',
+    type: String,
+    example: '123123',
+    minLength: 8,
+    maxLength: 128,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  oldPassword!: string;
+
+  @ApiProperty({
+    description: 'New user password',
+    type: String,
+    example: '321321',
+    minLength: 8,
+    maxLength: 128,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(128)
+  newPassword!: string;
+}

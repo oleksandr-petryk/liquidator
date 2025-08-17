@@ -57,7 +57,10 @@ export class UserDao extends BaseDao<typeof user> {
     email: string;
   }): Promise<UserSelectModel | undefined> {
     try {
-      const result = await db.select().from(user).where(eq(user.email, email));
+      const result = await db
+        .select()
+        .from(user)
+        .where(eq(user.email, email.toLowerCase()));
 
       return result[0];
     } catch (error) {

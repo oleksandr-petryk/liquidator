@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
+import { PasswordResetRequestDao } from '../../3_componentes/dao/password-reset-request.dao';
 import {
   SessionDao,
   SessionSelectModel,
@@ -14,6 +15,8 @@ import {
   UserInsertModel,
   UserSelectModel,
 } from '../../3_componentes/dao/user.dao';
+import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
+import { MailService } from '../../3_componentes/mail/mail.service';
 import { RedisService } from '../../4_low/redis/redis.service';
 import { UserRegistrationSignal } from '../../4_low/temporal/user-registration/user-registration.signal';
 import { EnvConfig } from '../../5_shared/config/configuration';
@@ -26,8 +29,12 @@ import {
 } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
-import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
+import {
+  GetUserResponseBodyDto,
+  PasswordResetResponseBodyDto,
+} from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
+import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
 import { JwtInternalService } from './jwt-internal.service';
@@ -38,13 +45,17 @@ export class AuthService {
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
+    private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
+    private readonly passwordResetRequestService: PasswordResetRequestService,
     private readonly redisService: RedisService,
     private readonly userRegistrationSignal: UserRegistrationSignal,
     private readonly configService: ConfigService<EnvConfig>,
+    private readonly mailService: MailService,
+    private readonly handlebarsService: HandlebarsService,
   ) {}
 
   /**
@@ -56,7 +67,7 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
-   * 6. Create account veryfication record in DB and send veryfication email
+   * 6. Create account verification record in DB and send verification email
    *
    * @returns new user
    */
@@ -121,7 +132,6 @@ export class AuthService {
 
     // 6. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
-      template: TemplatesEnum.verificationEmail,
       username: newUser.username,
       email: newUser.email,
       userId: newUser.id,
@@ -281,13 +291,13 @@ export class AuthService {
     userId: string;
     code: string;
   }): Promise<void> {
-    // 1. Check is account can verify and set user verifyed field to true
     await this.accountVerificationService.verifyUserAccount({ userId, code });
   }
 
   /**
    * Send new verification email
    *
+   * Logic:
    * 1. Check is account can verify
    * 2. Get user by id
    * 3. Create account veryfication record in DB and send veryfication email
@@ -301,13 +311,51 @@ export class AuthService {
 
     // 3. Create account veryfication record in DB and send veryfication email
     await this.accountVerificationService.sendRequest({
-      template: TemplatesEnum.verificationEmail,
       username: user.username,
       email: user.email,
       userId: user.id,
     });
   }
 
+  /**
+   * Send new password reset email
+   *
+   * Logic:
+   * 1. Get user by id
+   * 2. Check if user exist
+   * 3. Check if user can send request
+   * 4. Create password reset request record in DB and send password reset email
+   */
+  async sendPasswordResetRequestEmail(email: string): Promise<void> {
+    // 1. Get user by email
+    const user = await this.userDao.findByEmail({ email });
+
+    // 2. Check if user exist
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    // 3. Check if user can send request
+    if (!(await this.passwordResetRequestService.canSendRequest(user.id))) {
+      throw new BadRequestException();
+    }
+
+    // 4. Create account verification record in DB and send verification email
+    await this.passwordResetRequestService.sendRequest({
+      username: user.username,
+      email: user.email,
+      userId: user.id,
+    });
+  }
+
+  /**
+   * Get user info
+   *
+   * Logic:
+   * 1. Get user info
+   *
+   * @returns user info
+   */
   async getUser(userId: string): Promise<GetUserResponseBodyDto> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, status, ...user } = await this.userDao.findById({
@@ -315,5 +363,92 @@ export class AuthService {
     });
 
     return user;
+  }
+
+  /**
+   * Password reset
+   *
+   * Logic:
+   * 1. Check if user can reset password, hash password and change password in db
+   */
+  async passwordReset({
+    email,
+    code,
+    newPassword,
+  }: {
+    email: string;
+    code: string;
+    newPassword: string;
+  }): Promise<PasswordResetResponseBodyDto | undefined> {
+    const user = await this.userDao.findByEmail({ email });
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    const passwordResetRequestRecord =
+      await this.passwordResetRequestDao.findByUserId({ userId: user.id });
+
+    if (
+      (await this.passwordResetRequestService.canResetPassword({
+        passwordResetRequestRecord,
+        code,
+      })) === false
+    ) {
+      throw new BadRequestException();
+    }
+
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await this.userService.changePassword({
+      newPassword: hashedPassword,
+      userId: user.id,
+    });
+
+    return { message: 'Password successfully changed' };
+  }
+
+  async passwordChange({
+    userId,
+    oldPassword,
+    newPassword,
+  }: {
+    userId: string;
+    oldPassword: string;
+    newPassword: string;
+  }): Promise<PasswordResetResponseBodyDto | undefined> {
+    const user = await this.userDao.findById({ id: userId });
+
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
+
+    if (!passwordCheck) {
+      throw new BadRequestException('Incorrect password');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await this.userService.changePassword({
+      newPassword: hashedPassword,
+      userId: user.id,
+    });
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      subject: 'Password changed',
+      html: await this.handlebarsService.render(
+        TemplatesEnum.passwordChangedNotification,
+        {
+          name: user.username,
+          email: user.email,
+          year: new Date().getFullYear(),
+        },
+      ),
+    });
+
+    return { message: 'Password successfully changed' };
   }
 }
