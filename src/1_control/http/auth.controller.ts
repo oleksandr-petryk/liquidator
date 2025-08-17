@@ -17,7 +17,6 @@ import { AuthService } from '../../2_service/auth/auth.service';
 import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
-import { GetAccessTokenFromRequest } from '../../5_shared/decorators/get-access-token-from-request';
 import { GetUserFromRequest } from '../../5_shared/decorators/get-user-from-request.decorator';
 import {
   GetUserAgentAndIp,
@@ -40,6 +39,7 @@ import {
 } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   AccountVerificationResponseBodyDto,
+  GetUserResponseBodyDto,
   LoginResponseBodyDto,
   SendVerificatioEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
@@ -105,7 +105,7 @@ export class AuthController {
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SessionPageableDto> {
     this.logger.info(
-      `${this.getListOfSessions.name}, user Id: ${JSON.stringify(user)}, query: ${JSON.stringify(query)}`,
+      `${this.getListOfSessions.name}, user: ${JSON.stringify(user)}, query: ${JSON.stringify(query)}`,
     );
 
     const result = await this.authService.getListOfSessions(
@@ -114,7 +114,17 @@ export class AuthController {
     );
 
     return new SessionPageableDto({
-      items: result.items.map((i) => this.dtoMapper.mapSessionDto(i)),
+      items: result.items.map((i) => {
+        const session = this.dtoMapper.mapSessionDto(i);
+
+        if (i.jti === user.jti) {
+          session.thisDevice = true;
+        } else {
+          session.thisDevice = false;
+        }
+
+        return session;
+      }),
       count: result.count,
     });
   }
@@ -199,5 +209,24 @@ export class AuthController {
     await this.authService.sendVerificatioEmail(user.id);
 
     return { message: 'Verification email sent successfully' };
+  }
+
+  @ApiOperation({
+    summary: 'Get user information',
+  })
+  @ApiAbstractResponse(GetUserResponseBodyDto)
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Get('user')
+  async getUser(
+    @GetUserFromRequest() user: JwtTokenPayload,
+  ): Promise<GetUserResponseBodyDto> {
+    this.logger.info(
+      `${this.getListOfSessions.name}, user: ${JSON.stringify(user)}`,
+    );
+
+    const userInfo = await this.authService.getUser(user.id);
+
+    return this.dtoMapper.mapUserDto(userInfo);
   }
 }

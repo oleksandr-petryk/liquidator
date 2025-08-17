@@ -32,11 +32,12 @@ export class SessionDto
   name!: string | null;
 
   @ApiProperty({
-    description: 'Token expiration date',
-    type: Date,
-    example: new Date(),
+    description: 'Current device',
+    type: Boolean,
+    example: true,
+    default: false,
   })
-  expiresAt!: Date;
+  thisDevice?: boolean;
 
   @ApiProperty({
     description: 'Date created',
