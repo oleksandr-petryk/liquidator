@@ -259,7 +259,7 @@ export class AuthController {
     @Body() data: PasswordResetRequestBody,
   ): Promise<PasswordResetResponseBodyDto | undefined> {
     this.logger.info(
-      `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
+      `${this.passwordReset.name}, data: ${JSON.stringify(data)}`,
     );
 
     return await this.authService.passwordReset(data);
@@ -277,7 +277,7 @@ export class AuthController {
     @Body() data: PasswordChangeRequestBody,
   ): Promise<PasswordResetResponseBodyDto | undefined> {
     this.logger.info(
-      `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
+      `${this.changePassword.name}, data: ${JSON.stringify(data)}`,
     );
 
     return await this.authService.passwordChange({ userId: user.id, ...data });

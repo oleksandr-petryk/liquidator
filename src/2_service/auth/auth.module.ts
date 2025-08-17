@@ -25,6 +25,8 @@ import { JwtInternalService } from './jwt-internal.service';
     MailService,
     HandlebarsService,
     PasswordResetRequestService,
+    MailService,
+    HandlebarsService,
   ],
   imports: [JwtModule, DaoModule],
   exports: [AuthService, JwtInternalService],

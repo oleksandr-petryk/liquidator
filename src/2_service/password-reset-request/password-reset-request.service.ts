@@ -1,123 +1,39 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import {
   PasswordResetRequestDao,
   PasswordResetRequestSelectModel,
 } from '../../3_componentes/dao/password-reset-request.dao';
-import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
-import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
-import { UserService } from '../user/user.service';
 
 @Injectable()
 export class PasswordResetRequestService {
   constructor(
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
-    private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
-    private readonly userDao: UserDao,
   ) {}
 
-  public canResetPassword({
+  public async canResetPassword({
     passwordResetRequestRecord,
     code,
   }: {
     passwordResetRequestRecord: Omit<PasswordResetRequestSelectModel, 'user'>;
     code: string;
-  }): void | boolean {
-    if (passwordResetRequestRecord.code !== code) {
+  }): Promise<boolean> {
+    if (!(await bcrypt.compare(code, passwordResetRequestRecord.code))) {
       return false;
     }
 
     if (passwordResetRequestRecord.expiresAt < new Date()) {
       return false;
     }
-  }
 
-  async passwordReset({
-    email,
-    code,
-    newPassword,
-  }: {
-    email: string;
-    code: string;
-    newPassword: string;
-  }): Promise<PasswordResetResponseBodyDto | undefined> {
-    const user = await this.userDao.findByEmail({ email });
-
-    if (!user) {
-      return;
-    }
-
-    const passwordResetRequestRecord =
-      await this.passwordResetRequestDao.findByUserId({ userId: user.id });
-
-    if (
-      this.canResetPassword({
-        passwordResetRequestRecord,
-        code,
-      }) === false
-    ) {
-      return;
-    }
-
-    const saltRounds = 10; // TODO: use different salt each time
-
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    this.userService.changePassword({
-      newPassword: hashedPassword,
-      userId: user.id,
-    });
-
-    return { message: 'Password successfully changed' };
-  }
-
-  async passwordChange({
-    userId,
-    oldPassword,
-    newPassword,
-  }: {
-    userId: string;
-    oldPassword: string;
-    newPassword: string;
-  }): Promise<PasswordResetResponseBodyDto | undefined> {
-    const user = await this.userDao.findById({ id: userId });
-
-    const saltRounds = 10; // TODO: use different salt each time
-
-    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
-
-    if (!passwordCheck) {
-      throw new BadRequestException('Incorrect password');
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    this.userService.changePassword({
-      newPassword: hashedPassword,
-      userId: user.id,
-    });
-
-    await this.mailService.sendEmail({
-      to: user.email,
-      subject: 'Password changed',
-      html: await this.handlebarsService.render(
-        TemplatesEnum.passwordChangedNotification,
-        {
-          name: user.username,
-          email: user.email,
-          year: new Date().getFullYear(),
-        },
-      ),
-    });
-
-    return { message: 'Password successfully changed' };
+    return true;
   }
 
   public async canSendRequest(userId: string): Promise<boolean> {
@@ -151,15 +67,18 @@ export class PasswordResetRequestService {
     email: string;
     userId: string;
   }): Promise<Omit<PasswordResetRequestSelectModel, 'user'>> {
-    const accountVerificationRecord = await this.passwordResetRequestDao.create(
-      {
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const code = generate6DigitsCode();
+
+    const passwordResetRequestRecord =
+      await this.passwordResetRequestDao.create({
         data: {
           userId: userId,
-          code: generate6DigitsCode(),
-          expiresAt: new Date(new Date().getTime() + 600000), // current date + 10 minuts (1000 * 60 * 10)
+          code: await bcrypt.hash(code, saltRounds),
+          expiresAt: new Date(new Date().getTime() + 600000), // current date + 10 minutes (1000 * 60 * 10)
         },
-      },
-    );
+      });
 
     await this.mailService.sendEmail({
       to: email,
@@ -167,12 +86,12 @@ export class PasswordResetRequestService {
       html: await this.handlebarsService.render(TemplatesEnum.emailReset, {
         name: username,
         email: email,
-        code: accountVerificationRecord.code,
-        expiresAt: accountVerificationRecord.expiresAt,
+        code: code,
+        expiresAt: passwordResetRequestRecord.expiresAt,
         year: new Date().getFullYear(),
       }),
     });
 
-    return accountVerificationRecord;
+    return passwordResetRequestRecord;
   }
 }

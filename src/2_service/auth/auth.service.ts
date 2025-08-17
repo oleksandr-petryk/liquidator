@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
+import { PasswordResetRequestDao } from '../../3_componentes/dao/password-reset-request.dao';
 import {
   SessionDao,
   SessionSelectModel,
@@ -14,6 +15,8 @@ import {
   UserInsertModel,
   UserSelectModel,
 } from '../../3_componentes/dao/user.dao';
+import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
+import { MailService } from '../../3_componentes/mail/mail.service';
 import { RedisService } from '../../4_low/redis/redis.service';
 import { EnvConfig } from '../../5_shared/config/configuration';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
@@ -23,6 +26,7 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../5_shared/interfaces/jwt-token.interface';
+import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   GetUserResponseBodyDto,
@@ -40,6 +44,7 @@ export class AuthService {
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
+    private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
@@ -47,6 +52,8 @@ export class AuthService {
     private readonly passwordResetRequestService: PasswordResetRequestService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService<EnvConfig>,
+    private readonly mailService: MailService,
+    private readonly handlebarsService: HandlebarsService,
   ) {}
 
   /**
@@ -58,7 +65,7 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
-   * 6. Create account veryfication record in DB and send veryfication email
+   * 6. Create account verification record in DB and send verification email
    *
    * @returns new user
    */
@@ -320,15 +327,15 @@ export class AuthService {
 
     // 2. Check if user exist
     if (!user) {
-      return;
+      throw new BadRequestException();
     }
 
     // 3. Check if user can send request
     if (!(await this.passwordResetRequestService.canSendRequest(user.id))) {
-      return;
+      throw new BadRequestException();
     }
 
-    // 4. Create account veryfication record in DB and send veryfication email
+    // 4. Create account verification record in DB and send verification email
     await this.passwordResetRequestService.sendRequest({
       username: user.username,
       email: user.email,
@@ -368,11 +375,34 @@ export class AuthService {
     code: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
-    return await this.passwordResetRequestService.passwordReset({
-      email,
-      code,
-      newPassword,
+    const user = await this.userDao.findByEmail({ email });
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    const passwordResetRequestRecord =
+      await this.passwordResetRequestDao.findByUserId({ userId: user.id });
+
+    if (
+      (await this.passwordResetRequestService.canResetPassword({
+        passwordResetRequestRecord,
+        code,
+      })) === false
+    ) {
+      throw new BadRequestException();
+    }
+
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await this.userService.changePassword({
+      newPassword: hashedPassword,
+      userId: user.id,
     });
+
+    return { message: 'Password successfully changed' };
   }
 
   async passwordChange({
@@ -384,10 +414,36 @@ export class AuthService {
     oldPassword: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
-    return await this.passwordResetRequestService.passwordChange({
-      userId,
-      oldPassword,
-      newPassword,
+    const user = await this.userDao.findById({ id: userId });
+
+    const saltRounds = 10; // TODO: use different salt each time
+
+    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
+
+    if (!passwordCheck) {
+      throw new BadRequestException('Incorrect password');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await this.userService.changePassword({
+      newPassword: hashedPassword,
+      userId: user.id,
     });
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      subject: 'Password changed',
+      html: await this.handlebarsService.render(
+        TemplatesEnum.passwordChangedNotification,
+        {
+          name: user.username,
+          email: user.email,
+          year: new Date().getFullYear(),
+        },
+      ),
+    });
+
+    return { message: 'Password successfully changed' };
   }
 }
