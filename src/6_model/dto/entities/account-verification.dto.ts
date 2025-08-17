@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { PasswordResetRequestSelectModel } from '../../../3_componentes/dao/password-reset-request.dao';
+import { AccountVerificationSelectModel } from '../../../3_componentes/dao/account-verification.dao';
 
 export class AccountVerificationDto
-  implements Record<keyof Omit<PasswordResetRequestSelectModel, 'user'>, any>
+  implements Record<keyof Omit<AccountVerificationSelectModel, 'user'>, any>
 {
   @ApiProperty({
     description: 'ID',
@@ -23,7 +23,7 @@ export class AccountVerificationDto
   @ApiProperty({
     description: 'Random code for password reset',
     type: String,
-    example: randomUUID(),
+    example: '123456',
     maxLength: 6,
     minLength: 6,
   })

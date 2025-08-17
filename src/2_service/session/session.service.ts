@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import * as crypto from 'crypto';
 
 import {
   SessionDao,
   SessionSelectModel,
 } from '../../3_componentes/dao/session.dao';
+import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { nonNullableUtils } from '../../5_shared/utils/db.util';
 
 @Injectable()
@@ -17,5 +19,35 @@ export class SessionService {
       result,
       new BadRequestException('Session not found, id: ' + id),
     );
+  }
+
+  public async createNewSession({
+    userAgentAndIp,
+    userId,
+    clientFingerprintId,
+    refreshToken,
+    jti,
+  }: {
+    userAgentAndIp: UserAgentAndIp;
+    userId: string;
+    clientFingerprintId: string;
+    refreshToken: string;
+    jti: string;
+  }): Promise<SessionSelectModel> {
+    return await this.sessionDao.create({
+      data: {
+        name:
+          userAgentAndIp.userAgent && userAgentAndIp.userAgent.length >= 9
+            ? userAgentAndIp.userAgent.slice(0, 6) + '...'
+            : userAgentAndIp.userAgent || '',
+        userId: userId,
+        clientFingerprintId: clientFingerprintId,
+        refreshTokenHash: crypto
+          .createHash('sha256')
+          .update(refreshToken)
+          .digest('hex'),
+        jti,
+      },
+    });
   }
 }

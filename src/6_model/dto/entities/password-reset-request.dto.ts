@@ -23,7 +23,7 @@ export class PasswordResetRequestDto
   @ApiProperty({
     description: 'Random code for password reset',
     type: String,
-    example: randomUUID(),
+    example: '123456',
     maxLength: 6,
     minLength: 6,
   })

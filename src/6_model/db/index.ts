@@ -1,4 +1,5 @@
 export * from './account-verification';
+export * from './client-fingerprint';
 export * from './enums';
 export * from './organization';
 export * from './password-reset-request';

@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
+import { ClientFingerprintDao } from '../../3_componentes/dao/client-fingerprint.dao';
 import {
   SessionDao,
   SessionSelectModel,
@@ -40,6 +40,7 @@ export class AuthService {
     private readonly logger: PinoLogger,
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
+    private readonly clientFingerprintDao: ClientFingerprintDao,
     private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
@@ -138,7 +139,8 @@ export class AuthService {
    * 1. Check if a user exists
    * 2. Check if a password is correct
    * 3. Generate tokens
-   * 4. Create a session
+   * 4. Create clientFingerprint record
+   * 5. Create a session
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
@@ -164,20 +166,21 @@ export class AuthService {
       jti,
     });
 
-    // 4. Create session
-    await this.sessionDao.create({
+    // 4. Create clientFingerprint record
+    const clientFingerprint = await this.clientFingerprintDao.create({
       data: {
-        name:
-          userAgentAndIp.userAgent && userAgentAndIp.userAgent.length >= 9
-            ? userAgentAndIp.userAgent.slice(0, 6) + '...'
-            : userAgentAndIp.userAgent || '',
-        userId: user.id,
-        refreshTokenHash: crypto
-          .createHash('sha256')
-          .update(tokensPair.refreshToken)
-          .digest('hex'),
-        jti,
+        ip: userAgentAndIp.ipAddress,
+        userAgent: userAgentAndIp.userAgent,
       },
+    });
+
+    // 5. Create session
+    this.sessionService.createNewSession({
+      userAgentAndIp,
+      jti,
+      clientFingerprintId: clientFingerprint.id,
+      userId: user.id,
+      refreshToken: tokensPair.refreshToken,
     });
 
     return tokensPair;
