@@ -15,6 +15,7 @@ import {
   UserSelectModel,
 } from '../../3_componentes/dao/user.dao';
 import { RedisService } from '../../4_low/redis/redis.service';
+import { UserRegistrationSignal } from '../../4_low/temporal/user-registration/user-registration.signal';
 import { EnvConfig } from '../../5_shared/config/configuration';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { Listable } from '../../5_shared/interfaces/abstract.interface';
@@ -42,6 +43,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly accountVerificationService: AccountVerificationService,
     private readonly redisService: RedisService,
+    private readonly userRegistrationSignal: UserRegistrationSignal,
     private readonly configService: ConfigService<EnvConfig>,
   ) {}
 
@@ -103,7 +105,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    // 5. Create new user in DB
+    // 5. Create a new user in DB
     const newUser = await this.userDao.create({
       data: {
         email: emailLowerCase,
@@ -124,6 +126,9 @@ export class AuthService {
       email: newUser.email,
       userId: newUser.id,
     });
+
+    // Reworked with Temporal
+    await this.userRegistrationSignal.trigger(newUser.id);
 
     return newUser;
   }

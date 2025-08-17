@@ -5,6 +5,7 @@ import { AuthController } from '../../1_control/http/auth.controller';
 import { DaoModule } from '../../3_componentes/dao/dao.module';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
+import { TemporalModule } from '../../4_low/temporal/temporal.module';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { SessionService } from '../session/session.service';
@@ -24,7 +25,7 @@ import { JwtInternalService } from './jwt-internal.service';
     MailService,
     HandlebarsService,
   ],
-  imports: [JwtModule, DaoModule],
+  imports: [JwtModule, DaoModule, TemporalModule],
   exports: [AuthService, JwtInternalService],
 })
 export class AuthModule {}

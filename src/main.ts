@@ -10,6 +10,7 @@ import type { EnvConfig } from './5_shared/config/configuration';
 import { applyMiddlewares } from './5_shared/config/middlewares';
 import { setupSwagger } from './5_shared/config/swagger';
 import { AppModule } from './app.module';
+import { setupTemporal } from './5_shared/config/temporal';
 
 /**
  * Startup Nest.js application
@@ -46,13 +47,13 @@ async function bootstrap(): Promise<void> {
   // Apply middlewares
   await applyMiddlewares({ app, configService, logger });
 
-  // Setup Swagger
+  // Set-up Swagger
   await setupSwagger({ app, configService, logger });
 
   // Start server
   await app.listen(
     PORT,
-    // It is required to work in docker container: https://fastify.dev/docs/latest/Guides/Getting-Started/#note
+    // It is required to work in a docker container: https://fastify.dev/docs/latest/Guides/Getting-Started/#note
     '0.0.0.0',
   );
 
@@ -62,6 +63,13 @@ async function bootstrap(): Promise<void> {
   logger.info(
     `App started on http://localhost:${PORT}/${APP_GLOBAL_URL_PREFIX}`,
   );
+
+  // Set-up and run Temporal worker
+  await setupTemporal({
+    app,
+    configService,
+    logger,
+  });
 }
 
 bootstrap();
