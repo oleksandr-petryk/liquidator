@@ -198,12 +198,12 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: 'Send new verification email',
+    summary: 'Re-send new verification email',
   })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @ApiAbstractResponse(SendVerificatioEmailResponseBodyDto)
-  @Post('verify/send')
+  @Post('verify/re-send')
   async sendVerificationEmail(
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SendVerificatioEmailResponseBodyDto> {
@@ -211,7 +211,7 @@ export class AuthController {
       `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
     );
 
-    await this.authService.sendVerificatioEmail(user.id);
+    await this.authService.resendVerificationEmail(user.id);
 
     return { message: 'Verification email sent successfully' };
   }

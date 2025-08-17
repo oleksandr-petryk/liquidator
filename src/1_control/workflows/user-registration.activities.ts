@@ -8,7 +8,7 @@ class UserRegistrationWorkflowActivities {
   async activitySendEmailVerificationEmail(
     userId: string,
   ): Promise<void | never> {
-    // return await this.authService.sendVerificationEmail(userId);
+    await this.authService.sendVerificationEmail(userId);
   }
 }
 

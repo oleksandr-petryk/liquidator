@@ -418,7 +418,7 @@ describe('Auth Tests', () => {
       const tokens = await API.post('/v1/auth/log-in', data);
 
       await API.post(
-        '/v1/auth/verify/send',
+        '/v1/auth/verify/re-send',
         {},
         {
           headers: {

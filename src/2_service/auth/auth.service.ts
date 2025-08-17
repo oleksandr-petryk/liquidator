@@ -131,11 +131,11 @@ export class AuthService {
     });
 
     // 6. Create account veryfication record in DB and send veryfication email
-    await this.accountVerificationService.sendRequest({
-      username: newUser.username,
-      email: newUser.email,
-      userId: newUser.id,
-    });
+    // await this.accountVerificationService.sendRequest({
+    //   username: newUser.username,
+    //   email: newUser.email,
+    //   userId: newUser.id,
+    // });
 
     // Reworked with Temporal
     await this.userRegistrationSignal.trigger(newUser.id);
@@ -292,6 +292,18 @@ export class AuthService {
     code: string;
   }): Promise<void> {
     await this.accountVerificationService.verifyUserAccount({ userId, code });
+
+    await this.userRegistrationSignal.signalEmailVerified(userId);
+  }
+
+  async sendVerificationEmail(userId: string): Promise<void> {
+    const user = await this.userDao.findById({ id: userId });
+
+    await this.accountVerificationService.sendRequest({
+      email: user.email,
+      username: user.username,
+      userId: user.id,
+    });
   }
 
   /**
@@ -302,7 +314,7 @@ export class AuthService {
    * 2. Get user by id
    * 3. Create account veryfication record in DB and send veryfication email
    */
-  async sendVerificatioEmail(userId: string): Promise<void> {
+  async resendVerificationEmail(userId: string): Promise<void> {
     // 1. Check is account can verify
     await this.accountVerificationService.canVerifyAccount({ userId });
 

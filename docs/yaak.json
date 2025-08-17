@@ -439,7 +439,7 @@
         "method": "POST",
         "name": "Send new verification email",
         "sortPriority": 1000.0,
-        "url": "${[ BASE_URL ]}/api/liquidator/v1/auth/verify/send/",
+        "url": "${[ BASE_URL ]}/api/liquidator/v1/auth/verify/re-send/",
         "urlParameters": [
           {
             "enabled": true,
