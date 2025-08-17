@@ -42,3 +42,14 @@ export class GetUserResponseBodyDto extends OmitType(UserDto, [
   'status',
   'picture',
 ]) {}
+
+export class PasswordResetResponseBodyDto {
+  @ApiProperty({
+    description: 'Password reset message',
+    type: String,
+    example: 'Password successfully changed',
+  })
+  @IsNotEmpty()
+  @IsString()
+  message!: 'Password successfully changed';
+}

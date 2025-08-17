@@ -12,8 +12,9 @@ import {
 import { UserDao } from '../../3_componentes/dao/user.dao';
 import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
 import { MailService } from '../../3_componentes/mail/mail.service';
+import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import {
-  generateVerificationCode,
+  generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
 
@@ -80,12 +81,10 @@ export class AccountVerificationService {
   }
 
   public async sendRequest({
-    template,
     username,
     email,
     userId,
   }: {
-    template: string;
     username: string;
     email: string;
     userId: string;
@@ -93,21 +92,24 @@ export class AccountVerificationService {
     const accountVerificationRecord = await this.accountVerificationDao.create({
       data: {
         userId: userId,
-        code: generateVerificationCode(),
-        expiresAt: new Date(new Date().getTime() + 42200000), // current data + 12 hours (1000 * 60 * 60 * 12)
+        code: generate6DigitsCode(),
+        expiresAt: new Date(new Date().getTime() + 42200000), // current date + 12 hours (1000 * 60 * 60 * 12)
       },
     });
 
     await this.mailService.sendEmail({
       to: email,
       subject: 'verification approval',
-      html: await this.handlebarsService.render(template, {
-        name: username,
-        email: email,
-        code: accountVerificationRecord.code,
-        expiresAt: accountVerificationRecord.expiresAt,
-        year: new Date().getFullYear(),
-      }),
+      html: await this.handlebarsService.render(
+        TemplatesEnum.verificationEmail,
+        {
+          name: username,
+          email: email,
+          code: accountVerificationRecord.code,
+          expiresAt: accountVerificationRecord.expiresAt,
+          year: new Date().getFullYear(),
+        },
+      ),
     });
 
     return accountVerificationRecord;

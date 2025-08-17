@@ -1,0 +1,1 @@
+ALTER TABLE "password_reset_request" ALTER COLUMN "code" SET DATA TYPE varchar(64);

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -34,13 +35,17 @@ import {
 import {
   AccountVerificationRequestBody,
   LoginRequestBodyDto,
+  PasswordChangeRequestBody,
+  PasswordResetRequestBody,
   RegisterRequestBodyDto,
+  SendPasswordResetEmailRequestBody,
   UpdateSessionRequestBody,
 } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   AccountVerificationResponseBodyDto,
   GetUserResponseBodyDto,
   LoginResponseBodyDto,
+  PasswordResetResponseBodyDto,
   SendVerificatioEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
 
@@ -228,5 +233,53 @@ export class AuthController {
     const userInfo = await this.authService.getUser(user.id);
 
     return this.dtoMapper.mapUserDto(userInfo);
+  }
+
+  @ApiOperation({
+    summary: 'Send password reset email',
+  })
+  @HttpCode(200)
+  @Post('password-reset/send')
+  async sendPasswordResetRequestEmail(
+    @Body() data: SendPasswordResetEmailRequestBody,
+  ): Promise<void> {
+    this.logger.info(
+      `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    await this.authService.sendPasswordResetRequestEmail(data.email);
+  }
+
+  @ApiOperation({
+    summary: 'Password reset',
+  })
+  @ApiAbstractResponse(PasswordResetResponseBodyDto)
+  @Patch('password-reset')
+  async passwordReset(
+    @Body() data: PasswordResetRequestBody,
+  ): Promise<PasswordResetResponseBodyDto | undefined> {
+    this.logger.info(
+      `${this.passwordReset.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    return await this.authService.passwordReset(data);
+  }
+
+  @ApiOperation({
+    summary: 'Password change',
+  })
+  @ApiAbstractResponse(PasswordResetResponseBodyDto)
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Patch('password-change')
+  async changePassword(
+    @GetUserFromRequest() user: JwtTokenPayload,
+    @Body() data: PasswordChangeRequestBody,
+  ): Promise<PasswordResetResponseBodyDto | undefined> {
+    this.logger.info(
+      `${this.changePassword.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    return await this.authService.passwordChange({ userId: user.id, ...data });
   }
 }

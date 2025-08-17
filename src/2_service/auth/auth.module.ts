@@ -7,6 +7,7 @@ import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.ser
 import { MailService } from '../../3_componentes/mail/mail.service';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
+import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
@@ -21,6 +22,9 @@ import { JwtInternalService } from './jwt-internal.service';
     DtoMapper,
     UserService,
     SessionService,
+    MailService,
+    HandlebarsService,
+    PasswordResetRequestService,
     MailService,
     HandlebarsService,
   ],

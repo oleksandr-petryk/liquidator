@@ -10,7 +10,7 @@ export const passwordResetRequest = pgTable('password_reset_request', {
   userId: uuid('user_id')
     .references(() => user.id)
     .notNull(),
-  code: varchar({ length: 6 }).notNull(),
+  code: varchar({ length: 64 }).notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   ...drizzleTimestamps,
 });
