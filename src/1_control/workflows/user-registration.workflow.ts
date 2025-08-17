@@ -17,7 +17,7 @@ const { activitySendEmailVerificationEmail } = proxyActivities<
 
 // Signals
 
-const signalEmailVerified = defineSignal('signalEmailVerified');
+export const signalEmailVerified = defineSignal('signalEmailVerified');
 
 /**
  * Workflow steps
