@@ -41,7 +41,6 @@ export class AccountVerificationDao extends BaseDao<
     db?: Drizzle;
     userId: string;
   }): Promise<AccountVerificationSelectModel> {
-    console.log(userId, '<<< userID')
     const [result] = await db
       .select()
       .from(accountVerification)
