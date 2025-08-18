@@ -25,6 +25,13 @@ export class SessionDto
   userId!: string;
 
   @ApiProperty({
+    description: 'Client-fingerprint ID',
+    type: String,
+    example: '3fb9b295-995e-464a-94fa-e853617f6adf',
+  })
+  clientFingerprintId!: string;
+
+  @ApiProperty({
     description: 'Session name',
     type: String,
     nullable: true,

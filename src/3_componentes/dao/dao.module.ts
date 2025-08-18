@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { AccountVerificationDao } from './account-verification.dao';
+import { ClientFingerprintDao } from './client-fingerprint.dao';
 import { OrganizationDao } from './organization.dao';
 import { PasswordResetRequestDao } from './password-reset-request.dao';
 import { PictureDao } from './pictures.dao';
@@ -12,6 +13,7 @@ import { UserDao } from './user.dao';
 @Module({
   providers: [
     AccountVerificationDao,
+    ClientFingerprintDao,
     OrganizationDao,
     PasswordResetRequestDao,
     PictureDao,
@@ -22,6 +24,7 @@ import { UserDao } from './user.dao';
   ],
   exports: [
     AccountVerificationDao,
+    ClientFingerprintDao,
     OrganizationDao,
     PasswordResetRequestDao,
     PictureDao,
