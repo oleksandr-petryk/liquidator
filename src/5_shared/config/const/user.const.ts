@@ -1,28 +1,29 @@
 import { UserProperties } from '../../types/user.type';
+import { APP_USER_LENGTHS } from './app.const';
 
 export const USER_PROPERTIES = {
   email: {
     description: 'User email',
     type: String,
     example: 'example@gmail.com',
-    maxLength: 320,
-    minLength: 5,
+    maxLength: APP_USER_LENGTHS.email.max,
+    minLength: APP_USER_LENGTHS.email.min,
   },
 
   username: {
     description: 'Username of user',
     type: String,
     example: 'example',
-    maxLength: 15,
-    minLength: 3,
+    maxLength: APP_USER_LENGTHS.username.max,
+    minLength: APP_USER_LENGTHS.username.min,
   },
 
   phoneNumber: {
     description: 'User phone number',
     type: String,
     example: '+380970809685',
-    maxLength: 15,
-    minLength: 8,
+    maxLength: APP_USER_LENGTHS.phoneNumber.max,
+    minLength: APP_USER_LENGTHS.phoneNumber.min,
     nullable: true,
   },
 
@@ -30,8 +31,8 @@ export const USER_PROPERTIES = {
     description: 'User first name',
     type: String,
     example: 'john',
-    maxLength: 15,
-    minLength: 2,
+    maxLength: APP_USER_LENGTHS.name.max,
+    minLength: APP_USER_LENGTHS.name.min,
     nullable: true,
   },
 
@@ -39,8 +40,8 @@ export const USER_PROPERTIES = {
     description: 'User last name',
     type: String,
     example: 'doe',
-    maxLength: 15,
-    minLength: 2,
+    maxLength: APP_USER_LENGTHS.name.max,
+    minLength: APP_USER_LENGTHS.name.min,
     nullable: true,
   },
 
@@ -63,7 +64,7 @@ export const USER_PROPERTIES = {
     description: 'User password',
     type: String,
     example: '12341234',
-    minLength: 8,
-    maxLength: 128,
+    minLength: APP_USER_LENGTHS.password.max,
+    maxLength: APP_USER_LENGTHS.password.min,
   },
 } satisfies Record<string, UserProperties>;

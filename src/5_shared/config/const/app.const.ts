@@ -12,3 +12,11 @@ export const APP_DEFAULT_PAGINATION_PAGE = 1;
 export const APP_DEFAULT_PAGINATION_SIZE = 10;
 
 export const APP_DEFAULT_TTL = 600;
+
+export const APP_USER_LENGTHS = {
+  email: { min: 5, max: 320 },
+  username: { min: 3, max: 15 },
+  phoneNumber: { min: 8, max: 15 },
+  name: { min: 2, max: 15 },
+  password: { min: 8, max: 128 },
+};
