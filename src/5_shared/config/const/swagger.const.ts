@@ -14,4 +14,7 @@ export const SWAGGER_TAGS = {
   mail: {
     title: 'Mail',
   },
+  user: {
+    title: 'User',
+  },
 } satisfies SwaggerTags;

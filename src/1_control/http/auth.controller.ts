@@ -43,7 +43,6 @@ import {
 } from '../../6_model/dto/io/auth/request-body.dto';
 import {
   AccountVerificationResponseBodyDto,
-  GetUserResponseBodyDto,
   LoginResponseBodyDto,
   PasswordResetResponseBodyDto,
   SendVerificationEmailResponseBodyDto,
@@ -214,25 +213,6 @@ export class AuthController {
     await this.authService.sendVerificationEmail(user.id);
 
     return { message: 'Verification email sent successfully' };
-  }
-
-  @ApiOperation({
-    summary: 'Get user information',
-  })
-  @ApiAbstractResponse(GetUserResponseBodyDto)
-  @ApiBasicAuth('Bearer')
-  @UseGuards(JwtAccessGuard)
-  @Get('user')
-  async getUser(
-    @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<GetUserResponseBodyDto> {
-    this.logger.info(
-      `${this.getListOfSessions.name}, user: ${JSON.stringify(user)}`,
-    );
-
-    const userInfo = await this.authService.getUser(user.id);
-
-    return this.dtoMapper.mapUserDto(userInfo);
   }
 
   @ApiOperation({
