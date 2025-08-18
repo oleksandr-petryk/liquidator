@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { AccountVerificationSelectModel } from '../../3_componentes/dao/account-verification.dao';
+import { ClientFingerprintSelectModel } from '../../3_componentes/dao/client-fingerprint.dao';
 import { OrganizationSelectModel } from '../../3_componentes/dao/organization.dao';
 import { PasswordResetRequestSelectModel } from '../../3_componentes/dao/password-reset-request.dao';
 import { PictureSelectModel } from '../../3_componentes/dao/pictures.dao';
@@ -10,6 +11,7 @@ import { TeamToUserSelectModel } from '../../3_componentes/dao/team-to-user.dao'
 import { UserSelectModel } from '../../3_componentes/dao/user.dao';
 import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
 import { AccountVerificationDto } from './entities/account-verification.dto';
+import { ClientFingerprintDto } from './entities/client-fingerprint.dto';
 import { JwtTokensPairDto } from './entities/jwt-token.dto';
 import { OrganizationDto } from './entities/organization.dto';
 import { PasswordResetRequestDto } from './entities/password-reset-request.dto';
@@ -74,6 +76,7 @@ export class DtoMapper {
     return {
       id: data.id,
       userId: data.userId,
+      clientFingerprintId: data.clientFingerprintId,
       name: data.name,
       thisDevice: data.thisDevice,
       createdAt: data.createdAt,
@@ -131,6 +134,18 @@ export class DtoMapper {
       userId: data.userId,
       code: data.code,
       expiresAt: data.expiresAt,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  }
+
+  public mapClientFingerprintDto(
+    data: ClientFingerprintSelectModel,
+  ): ClientFingerprintDto {
+    return {
+      id: data.id,
+      userAgent: data.userAgent,
+      ip: data.ip,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
