@@ -6,6 +6,6 @@ import { drizzleTimestamps } from './consts/timestamps';
 export const clientFingerprint = pgTable('client_fingerprint', {
   ...drizzlePrimaryKey,
   userAgent: varchar('user_agent'),
-  ip: varchar('user_id').notNull(),
+  ip: varchar('ip').notNull(),
   ...drizzleTimestamps,
 });
