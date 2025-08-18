@@ -19,7 +19,7 @@ import { UUID } from 'crypto';
 import { FastifyRequest } from 'fastify';
 
 import { PictureService } from '../../2_service/picture/picture.service';
-import { PictureSelectModel } from '../../3_componentes/dao/pictures.dao';
+import { PictureSelectModel } from '../../3_components/dao/pictures.dao';
 import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';

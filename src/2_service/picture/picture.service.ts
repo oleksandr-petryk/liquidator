@@ -7,9 +7,9 @@ import { promisify } from 'util';
 import {
   PictureDao,
   PictureSelectModel,
-} from '../../3_componentes/dao/pictures.dao';
-import { UserDao } from '../../3_componentes/dao/user.dao';
-import { S3Service } from '../../3_componentes/s3/s3.service';
+} from '../../3_components/dao/pictures.dao';
+import { UserDao } from '../../3_components/dao/user.dao';
+import { S3Service } from '../../3_components/s3/s3.service';
 import { GetPictureResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 
 @Injectable()
@@ -109,7 +109,7 @@ export class PictureService {
 
   /**
    * Upload picture
-   * 1. Check if user hace picture
+   * 1. Check if user have picture
    * 2. Set user pictureId to null
    * 3. Delete picture record
    * 4. Delete s3 file

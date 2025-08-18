@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { UserDao, UserSelectModel } from '../../3_componentes/dao/user.dao';
+import { UserDao, UserSelectModel } from '../../3_components/dao/user.dao';
 import { nonNullableUtils } from '../../5_shared/utils/db.util';
 import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 

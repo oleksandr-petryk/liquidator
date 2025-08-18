@@ -8,10 +8,10 @@ import {
 import {
   AccountVerificationDao,
   AccountVerificationSelectModel,
-} from '../../3_componentes/dao/account-verification.dao';
-import { UserDao } from '../../3_componentes/dao/user.dao';
-import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
-import { MailService } from '../../3_componentes/mail/mail.service';
+} from '../../3_components/dao/account-verification.dao';
+import { UserDao } from '../../3_components/dao/user.dao';
+import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
+import { MailService } from '../../3_components/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import {
   generate6DigitsCode,

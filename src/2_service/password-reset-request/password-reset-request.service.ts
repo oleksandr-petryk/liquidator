@@ -4,9 +4,9 @@ import * as bcrypt from 'bcrypt';
 import {
   PasswordResetRequestDao,
   PasswordResetRequestSelectModel,
-} from '../../3_componentes/dao/password-reset-request.dao';
-import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
-import { MailService } from '../../3_componentes/mail/mail.service';
+} from '../../3_components/dao/password-reset-request.dao';
+import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
+import { MailService } from '../../3_components/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
 

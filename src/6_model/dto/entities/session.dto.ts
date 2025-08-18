@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { SessionSelectModel } from '../../../3_componentes/dao/session.dao';
-import { PageableDto } from './dase.dto';
+import { SessionSelectModel } from '../../../3_components/dao/session.dao';
+import { PageableDto } from './base.dto';
 
 export class SessionDto
   implements Omit<SessionSelectModel, 'jti' | 'refreshTokenHash'>

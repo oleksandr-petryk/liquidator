@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { OrganizationSelectModel } from '../../../3_componentes/dao/organization.dao';
+import { OrganizationSelectModel } from '../../../3_components/dao/organization.dao';
 import { Status } from '../../../5_shared/enums/db.enum';
 import { PictureDto } from './picture.dto';
 

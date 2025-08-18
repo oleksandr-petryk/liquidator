@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { PictureController } from '../../1_control/http/picture.controller';
-import { DaoModule } from '../../3_componentes/dao/dao.module';
-import { S3Service } from '../../3_componentes/s3/s3.service';
+import { DaoModule } from '../../3_components/dao/dao.module';
+import { S3Service } from '../../3_components/s3/s3.service';
 import { JwtInternalService } from '../auth/jwt-internal.service';
 import { PictureService } from './picture.service';
 

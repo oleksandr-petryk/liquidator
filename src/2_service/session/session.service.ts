@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 import {
   SessionDao,
   SessionSelectModel,
-} from '../../3_componentes/dao/session.dao';
+} from '../../3_components/dao/session.dao';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { nonNullableUtils } from '../../5_shared/utils/db.util';
 

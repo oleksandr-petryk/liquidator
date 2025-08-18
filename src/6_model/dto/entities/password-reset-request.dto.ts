@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { PasswordResetRequestSelectModel } from '../../../3_componentes/dao/password-reset-request.dao';
+import { PasswordResetRequestSelectModel } from '../../../3_components/dao/password-reset-request.dao';
 
 export class PasswordResetRequestDto
   implements Record<keyof Omit<PasswordResetRequestSelectModel, 'user'>, any>

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { ClientFingerprintSelectModel } from '../../../3_componentes/dao/client-fingerprint.dao';
+import { ClientFingerprintSelectModel } from '../../../3_components/dao/client-fingerprint.dao';
 
 export class ClientFingerprintDto
   implements

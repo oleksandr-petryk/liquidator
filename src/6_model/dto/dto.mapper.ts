@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 
-import { AccountVerificationSelectModel } from '../../3_componentes/dao/account-verification.dao';
-import { ClientFingerprintSelectModel } from '../../3_componentes/dao/client-fingerprint.dao';
-import { OrganizationSelectModel } from '../../3_componentes/dao/organization.dao';
-import { PasswordResetRequestSelectModel } from '../../3_componentes/dao/password-reset-request.dao';
-import { PictureSelectModel } from '../../3_componentes/dao/pictures.dao';
-import { SessionSelectModel } from '../../3_componentes/dao/session.dao';
-import { TeamSelectModel } from '../../3_componentes/dao/team.dao';
-import { TeamToUserSelectModel } from '../../3_componentes/dao/team-to-user.dao';
-import { UserSelectModel } from '../../3_componentes/dao/user.dao';
+import { AccountVerificationSelectModel } from '../../3_components/dao/account-verification.dao';
+import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fingerprint.dao';
+import { OrganizationSelectModel } from '../../3_components/dao/organization.dao';
+import { PasswordResetRequestSelectModel } from '../../3_components/dao/password-reset-request.dao';
+import { PictureSelectModel } from '../../3_components/dao/pictures.dao';
+import { SessionSelectModel } from '../../3_components/dao/session.dao';
+import { TeamSelectModel } from '../../3_components/dao/team.dao';
+import { TeamToUserSelectModel } from '../../3_components/dao/team-to-user.dao';
+import { UserSelectModel } from '../../3_components/dao/user.dao';
 import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
 import { AccountVerificationDto } from './entities/account-verification.dto';
 import { ClientFingerprintDto } from './entities/client-fingerprint.dto';

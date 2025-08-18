@@ -4,19 +4,19 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
-import { ClientFingerprintDao } from '../../3_componentes/dao/client-fingerprint.dao';
-import { PasswordResetRequestDao } from '../../3_componentes/dao/password-reset-request.dao';
+import { ClientFingerprintDao } from '../../3_components/dao/client-fingerprint.dao';
+import { PasswordResetRequestDao } from '../../3_components/dao/password-reset-request.dao';
 import {
   SessionDao,
   SessionSelectModel,
-} from '../../3_componentes/dao/session.dao';
+} from '../../3_components/dao/session.dao';
 import {
   UserDao,
   UserInsertModel,
   UserSelectModel,
-} from '../../3_componentes/dao/user.dao';
-import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
-import { MailService } from '../../3_componentes/mail/mail.service';
+} from '../../3_components/dao/user.dao';
+import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
+import { MailService } from '../../3_components/mail/mail.service';
 import { RedisService } from '../../4_low/redis/redis.service';
 import { EnvConfig } from '../../5_shared/config/configuration';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
