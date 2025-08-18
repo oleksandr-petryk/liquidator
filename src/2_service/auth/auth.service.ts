@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
+import { ClientFingerprintDao } from '../../3_componentes/dao/client-fingerprint.dao';
 import { PasswordResetRequestDao } from '../../3_componentes/dao/password-reset-request.dao';
 import {
   SessionDao,
@@ -45,6 +45,7 @@ export class AuthService {
     private readonly userDao: UserDao,
     private readonly sessionDao: SessionDao,
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
+    private readonly clientFingerprintDao: ClientFingerprintDao,
     private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
@@ -128,7 +129,7 @@ export class AuthService {
       },
     });
 
-    // 6. Create account veryfication record in DB and send veryfication email
+    // 6. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
       username: newUser.username,
       email: newUser.email,
@@ -145,7 +146,8 @@ export class AuthService {
    * 1. Check if a user exists
    * 2. Check if a password is correct
    * 3. Generate tokens
-   * 4. Create a session
+   * 4. Create a client-fingerprint
+   * 5. Create a session
    */
   async login(
     data: Pick<UserSelectModel, 'email' | 'password'>,
@@ -171,20 +173,21 @@ export class AuthService {
       jti,
     });
 
-    // 4. Create session
-    await this.sessionDao.create({
+    // 4. Create client-fingerprint
+    const clientFingerprint = await this.clientFingerprintDao.create({
       data: {
-        name:
-          userAgentAndIp.userAgent && userAgentAndIp.userAgent.length >= 9
-            ? userAgentAndIp.userAgent.slice(0, 6) + '...'
-            : userAgentAndIp.userAgent || '',
-        userId: user.id,
-        refreshTokenHash: crypto
-          .createHash('sha256')
-          .update(tokensPair.refreshToken)
-          .digest('hex'),
-        jti,
+        ip: userAgentAndIp.ipAddress,
+        userAgent: userAgentAndIp.userAgent,
       },
+    });
+
+    // 5. Create session
+    await this.sessionService.createNewSession({
+      userAgentAndIp,
+      userId: user.id,
+      clientFingerprintId: clientFingerprint.id,
+      refreshToken: tokensPair.refreshToken,
+      jti,
     });
 
     return tokensPair;
