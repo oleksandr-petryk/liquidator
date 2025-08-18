@@ -60,7 +60,7 @@ export class AccountVerificationService {
       throw new GoneException('The code has expired');
     }
 
-    if ((await this.userDao.findById({ id: userId }))?.verifyed === true) {
+    if ((await this.userDao.findById({ id: userId }))?.verified === true) {
       throw new BadRequestException('User is already verified');
     }
   }
@@ -75,7 +75,7 @@ export class AccountVerificationService {
     await this.canVerifyAccount({ userId, code });
 
     await this.userDao.update({
-      data: { verifyed: true },
+      data: { verified: true },
       id: userId,
     });
   }

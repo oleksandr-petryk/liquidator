@@ -30,7 +30,7 @@ export class PasswordResetRequestDto
   code!: string;
 
   @ApiProperty({
-    description: 'Сode expiration date',
+    description: 'Code expiration date',
     type: Date,
     example: new Date(),
   })

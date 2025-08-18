@@ -32,12 +32,12 @@ export class UserDto
   status!: Status;
 
   @ApiProperty({
-    description: 'Is account verifyed',
+    description: 'Is account verified',
     type: Boolean,
     example: true,
     default: false,
   })
-  verifyed!: boolean;
+  verified!: boolean;
 
   @ApiProperty({
     description: 'Username',

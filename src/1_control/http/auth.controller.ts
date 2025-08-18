@@ -46,7 +46,7 @@ import {
   GetUserResponseBodyDto,
   LoginResponseBodyDto,
   PasswordResetResponseBodyDto,
-  SendVerificatioEmailResponseBodyDto,
+  SendVerificationEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
 
 @ApiTags(SWAGGER_TAGS.auth.title)
@@ -202,16 +202,16 @@ export class AuthController {
   })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
-  @ApiAbstractResponse(SendVerificatioEmailResponseBodyDto)
+  @ApiAbstractResponse(SendVerificationEmailResponseBodyDto)
   @Post('verify/send')
   async sendVerificationEmail(
     @GetUserFromRequest() user: JwtTokenPayload,
-  ): Promise<SendVerificatioEmailResponseBodyDto> {
+  ): Promise<SendVerificationEmailResponseBodyDto> {
     this.logger.info(
       `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
     );
 
-    await this.authService.sendVerificatioEmail(user.id);
+    await this.authService.sendVerificationEmail(user.id);
 
     return { message: 'Verification email sent successfully' };
   }

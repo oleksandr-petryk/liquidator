@@ -28,7 +28,7 @@ export class DtoMapper {
   ): Omit<UserDto, 'status'> {
     return {
       id: data.id,
-      verifyed: data.verifyed,
+      verified: data.verified,
       username: data.username,
       email: data.email,
       firstName: data.firstName,

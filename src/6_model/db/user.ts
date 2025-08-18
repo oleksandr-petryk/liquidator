@@ -19,7 +19,7 @@ import { teamToUser } from './team-to-user';
 export const user = pgTable('user', {
   ...drizzlePrimaryKey,
   status: StatusEnum().default(Status.Published).notNull(),
-  verifyed: boolean().default(false).notNull(),
+  verified: boolean().default(false).notNull(),
   email: varchar({ length: 320 }).notNull().unique(),
   phoneNumber: varchar('phone_number', { length: 15 }).unique(),
   username: varchar({ length: 15 }).notNull().unique(),

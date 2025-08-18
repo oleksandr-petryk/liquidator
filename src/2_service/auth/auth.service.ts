@@ -280,7 +280,7 @@ export class AuthService {
    * Account verification
    *
    * Logic:
-   * 1. Check is account can verify and set user verifyed field to true
+   * 1. Check is account can verify and set user verified field to true
    */
   async accountVerification({
     userId,
@@ -298,16 +298,16 @@ export class AuthService {
    * Logic:
    * 1. Check is account can verify
    * 2. Get user by id
-   * 3. Create account veryfication record in DB and send veryfication email
+   * 3. Create account verification record in DB and send verification email
    */
-  async sendVerificatioEmail(userId: string): Promise<void> {
+  async sendVerificationEmail(userId: string): Promise<void> {
     // 1. Check is account can verify
     await this.accountVerificationService.canVerifyAccount({ userId });
 
     // 2. Get user by id
     const user = await this.userService.getById({ id: userId });
 
-    // 3. Create account veryfication record in DB and send veryfication email
+    // 3. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
       username: user.username,
       email: user.email,
