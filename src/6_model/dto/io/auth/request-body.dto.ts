@@ -13,16 +13,11 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { USER_PROPERTIES } from '../../../../5_shared/config/const/user.const';
 import { Gender } from '../../../../5_shared/enums/db.enum';
 
 export class RegisterRequestBodyDto {
-  @ApiProperty({
-    description: 'User email',
-    type: String,
-    example: 'example@gmail.com',
-    maxLength: 320,
-    minLength: 5,
-  })
+  @ApiProperty(USER_PROPERTIES.email)
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(320)
@@ -32,114 +27,60 @@ export class RegisterRequestBodyDto {
   })
   email!: string;
 
-  @ApiProperty({
-    description: 'Username of user',
-    type: String,
-    example: 'example',
-    maxLength: 15,
-    minLength: 3,
-  })
+  @ApiProperty(USER_PROPERTIES.username)
   @IsNotEmpty()
   @IsString()
   @MaxLength(15)
   username!: string;
 
-  @ApiProperty({
-    description: 'User phone number',
-    type: String,
-    example: '+380970809685',
-    maxLength: 15,
-    minLength: 8,
-    nullable: true,
-  })
+  @ApiProperty(USER_PROPERTIES.phoneNumber)
   @IsOptional()
   @IsPhoneNumber()
   @MaxLength(15)
   phoneNumber?: string;
 
-  @ApiProperty({
-    description: 'User first name',
-    type: String,
-    example: 'john',
-    maxLength: 15,
-    minLength: 2,
-    nullable: true,
-  })
+  @ApiProperty(USER_PROPERTIES.firstName)
   @IsOptional()
   @IsString()
   @MaxLength(35)
   firstName?: string;
 
-  @ApiProperty({
-    description: 'User last name',
-    type: String,
-    example: 'doe',
-    maxLength: 15,
-    minLength: 2,
-    nullable: true,
-  })
+  @ApiProperty(USER_PROPERTIES.lastName)
   @IsOptional()
   @IsString()
   @MaxLength(35)
   lastName?: string;
 
-  @ApiProperty({
-    description: 'Date of user birth',
-    type: String,
-    example: '1991-09-17',
-    format: 'date',
-    nullable: true,
-  })
+  @ApiProperty(USER_PROPERTIES.dateOfBirth)
   @IsOptional()
   @IsDate()
   @Type(() => Date)
   dateOfBirth?: Date;
 
-  @ApiProperty({
-    description: 'User gender',
-    type: String,
-    example: 'male',
-    nullable: true,
-  })
+  @ApiProperty(USER_PROPERTIES.gender)
   @IsOptional()
   @IsEnum(Gender)
   gender?: Gender;
 
-  @ApiProperty({
-    description: 'User password',
-    type: String,
-    example: '123123',
-    minLength: 8,
-    maxLength: 128,
-  })
+  @ApiProperty(USER_PROPERTIES.password)
   @IsNotEmpty()
   @IsString()
+  @MinLength(8)
   @MaxLength(128)
   password!: string;
 }
 
 export class LoginRequestBodyDto {
-  @ApiProperty({
-    description: 'User email',
-    type: String,
-    example: 'example@gmail.com',
-    maxLength: 320,
-    minLength: 5,
-  })
+  @ApiProperty(USER_PROPERTIES.email)
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(320)
   email!: string;
 
-  @ApiProperty({
-    description: 'User password',
-    type: String,
-    example: '123123',
-    minLength: 8,
-    maxLength: 128,
-  })
+  @ApiProperty(USER_PROPERTIES.password)
   @IsNotEmpty()
   @IsString()
+  @MinLength(8)
   @MaxLength(128)
   password!: string;
 }
@@ -175,13 +116,7 @@ export class AccountVerificationRequestBody {
 }
 
 export class SendPasswordResetEmailRequestBody {
-  @ApiProperty({
-    description: 'User email',
-    type: String,
-    example: 'example@gmail.com',
-    maxLength: 320,
-    minLength: 5,
-  })
+  @ApiProperty(USER_PROPERTIES.email)
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(320)
@@ -193,13 +128,7 @@ export class SendPasswordResetEmailRequestBody {
 }
 
 export class PasswordResetRequestBody {
-  @ApiProperty({
-    description: 'User email',
-    type: String,
-    example: 'example@gmail.com',
-    maxLength: 320,
-    minLength: 5,
-  })
+  @ApiProperty(USER_PROPERTIES.email)
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(320)
