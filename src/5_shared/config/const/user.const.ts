@@ -1,3 +1,5 @@
+import { UserProperties } from '../../types/user.type';
+
 export const USER_PROPERTIES = {
   email: {
     description: 'User email',
@@ -64,4 +66,4 @@ export const USER_PROPERTIES = {
     minLength: 8,
     maxLength: 128,
   },
-};
+} satisfies Record<string, UserProperties>;
