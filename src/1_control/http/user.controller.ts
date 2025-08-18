@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
-import { UserDao } from '../../3_componentes/dao/user.dao';
+import { UserService } from '../../2_service/user/user.service';
 import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
@@ -17,8 +17,8 @@ import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.
 export class UserController {
   constructor(
     private readonly logger: PinoLogger,
-    private readonly userDao: UserDao,
     private readonly dtoMapper: DtoMapper,
+    private readonly userService: UserService,
   ) {}
 
   @ApiOperation({
@@ -33,10 +33,7 @@ export class UserController {
   ): Promise<GetUserResponseBodyDto> {
     this.logger.info(`${this.getUser.name}, user: ${JSON.stringify(user)}`);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, status, ...userInfo } = await this.userDao.findById({
-      id: user.id,
-    });
+    const userInfo = await this.userService.getUserData(user.id);
 
     return this.dtoMapper.mapUserDto(userInfo);
   }
