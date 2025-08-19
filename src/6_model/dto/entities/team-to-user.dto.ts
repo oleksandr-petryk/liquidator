@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { TeamToUserSelectModel } from '../../../3_componentes/dao/team-to-user.dao';
+import { TeamToUserSelectModel } from '../../../3_components/dao/team-to-user.dao';
 import { Role } from '../../../5_shared/enums/db.enum';
 import { TeamDto } from './team.dto';
 

@@ -456,7 +456,7 @@ describe('Auth Tests', () => {
       expect(response.status).toEqual(200);
       expect(response.data.payload).toMatchObject({
         id: expect.any(String),
-        verifyed: false,
+        verified: false,
         email: data.email.toLowerCase(),
         phoneNumber: null,
         username: data.username.toLowerCase(),
@@ -531,8 +531,10 @@ describe('Auth Tests', () => {
 
       expect(response.status).toEqual(201);
     });
+  });
 
-    test('Password change - valid old password - OK', async () => {
+  describe('Password change', () => {
+    test('Password change valid old password - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),
@@ -573,7 +575,7 @@ describe('Auth Tests', () => {
       expect(response.status).toEqual(201);
     });
 
-    test('Password change - invalid old password - OK', async () => {
+    test('Password change invalid old password - OK', async () => {
       const data = {
         email: faker.internet.email(),
         username: faker.internet.username(),

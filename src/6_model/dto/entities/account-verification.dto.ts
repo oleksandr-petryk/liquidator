@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { PasswordResetRequestSelectModel } from '../../../3_componentes/dao/password-reset-request.dao';
+import { PasswordResetRequestSelectModel } from '../../../3_components/dao/password-reset-request.dao';
 
 export class AccountVerificationDto
   implements Record<keyof Omit<PasswordResetRequestSelectModel, 'user'>, any>
@@ -30,7 +30,7 @@ export class AccountVerificationDto
   code!: string;
 
   @ApiProperty({
-    description: 'Сode expiration date',
+    description: 'Code expiration date',
     type: Date,
     example: new Date(),
   })

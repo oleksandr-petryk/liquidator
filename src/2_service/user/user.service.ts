@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { UserDao, UserSelectModel } from '../../3_componentes/dao/user.dao';
+import { UserDao, UserSelectModel } from '../../3_components/dao/user.dao';
 import { nonNullableUtils } from '../../5_shared/utils/db.util';
+import { GetUserResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 
 @Injectable()
 export class UserService {
@@ -63,5 +64,14 @@ export class UserService {
     userId: string;
   }): Promise<void> {
     await this.userDao.update({ data: { password: newPassword }, id: userId });
+  }
+
+  public async getUserData(userId: string): Promise<GetUserResponseBodyDto> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, status, ...user } = await this.userDao.findById({
+      id: userId,
+    });
+
+    return user;
   }
 }

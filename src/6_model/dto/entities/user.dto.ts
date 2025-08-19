@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
-import { UserSelectModel } from '../../../3_componentes/dao/user.dao';
+import { UserSelectModel } from '../../../3_components/dao/user.dao';
 import { Gender, Status } from '../../../5_shared/enums/db.enum';
 import { PictureDto } from './picture.dto';
 
@@ -32,12 +32,12 @@ export class UserDto
   status!: Status;
 
   @ApiProperty({
-    description: 'Is account verifyed',
+    description: 'Is account verified',
     type: Boolean,
     example: true,
     default: false,
   })
-  verifyed!: boolean;
+  verified!: boolean;
 
   @ApiProperty({
     description: 'Username',

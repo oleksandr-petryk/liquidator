@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { AuthController } from '../../1_control/http/auth.controller';
-import { DaoModule } from '../../3_componentes/dao/dao.module';
-import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
-import { MailService } from '../../3_componentes/mail/mail.service';
+import { DaoModule } from '../../3_components/dao/dao.module';
+import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
+import { MailService } from '../../3_components/mail/mail.service';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';

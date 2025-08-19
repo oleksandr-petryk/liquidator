@@ -4,19 +4,19 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
-import { ClientFingerprintDao } from '../../3_componentes/dao/client-fingerprint.dao';
-import { PasswordResetRequestDao } from '../../3_componentes/dao/password-reset-request.dao';
+import { ClientFingerprintDao } from '../../3_components/dao/client-fingerprint.dao';
+import { PasswordResetRequestDao } from '../../3_components/dao/password-reset-request.dao';
 import {
   SessionDao,
   SessionSelectModel,
-} from '../../3_componentes/dao/session.dao';
+} from '../../3_components/dao/session.dao';
 import {
   UserDao,
   UserInsertModel,
   UserSelectModel,
-} from '../../3_componentes/dao/user.dao';
-import { HandlebarsService } from '../../3_componentes/handlebars/handlebars.service';
-import { MailService } from '../../3_componentes/mail/mail.service';
+} from '../../3_components/dao/user.dao';
+import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
+import { MailService } from '../../3_components/mail/mail.service';
 import { RedisService } from '../../4_low/redis/redis.service';
 import { EnvConfig } from '../../5_shared/config/configuration';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
@@ -28,10 +28,7 @@ import {
 } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
-import {
-  GetUserResponseBodyDto,
-  PasswordResetResponseBodyDto,
-} from '../../6_model/dto/io/auth/response-body.dto';
+import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
@@ -280,7 +277,7 @@ export class AuthService {
    * Account verification
    *
    * Logic:
-   * 1. Check is account can verify and set user verifyed field to true
+   * 1. Check is account can verify and set user verified field to true
    */
   async accountVerification({
     userId,
@@ -298,16 +295,16 @@ export class AuthService {
    * Logic:
    * 1. Check is account can verify
    * 2. Get user by id
-   * 3. Create account veryfication record in DB and send veryfication email
+   * 3. Create account verification record in DB and send verification email
    */
-  async sendVerificatioEmail(userId: string): Promise<void> {
+  async sendVerificationEmail(userId: string): Promise<void> {
     // 1. Check is account can verify
     await this.accountVerificationService.canVerifyAccount({ userId });
 
     // 2. Get user by id
     const user = await this.userService.getById({ id: userId });
 
-    // 3. Create account veryfication record in DB and send veryfication email
+    // 3. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
       username: user.username,
       email: user.email,
@@ -344,23 +341,6 @@ export class AuthService {
       email: user.email,
       userId: user.id,
     });
-  }
-
-  /**
-   * Get user info
-   *
-   * Logic:
-   * 1. Get user info
-   *
-   * @returns user info
-   */
-  async getUser(userId: string): Promise<GetUserResponseBodyDto> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, status, ...user } = await this.userDao.findById({
-      id: userId,
-    });
-
-    return user;
   }
 
   /**
