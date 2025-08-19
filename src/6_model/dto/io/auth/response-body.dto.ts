@@ -53,3 +53,14 @@ export class PasswordResetResponseBodyDto {
   @IsString()
   message!: 'Password successfully changed';
 }
+
+export class RefreshTokenResponseBodyDto {
+  @ApiProperty({
+    description: 'Refresh token',
+    type: String,
+    example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @IsNotEmpty()
+  @IsString()
+  accessToken!: string;
+}

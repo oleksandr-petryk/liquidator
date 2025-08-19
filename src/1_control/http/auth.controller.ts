@@ -46,6 +46,7 @@ import {
   AccountVerificationResponseBodyDto,
   LoginResponseBodyDto,
   PasswordResetResponseBodyDto,
+  RefreshTokenResponseBodyDto,
   SendVerificationEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
 
@@ -267,7 +268,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Refresh token',
   })
-  @ApiAbstractResponse(PasswordResetResponseBodyDto)
+  @ApiAbstractResponse(RefreshTokenResponseBodyDto)
   @Post('refresh')
   async refreshToken(@Body() data: RefreshTokenRequestBody): Promise<string> {
     this.logger.info(
