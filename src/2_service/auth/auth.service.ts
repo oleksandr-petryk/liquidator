@@ -451,10 +451,11 @@ export class AuthService {
    * Refresh tokens
    *
    * 1. Verified refresh token
-   * 2. Generate new jti
-   * 3. Generate tokens
-   * 4. Save token in redis
-   * 5. Update refresh token in session
+   * 2. Check if refresh token valid
+   * 3. Generate new jti
+   * 4. Generate tokens
+   * 5. Save token in redis
+   * 6. Update refresh token in session
    *
    * @returns JwtTokensPair
    */
@@ -463,23 +464,38 @@ export class AuthService {
     const verifiedRefreshToken =
       this.jwtInternalService.verifyRefreshToken(refreshToken);
 
-    // 2. Generate new jti
+    // 2. Check if refresh token valid
+    if (
+      await this.redisService.getValue({
+        key: `refreshToken:${verifiedRefreshToken.jti}`,
+      })
+    ) {
+      throw new BadRequestException();
+    }
+
+    // 3. Generate new jti
     const jti = randomUUID();
 
-    // 3. Generate tokens
+    // 4. Generate tokens
     const pairTokens = this.jwtInternalService.generatePairTokens({
       id: verifiedRefreshToken.id,
       jti: jti,
     });
 
-    // 4. Save token in redis
+    // 5. Save tokens in redis
     await this.redisService.setValue({
       key: verifiedRefreshToken.jti,
       value: 1,
       ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
     });
 
-    // 5. Update refresh token in session
+    await this.redisService.setValue({
+      key: `refreshToken:${verifiedRefreshToken.jti}`,
+      value: 1,
+      ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
+    });
+
+    // 6. Update refresh token in session
     await this.sessionService.updateSessionToken({
       userId: verifiedRefreshToken.id,
       refreshToken: pairTokens.refreshToken,
