@@ -7,6 +7,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
+import { APP_USER_LENGTHS } from '../../5_shared/config/const/app.const';
 import { Status } from '../../5_shared/enums/db.enum';
 import { accountVerification } from './account-verification';
 import { drizzlePrimaryKey } from './consts/primaryKey';
@@ -20,18 +21,24 @@ export const user = pgTable('user', {
   ...drizzlePrimaryKey,
   status: StatusEnum().default(Status.Published).notNull(),
   verified: boolean().default(false).notNull(),
-  email: varchar({ length: 320 }).notNull().unique(),
-  phoneNumber: varchar('phone_number', { length: 15 }).unique(),
-  username: varchar({ length: 15 }).notNull().unique(),
-  firstName: varchar('first_name', { length: 35 }),
-  lastName: varchar('last_name', { length: 35 }),
+  email: varchar({ length: APP_USER_LENGTHS.email.max }).notNull().unique(),
+  phoneNumber: varchar('phone_number', {
+    length: APP_USER_LENGTHS.phoneNumber.max,
+  }).unique(),
+  username: varchar({ length: APP_USER_LENGTHS.username.max })
+    .notNull()
+    .unique(),
+  firstName: varchar('first_name', { length: APP_USER_LENGTHS.name.max }),
+  lastName: varchar('last_name', { length: APP_USER_LENGTHS.name.max }),
   dateOfBirth: timestamp('date_of_birth'),
   gender: GenderEnum(),
   pictureId: uuid('picture_id')
     .unique()
     .references(() => picture.id),
-  password: varchar({ length: 128 }).notNull(),
-  recoveryEmailAddress: varchar('recovery_email_address', { length: 320 }),
+  password: varchar({ length: APP_USER_LENGTHS.password.max }).notNull(),
+  recoveryEmailAddress: varchar('recovery_email_address', {
+    length: APP_USER_LENGTHS.email.max,
+  }),
   ...drizzleTimestamps,
 });
 

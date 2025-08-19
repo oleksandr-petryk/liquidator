@@ -1,7 +1,7 @@
 import { UserProperties } from '../../types/user.type';
 import { APP_USER_LENGTHS } from './app.const';
 
-export const USER_PROPERTIES = {
+export const USER_PROPERTIES: Record<string, UserProperties> = {
   email: {
     description: 'User email',
     type: String,
@@ -63,8 +63,8 @@ export const USER_PROPERTIES = {
   password: {
     description: 'User password',
     type: String,
-    example: '123123',
-    minLength: APP_USER_LENGTHS.password.max,
-    maxLength: APP_USER_LENGTHS.password.min,
+    example: '12341234',
+    maxLength: APP_USER_LENGTHS.password.max,
+    minLength: APP_USER_LENGTHS.password.min,
   },
 } satisfies Record<string, UserProperties>;
