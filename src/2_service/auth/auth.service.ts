@@ -465,11 +465,7 @@ export class AuthService {
       this.jwtInternalService.verifyRefreshToken(refreshToken);
 
     // 2. Check if refresh token valid
-    if (
-      await this.redisService.getValue({
-        key: `refreshToken:${verifiedRefreshToken.jti}`,
-      })
-    ) {
+    if (await this.redisService.getValue({ key: verifiedRefreshToken.jti })) {
       throw new BadRequestException();
     }
 
@@ -485,12 +481,6 @@ export class AuthService {
     // 5. Save tokens in redis
     await this.redisService.setValue({
       key: verifiedRefreshToken.jti,
-      value: 1,
-      ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
-    });
-
-    await this.redisService.setValue({
-      key: `refreshToken:${verifiedRefreshToken.jti}`,
       value: 1,
       ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
     });
