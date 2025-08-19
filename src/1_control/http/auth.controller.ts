@@ -37,6 +37,7 @@ import {
   LoginRequestBodyDto,
   PasswordChangeRequestBody,
   PasswordResetRequestBody,
+  RefreshTokenRequestBody,
   RegisterRequestBodyDto,
   SendPasswordResetEmailRequestBody,
   UpdateSessionRequestBody,
@@ -261,5 +262,18 @@ export class AuthController {
     );
 
     return await this.authService.passwordChange({ userId: user.id, ...data });
+  }
+
+  @ApiOperation({
+    summary: 'Refresh token',
+  })
+  @ApiAbstractResponse(PasswordResetResponseBodyDto)
+  @Post('refresh')
+  async refreshToken(@Body() data: RefreshTokenRequestBody): Promise<string> {
+    this.logger.info(
+      `${this.refreshToken.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    return await this.authService.refreshToken(data.refreshToken);
   }
 }

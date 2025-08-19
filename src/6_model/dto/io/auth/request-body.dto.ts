@@ -189,3 +189,14 @@ export class PasswordChangeRequestBody {
   @MaxLength(128)
   newPassword!: string;
 }
+
+export class RefreshTokenRequestBody {
+  @ApiProperty({
+    description: 'Refresh token',
+    type: String,
+    example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @IsNotEmpty()
+  @IsString()
+  refreshToken!: string;
+}

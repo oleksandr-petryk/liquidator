@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, GoneException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
@@ -428,5 +428,24 @@ export class AuthService {
     });
 
     return { message: 'Password successfully changed' };
+  }
+
+  public refreshToken(refreshToken: string): string {
+    const verifiedRefreshToken =
+      this.jwtInternalService.verifyRefreshToken(refreshToken);
+
+    if (
+      verifiedRefreshToken.exp !== undefined &&
+      new Date(verifiedRefreshToken.exp).getTime() > new Date().getTime()
+    ) {
+      throw new GoneException();
+    }
+
+    const accessToken = this.jwtInternalService.generateAccessToken({
+      id: verifiedRefreshToken.id,
+      jti: verifiedRefreshToken.jti,
+    });
+
+    return accessToken;
   }
 }
