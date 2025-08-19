@@ -11,11 +11,6 @@ export interface JwtTokenPayload {
    * Unique token ID
    */
   jti: string;
-
-  /**
-   * Token expires date
-   */
-  exp?: number;
 }
 
 /**
