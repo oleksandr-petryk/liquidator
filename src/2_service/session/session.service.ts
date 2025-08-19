@@ -50,4 +50,28 @@ export class SessionService {
       },
     });
   }
+
+  public async updateSessionToken({
+    userId,
+    refreshToken,
+    jti,
+  }: {
+    userId: string;
+    refreshToken: string;
+    jti: string;
+  }): Promise<SessionSelectModel> {
+    const refreshTokenHash = crypto
+      .createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
+
+    const sessionId = await this.sessionDao.findByUserId({
+      userId: userId,
+    });
+
+    return await this.sessionDao.updateSession({
+      data: { refreshTokenHash, jti },
+      id: sessionId[0].id,
+    });
+  }
 }

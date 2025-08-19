@@ -59,6 +59,19 @@ export class SessionDao extends BaseDao<typeof session> {
       .orderBy(desc(session.createdAt));
   }
 
+  async findByUserId({
+    userId,
+  }: {
+    userId: string;
+  }): Promise<SessionSelectModel[]> {
+    return await this.postgresDatabase
+      .select()
+      .from(session)
+      .where(eq(session.userId, userId))
+      .orderBy(desc(session.createdAt))
+      .limit(1);
+  }
+
   async countByUserId({ userId }: { userId: string }): Promise<number> {
     const result = await this.postgresDatabase
       .select({ count: count(session.userId) })
@@ -93,7 +106,7 @@ export class SessionDao extends BaseDao<typeof session> {
     data: Partial<SessionInsertModel>;
     id: string;
   }): Promise<SessionSelectModel> {
-    const updatedUserId = await this.postgresDatabase
+    const [updatedSession] = await this.postgresDatabase
       .update(session)
       .set({
         ...data,
@@ -102,6 +115,6 @@ export class SessionDao extends BaseDao<typeof session> {
       .where(eq(session.id, id))
       .returning();
 
-    return updatedUserId[0];
+    return updatedSession;
   }
 }

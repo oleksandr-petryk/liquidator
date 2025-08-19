@@ -56,11 +56,20 @@ export class PasswordResetResponseBodyDto {
 
 export class RefreshTokenResponseBodyDto {
   @ApiProperty({
-    description: 'Refresh token',
+    description: 'Access token',
     type: String,
     example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
   @IsNotEmpty()
   @IsString()
   accessToken!: string;
+
+  @ApiProperty({
+    description: 'Refresh token',
+    type: String,
+    example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @IsNotEmpty()
+  @IsString()
+  refreshToken!: string;
 }
