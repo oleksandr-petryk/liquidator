@@ -689,7 +689,7 @@ describe('Auth Tests', () => {
       const response_5 = await expectApiError(() =>
         API.get('/v1/user', {
           headers: {
-            Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
           },
         }),
       );
