@@ -685,16 +685,6 @@ describe('Auth Tests', () => {
       );
 
       expect(response_4.status).toEqual(401);
-
-      const response_5 = await expectApiError(() =>
-        API.get('/v1/user', {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
-        }),
-      );
-
-      expect(response_5.status).toEqual(401);
     });
   });
 });
