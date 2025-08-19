@@ -63,7 +63,7 @@ export const USER_PROPERTIES = {
   password: {
     description: 'User password',
     type: String,
-    example: '12341234',
+    example: '123123',
     minLength: APP_USER_LENGTHS.password.max,
     maxLength: APP_USER_LENGTHS.password.min,
   },

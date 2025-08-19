@@ -18,5 +18,5 @@ export const APP_USER_LENGTHS = {
   username: { min: 3, max: 15 },
   phoneNumber: { min: 8, max: 15 },
   name: { min: 2, max: 15 },
-  password: { min: 8, max: 128 },
+  password: { min: 6, max: 128 },
 };
