@@ -120,6 +120,13 @@
       "when": 1755535928247,
       "tag": "0016_normal_toad",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1755622078021,
+      "tag": "0017_mighty_lord_hawal",
+      "breakpoints": true
     }
   ]
 }

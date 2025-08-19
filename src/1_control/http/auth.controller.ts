@@ -270,11 +270,11 @@ export class AuthController {
   })
   @ApiAbstractResponse(RefreshTokenResponseBodyDto)
   @Post('refresh')
-  async refreshToken(@Body() data: RefreshTokenRequestBody): Promise<string> {
+  refreshToken(@Body() data: RefreshTokenRequestBody): { accessToken: string } {
     this.logger.info(
       `${this.refreshToken.name}, data: ${JSON.stringify(data)}`,
     );
 
-    return await this.authService.refreshToken(data.refreshToken);
+    return this.authService.refreshToken(data.refreshToken);
   }
 }

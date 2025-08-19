@@ -430,7 +430,7 @@ export class AuthService {
     return { message: 'Password successfully changed' };
   }
 
-  public refreshToken(refreshToken: string): string {
+  public refreshToken(refreshToken: string): { accessToken: string } {
     const verifiedRefreshToken =
       this.jwtInternalService.verifyRefreshToken(refreshToken);
 
@@ -439,6 +439,6 @@ export class AuthService {
       jti: verifiedRefreshToken.jti,
     });
 
-    return accessToken;
+    return { accessToken: accessToken };
   }
 }
