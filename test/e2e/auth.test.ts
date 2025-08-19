@@ -636,13 +636,31 @@ describe('Auth Tests', () => {
         refreshToken: tokens.data.payload.refreshToken,
       });
 
-      const response_1 = await API.get('/v1/user', {
+      const response_1 = await expectApiError(() =>
+        API.post('/v1/auth/refresh', {
+          refreshToken: tokens.data.payload.refreshToken,
+        }),
+      );
+
+      expect(response_1.status).toEqual(400);
+
+      const response_2 = await API.get('/v1/user', {
         headers: {
           Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
         },
       });
 
-      expect(response_1.status).toEqual(200);
+      expect(response_2.status).toEqual(200);
+
+      const response_3 = await expectApiError(() =>
+        API.get('/v1/user', {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        }),
+      );
+
+      expect(response_3.status).toEqual(401);
 
       const session = await API.get('/v1/auth/sessions', {
         headers: {
@@ -658,7 +676,7 @@ describe('Auth Tests', () => {
         },
       });
 
-      const response_2 = await expectApiError(() =>
+      const response_4 = await expectApiError(() =>
         API.get('/v1/user', {
           headers: {
             Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
@@ -666,9 +684,9 @@ describe('Auth Tests', () => {
         }),
       );
 
-      expect(response_2.status).toEqual(401);
+      expect(response_4.status).toEqual(401);
 
-      const response_3 = await expectApiError(() =>
+      const response_5 = await expectApiError(() =>
         API.get('/v1/user', {
           headers: {
             Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
@@ -676,7 +694,7 @@ describe('Auth Tests', () => {
         }),
       );
 
-      expect(response_3.status).toEqual(401);
+      expect(response_5.status).toEqual(401);
     });
   });
 });
