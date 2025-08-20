@@ -66,7 +66,14 @@ export class JwtAccessGuard implements CanActivate {
       throw new UnauthorizedException(error);
     }
 
-    if (await this.redisService.getValue({ key: request.user.jti })) {
+    if (
+      (await this.redisService.getValue({
+        key: `deleted-${request.user.jti}`,
+      })) ||
+      (await this.redisService.getValue({
+        key: `refreshed-${request.user.jti}`,
+      }))
+    ) {
       throw new UnauthorizedException();
     }
 
