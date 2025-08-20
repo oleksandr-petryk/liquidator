@@ -17,6 +17,8 @@ import {
   generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
+import { ActivityLogService } from '../activity-log/activity-log.service';
+import { ClientFingerprintService } from '../client-fingerprint/client-fingerprint.service';
 
 @Injectable()
 export class AccountVerificationService {
@@ -25,6 +27,8 @@ export class AccountVerificationService {
     private readonly userDao: UserDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly activityLogService: ActivityLogService,
+    private readonly clientFingerprintService: ClientFingerprintService,
   ) {}
 
   public async getByUserId(
@@ -43,13 +47,27 @@ export class AccountVerificationService {
   public async canVerifyAccount({
     userId,
     code,
+    jti,
   }: {
     userId: string;
     code?: string;
+    jti?: string;
   }): Promise<void> {
     const accountVerificationRecord = await this.getByUserId(userId);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
+      if (jti) {
+        const clientFingerprint =
+          await this.clientFingerprintService.getByJti(jti);
+
+        await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
+          {
+            userId,
+            clientFingerprintId: clientFingerprint.id,
+          },
+        );
+      }
+
       throw new UnauthorizedException('Code wrong');
     }
 
