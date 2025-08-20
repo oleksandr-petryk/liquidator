@@ -18,4 +18,8 @@ export class ClientFingerprintService {
 
     return await this.clientFingerprintDao.findById(clientFingerprintId);
   }
+
+  async getById(id: string): Promise<ClientFingerprintSelectModel> {
+    return await this.clientFingerprintDao.findById({ id });
+  }
 }

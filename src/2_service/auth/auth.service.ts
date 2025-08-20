@@ -259,7 +259,16 @@ export class AuthService {
     name: string;
   }): Promise<SessionSelectModel> {
     // 1. Check if session exist
-    await this.sessionService.getById({ id });
+    const sessionRecord = await this.sessionService.getById({ id });
+
+    const clientFingerprint = await this.clientFingerprintService.getById(
+      sessionRecord.clientFingerprintId,
+    );
+
+    await this.activityLogService.createLog_UpdateSessionName({
+      userId: sessionRecord.userId,
+      clientFingerprintId: clientFingerprint.id,
+    });
 
     // 2. Update session name
     return await this.sessionDao.updateSession({
