@@ -8,6 +8,7 @@ import { MailService } from '../../3_components/mail/mail.service';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
+import { ClientFingerprintService } from '../client-fingerprint/client-fingerprint.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -29,6 +30,7 @@ import { JwtInternalService } from './jwt-internal.service';
     PasswordResetRequestService,
     MailService,
     HandlebarsService,
+    ClientFingerprintService,
   ],
   imports: [JwtModule, DaoModule],
   exports: [AuthService, JwtInternalService],

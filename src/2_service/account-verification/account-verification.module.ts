@@ -5,6 +5,7 @@ import { HandlebarsService } from '../../3_components/handlebars/handlebars.serv
 import { MailService } from '../../3_components/mail/mail.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
 import { ClientFingerprintService } from '../client-fingerprint/client-fingerprint.service';
+import { SessionService } from '../session/session.service';
 import { AccountVerificationService } from './account-verification.service';
 
 @Module({
@@ -14,6 +15,7 @@ import { AccountVerificationService } from './account-verification.service';
     HandlebarsService,
     ClientFingerprintService,
     ActivityLogService,
+    SessionService,
   ],
   imports: [DaoModule],
   exports: [AccountVerificationService],
