@@ -50,4 +50,13 @@ export class SessionService {
       },
     });
   }
+
+  public async getByJti(jti: string): Promise<SessionSelectModel> {
+    const result = await this.sessionDao.findByJti({ jti });
+
+    return nonNullableUtils(
+      result,
+      new BadRequestException('Session not found, jti: ' + jti),
+    );
+  }
 }

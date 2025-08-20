@@ -1,6 +1,11 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 
-import { Gender, Role, Status } from '../../5_shared/enums/db.enum';
+import {
+  ActivityLogAction,
+  Gender,
+  Role,
+  Status,
+} from '../../5_shared/enums/db.enum';
 
 export const StatusEnum = pgEnum('publish_status', [
   Status.Published,
@@ -14,4 +19,23 @@ export const RoleEnum = pgEnum('user_roles', [
   Role.Member,
   Role.Admin,
   Role.Owner,
+]);
+
+export const ActivityLogActionEnum = pgEnum('activity-log-action', [
+  ActivityLogAction.Registration,
+  ActivityLogAction.Login,
+  ActivityLogAction.LoginFailedWithInvalidPassword,
+  ActivityLogAction.RefreshTokens,
+  ActivityLogAction.RefreshTokensFailedWithExpiredRefreshToken,
+  ActivityLogAction.RefreshFailedWithOldRefreshToken,
+  ActivityLogAction.AccountVerification,
+  ActivityLogAction.AccountVerificationFailedWithWrongCode,
+  ActivityLogAction.UpdateSessionName,
+  ActivityLogAction.DeleteSession,
+  ActivityLogAction.SendPasswordResetEmail,
+  ActivityLogAction.SendPasswordResetEmailFailedReachedLimit,
+  ActivityLogAction.ResetPassword,
+  ActivityLogAction.ResetPasswordFailedWithWrongCode,
+  ActivityLogAction.ChangePassword,
+  ActivityLogAction.ChangePasswordFailedWithWrongOldPassword,
 ]);

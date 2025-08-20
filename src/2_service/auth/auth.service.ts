@@ -30,6 +30,8 @@ import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-nam
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
+import { ClientFingerprintService } from '../client-fingerprint/client-fingerprint.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -52,6 +54,8 @@ export class AuthService {
     private readonly configService: ConfigService<EnvConfig>,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly activityLogService: ActivityLogService,
+    private readonly clientFingerprintService: ClientFingerprintService,
   ) {}
 
   /**
@@ -133,6 +137,10 @@ export class AuthService {
       userId: newUser.id,
     });
 
+    await this.activityLogService.createLog_Registration({
+      userId: newUser.id,
+    });
+
     return newUser;
   }
 
@@ -163,6 +171,9 @@ export class AuthService {
     const passwordCheck = await bcrypt.compare(data.password, user.password);
     if (!passwordCheck) {
       this.logger.debug(`Wrong password, email ${data.email}`);
+      await this.activityLogService.createLog_LoginFailedWithInvalidPassword({
+        userId: user.id,
+      });
       throw new BadRequestException('User not exists or password is wrong');
     }
 
@@ -189,6 +200,11 @@ export class AuthService {
       clientFingerprintId: clientFingerprint.id,
       refreshToken: tokensPair.refreshToken,
       jti,
+    });
+
+    await this.activityLogService.createLog_Login({
+      userId: user.id,
+      clientFingerprintId: clientFingerprint.id,
     });
 
     return tokensPair;
@@ -286,11 +302,20 @@ export class AuthService {
   async accountVerification({
     userId,
     code,
+    jti,
   }: {
     userId: string;
     code: string;
+    jti: string;
   }): Promise<void> {
     await this.accountVerificationService.verifyUserAccount({ userId, code });
+
+    const clientFingerprint = await this.clientFingerprintService.getByJti(jti);
+
+    await this.activityLogService.createLog_AccountVerification({
+      userId,
+      clientFingerprintId: clientFingerprint.id,
+    });
   }
 
   /**

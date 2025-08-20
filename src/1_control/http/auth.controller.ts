@@ -191,6 +191,7 @@ export class AuthController {
     await this.authService.accountVerification({
       userId: user.id,
       code: data.code,
+      jti: user.jti,
     });
 
     return { message: 'Account successfully verified' };

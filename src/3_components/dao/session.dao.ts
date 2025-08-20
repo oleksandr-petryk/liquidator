@@ -104,4 +104,24 @@ export class SessionDao extends BaseDao<typeof session> {
 
     return updatedUserId[0];
   }
+
+  public async findByJti({
+    db = this.postgresDatabase,
+    jti,
+  }: {
+    db?: Drizzle;
+    jti: string;
+  }): Promise<SessionSelectModel | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(session)
+        .where(eq(session.jti, jti));
+
+      return result[0];
+    } catch (error) {
+      this.logger.error(`An error occurred when trying to findByUsername`);
+      throw error;
+    }
+  }
 }
