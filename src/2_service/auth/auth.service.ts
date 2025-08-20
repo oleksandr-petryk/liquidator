@@ -390,7 +390,10 @@ export class AuthService {
    * Password reset
    *
    * Logic:
-   * 1. Check if user can reset password, hash password and change password in db
+   * 1. Get user if exist
+   * 2. Check if user can reset password
+   * 3. Hash password
+   * 4. Change password in db
    */
   async passwordReset({
     email,
@@ -401,12 +404,14 @@ export class AuthService {
     code: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
+    // 1. Get user if exist
     const user = await this.userDao.findByEmail({ email });
 
     if (!user) {
       throw new BadRequestException();
     }
 
+    // 2. Check if user can reset password
     const passwordResetRequestRecord =
       await this.passwordResetRequestDao.findByUserId({ userId: user.id });
 
@@ -414,17 +419,24 @@ export class AuthService {
       (await this.passwordResetRequestService.canResetPassword({
         passwordResetRequestRecord,
         code,
+        userId: user.id,
       })) === false
     ) {
       throw new BadRequestException();
     }
 
+    // 3. Hash password
     const saltRounds = 10; // TODO: use different salt each time
 
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
+    // 4. Change password in db
     await this.userService.changePassword({
       newPassword: hashedPassword,
+      userId: user.id,
+    });
+
+    await this.activityLogService.createLog_ResetPassword({
       userId: user.id,
     });
 

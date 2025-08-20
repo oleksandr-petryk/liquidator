@@ -23,11 +23,21 @@ export class PasswordResetRequestService {
   public async canResetPassword({
     passwordResetRequestRecord,
     code,
+    userId,
   }: {
     passwordResetRequestRecord: Omit<PasswordResetRequestSelectModel, 'user'>;
     code: string;
+    userId?: string;
   }): Promise<boolean> {
     if (!(await bcrypt.compare(code, passwordResetRequestRecord.code))) {
+      if (userId) {
+        await this.activityLogService.createLog_ResetPasswordFailedWithWrongCode(
+          {
+            userId,
+          },
+        );
+      }
+
       return false;
     }
 

@@ -207,30 +207,21 @@ export class ActivityLogService {
     });
   }
 
-  async createLog_ResetPassword({
-    userId,
-    clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  async createLog_ResetPassword({ userId }: { userId: string }): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
         actions: ActivityLogAction.ResetPassword,
         secretContext: {},
         context: {},
-        clientFingerprintId,
       },
     });
   }
 
   async createLog_ResetPasswordFailedWithWrongCode({
     userId,
-    clientFingerprintId,
   }: {
     userId: string;
-    clientFingerprintId: string;
   }): Promise<void> {
     await this.activityLogDao.create({
       data: {
@@ -238,7 +229,6 @@ export class ActivityLogService {
         actions: ActivityLogAction.ResetPasswordFailedWithWrongCode,
         secretContext: {},
         context: {},
-        clientFingerprintId,
       },
     });
   }
