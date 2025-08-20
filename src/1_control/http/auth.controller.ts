@@ -261,6 +261,10 @@ export class AuthController {
       `${this.changePassword.name}, data: ${JSON.stringify(data)}`,
     );
 
-    return await this.authService.passwordChange({ userId: user.id, ...data });
+    return await this.authService.passwordChange({
+      userId: user.id,
+      jti: user.jti,
+      ...data,
+    });
   }
 }

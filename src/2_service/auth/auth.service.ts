@@ -445,10 +445,12 @@ export class AuthService {
 
   async passwordChange({
     userId,
+    jti,
     oldPassword,
     newPassword,
   }: {
     userId: string;
+    jti: string;
     oldPassword: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
@@ -458,7 +460,16 @@ export class AuthService {
 
     const passwordCheck = await bcrypt.compare(oldPassword, user.password);
 
+    const clientFingerprint = await this.clientFingerprintService.getByJti(jti);
+
     if (!passwordCheck) {
+      await this.activityLogService.createLog_ChangePasswordFailedWithWrongOldPassword(
+        {
+          userId: user.id,
+          clientFingerprintId: clientFingerprint.id,
+        },
+      );
+
       throw new BadRequestException('Incorrect password');
     }
 
@@ -480,6 +491,11 @@ export class AuthService {
           year: new Date().getFullYear(),
         },
       ),
+    });
+
+    await this.activityLogService.createLog_ChangePassword({
+      userId: user.id,
+      clientFingerprintId: clientFingerprint.id,
     });
 
     return { message: 'Password successfully changed' };
