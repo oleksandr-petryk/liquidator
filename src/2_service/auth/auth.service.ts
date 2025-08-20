@@ -380,6 +380,10 @@ export class AuthService {
       email: user.email,
       userId: user.id,
     });
+
+    await this.activityLogService.createLog_SendPasswordResetEmail({
+      userId: user.id,
+    });
   }
 
   /**

@@ -179,10 +179,8 @@ export class ActivityLogService {
 
   async createLog_SendPasswordResetEmail({
     userId,
-    clientFingerprintId,
   }: {
     userId: string;
-    clientFingerprintId: string;
   }): Promise<void> {
     await this.activityLogDao.create({
       data: {
@@ -190,17 +188,14 @@ export class ActivityLogService {
         actions: ActivityLogAction.SendPasswordResetEmail,
         secretContext: {},
         context: {},
-        clientFingerprintId,
       },
     });
   }
 
   async createLog_SendPasswordResetEmailFailedReachedLimit({
     userId,
-    clientFingerprintId,
   }: {
     userId: string;
-    clientFingerprintId: string;
   }): Promise<void> {
     await this.activityLogDao.create({
       data: {
@@ -208,7 +203,6 @@ export class ActivityLogService {
         actions: ActivityLogAction.SendPasswordResetEmailFailedReachedLimit,
         secretContext: {},
         context: {},
-        clientFingerprintId,
       },
     });
   }

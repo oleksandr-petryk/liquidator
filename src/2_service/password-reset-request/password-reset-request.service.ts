@@ -9,6 +9,7 @@ import { HandlebarsService } from '../../3_components/handlebars/handlebars.serv
 import { MailService } from '../../3_components/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 
 @Injectable()
 export class PasswordResetRequestService {
@@ -16,6 +17,7 @@ export class PasswordResetRequestService {
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   public async canResetPassword({
@@ -43,6 +45,12 @@ export class PasswordResetRequestService {
 
     if (records.length !== 0) {
       if (records.length >= 10) {
+        await this.activityLogService.createLog_SendPasswordResetEmailFailedReachedLimit(
+          {
+            userId,
+          },
+        );
+
         return false;
       }
 
