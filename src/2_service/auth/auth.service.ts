@@ -441,6 +441,16 @@ export class AuthService {
     return { message: 'Password successfully changed' };
   }
 
+  /**
+   * Password change
+   *
+   * Logic:
+   * 1. Get user
+   * 2. Check password
+   * 3. Hash password
+   * 4. Change password in db
+   * 5. Send email about password change
+   */
   async passwordChange({
     userId,
     jti,
@@ -452,10 +462,10 @@ export class AuthService {
     oldPassword: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
+    // 1. Get user
     const user = await this.userDao.findById({ id: userId });
 
-    const saltRounds = 10; // TODO: use different salt each time
-
+    // 2. Check password
     const passwordCheck = await bcrypt.compare(oldPassword, user.password);
 
     const sessionRecord = await this.sessionService.getByJti(jti);
@@ -471,13 +481,18 @@ export class AuthService {
       throw new BadRequestException('Incorrect password');
     }
 
+    // 3. Hash password
+    const saltRounds = 10; // TODO: use different salt each time
+
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
+    // 4. Change password in db
     await this.userService.changePassword({
       newPassword: hashedPassword,
       userId: user.id,
     });
 
+    // 5. Send email about password change
     await this.mailService.sendEmail({
       to: user.email,
       subject: 'Password changed',
