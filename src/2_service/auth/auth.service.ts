@@ -31,7 +31,6 @@ import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.d
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
-import { ClientFingerprintService } from '../client-fingerprint/client-fingerprint.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -55,7 +54,6 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
     private readonly activityLogService: ActivityLogService,
-    private readonly clientFingerprintService: ClientFingerprintService,
   ) {}
 
   /**
@@ -320,7 +318,7 @@ export class AuthService {
   }): Promise<void> {
     await this.accountVerificationService.verifyUserAccount({ userId, code });
 
-    const clientFingerprint = await this.clientFingerprintService.getByJti(jti);
+    const clientFingerprint = await this.sessionService.getByJti(jti);
 
     await this.activityLogService.createLog_AccountVerification({
       userId,
@@ -460,13 +458,13 @@ export class AuthService {
 
     const passwordCheck = await bcrypt.compare(oldPassword, user.password);
 
-    const clientFingerprint = await this.clientFingerprintService.getByJti(jti);
+    const sessionRecord = await this.sessionService.getByJti(jti);
 
     if (!passwordCheck) {
       await this.activityLogService.createLog_ChangePasswordFailedWithWrongOldPassword(
         {
           userId: user.id,
-          clientFingerprintId: clientFingerprint.id,
+          clientFingerprintId: sessionRecord.clientFingerprintId,
         },
       );
 
@@ -495,7 +493,7 @@ export class AuthService {
 
     await this.activityLogService.createLog_ChangePassword({
       userId: user.id,
-      clientFingerprintId: clientFingerprint.id,
+      clientFingerprintId: sessionRecord.clientFingerprintId,
     });
 
     return { message: 'Password successfully changed' };

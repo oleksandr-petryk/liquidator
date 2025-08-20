@@ -18,7 +18,7 @@ import {
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
 import { ActivityLogService } from '../activity-log/activity-log.service';
-import { ClientFingerprintService } from '../client-fingerprint/client-fingerprint.service';
+import { SessionService } from '../session/session.service';
 
 @Injectable()
 export class AccountVerificationService {
@@ -28,7 +28,7 @@ export class AccountVerificationService {
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
     private readonly activityLogService: ActivityLogService,
-    private readonly clientFingerprintService: ClientFingerprintService,
+    private readonly sessionService: SessionService,
   ) {}
 
   public async getByUserId(
@@ -57,8 +57,7 @@ export class AccountVerificationService {
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
       if (jti) {
-        const clientFingerprint =
-          await this.clientFingerprintService.getByJti(jti);
+        const clientFingerprint = await this.sessionService.getByJti(jti);
 
         await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
           {

@@ -1,4 +1,5 @@
 export * from './account-verification';
+export * from './activity-log';
 export * from './client-fingerprint';
 export * from './enums';
 export * from './organization';

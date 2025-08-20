@@ -22,7 +22,7 @@ export const activityLog = pgTable('activity_log', {
     .notNull(),
 });
 
-export const sessionRelations = relations(activityLog, ({ one }) => ({
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
   user: one(user, {
     fields: [activityLog.userId],
     references: [user.id],
