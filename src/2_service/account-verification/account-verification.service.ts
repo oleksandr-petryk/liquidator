@@ -57,12 +57,12 @@ export class AccountVerificationService {
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
       if (jti) {
-        const clientFingerprint = await this.sessionService.getByJti(jti);
+        const sessionRecord = await this.sessionService.getByJti(jti);
 
         await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
           {
             userId,
-            clientFingerprintId: clientFingerprint.id,
+            clientFingerprintId: sessionRecord.clientFingerprintId,
           },
         );
       }
@@ -85,11 +85,13 @@ export class AccountVerificationService {
   public async verifyUserAccount({
     userId,
     code,
+    jti,
   }: {
     userId: string;
     code: string;
+    jti: string;
   }): Promise<void> {
-    await this.canVerifyAccount({ userId, code });
+    await this.canVerifyAccount({ userId, code, jti });
 
     await this.userDao.update({
       data: { verified: true },

@@ -316,13 +316,17 @@ export class AuthService {
     code: string;
     jti: string;
   }): Promise<void> {
-    await this.accountVerificationService.verifyUserAccount({ userId, code });
+    await this.accountVerificationService.verifyUserAccount({
+      userId,
+      code,
+      jti,
+    });
 
-    const clientFingerprint = await this.sessionService.getByJti(jti);
+    const sessionRecord = await this.sessionService.getByJti(jti);
 
     await this.activityLogService.createLog_AccountVerification({
       userId,
-      clientFingerprintId: clientFingerprint.id,
+      clientFingerprintId: sessionRecord.clientFingerprintId,
     });
   }
 
