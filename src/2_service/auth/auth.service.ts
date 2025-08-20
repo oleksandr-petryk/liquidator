@@ -261,13 +261,9 @@ export class AuthService {
     // 1. Check if session exist
     const sessionRecord = await this.sessionService.getById({ id });
 
-    const clientFingerprint = await this.clientFingerprintService.getById(
-      sessionRecord.clientFingerprintId,
-    );
-
     await this.activityLogService.createLog_UpdateSessionName({
       userId: sessionRecord.userId,
-      clientFingerprintId: clientFingerprint.id,
+      clientFingerprintId: sessionRecord.clientFingerprintId,
     });
 
     // 2. Update session name
@@ -300,6 +296,11 @@ export class AuthService {
 
     // 3. Delete session
     await this.sessionDao.delete({ id: id });
+
+    await this.activityLogService.createLog_DeleteSession({
+      userId: session.userId,
+      clientFingerprintId: session.clientFingerprintId,
+    });
   }
 
   /**
