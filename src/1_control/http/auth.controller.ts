@@ -24,7 +24,10 @@ import {
   UserAgentAndIp,
 } from '../../5_shared/decorators/user-agent-and-ip.decorator';
 import { JwtAccessGuard } from '../../5_shared/guards/auth.guard';
-import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
+import {
+  JwtTokenPayload,
+  JwtTokensPair,
+} from '../../5_shared/interfaces/jwt-token.interface';
 import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
 import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
@@ -37,6 +40,7 @@ import {
   LoginRequestBodyDto,
   PasswordChangeRequestBody,
   PasswordResetRequestBody,
+  RefreshTokenRequestBody,
   RegisterRequestBodyDto,
   SendPasswordResetEmailRequestBody,
   UpdateSessionRequestBody,
@@ -45,6 +49,7 @@ import {
   AccountVerificationResponseBodyDto,
   LoginResponseBodyDto,
   PasswordResetResponseBodyDto,
+  RefreshTokenResponseBodyDto,
   SendVerificationEmailResponseBodyDto,
 } from '../../6_model/dto/io/auth/response-body.dto';
 
@@ -265,5 +270,20 @@ export class AuthController {
       ...user,
       ...data,
     });
+  }
+
+  @ApiOperation({
+    summary: 'Refresh token',
+  })
+  @ApiAbstractResponse(RefreshTokenResponseBodyDto)
+  @Post('refresh')
+  async refreshTokens(
+    @Body() data: RefreshTokenRequestBody,
+  ): Promise<JwtTokensPair> {
+    this.logger.info(
+      `${this.refreshTokens.name}, data: ${JSON.stringify(data)}`,
+    );
+
+    return await this.authService.refreshTokens(data.refreshToken);
   }
 }

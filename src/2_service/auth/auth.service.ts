@@ -158,7 +158,7 @@ export class AuthService {
   ): Promise<JwtTokensPair> {
     const emailLowerCase = data.email.toLowerCase();
 
-    // 1. Check if user exist
+    // 1. Check if user exists
     const user = await this.userDao.findByEmail({ email: emailLowerCase });
     if (!user) {
       this.logger.debug(`User not found, email ${data.email}`);
@@ -287,7 +287,7 @@ export class AuthService {
 
     // 2. Save token in redis
     await this.redisService.setValue({
-      key: session.jti,
+      key: `deleted-${session.jti}`,
       value: 1,
       ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
     });
@@ -449,10 +449,12 @@ export class AuthService {
    *
    * Logic:
    * 1. Get user
-   * 2. Check password
-   * 3. Hash password
-   * 4. Change password in db
-   * 5. Send email about password change
+   * 2. Check old password
+   * 3. Hash new password
+   * 4. Change user password
+   * 5. Send email
+   *
+   * @returns PasswordResetResponseBodyDto
    */
   async passwordChange({
     id,
@@ -472,7 +474,7 @@ export class AuthService {
     const passwordCheck = await bcrypt.compare(oldPassword, user.password);
 
     const sessionRecord = await this.sessionService.getByJti(jti);
-
+    
     if (!passwordCheck) {
       await this.activityLogService.createLog_ChangePasswordFailedWithWrongOldPassword(
         {
@@ -495,7 +497,7 @@ export class AuthService {
       userId: user.id,
     });
 
-    // 5. Send email about password change
+    // 5. Send email
     await this.mailService.sendEmail({
       to: user.email,
       subject: 'Password changed',
@@ -515,5 +517,58 @@ export class AuthService {
     });
 
     return { message: 'Password successfully changed' };
+  }
+
+  /**
+   * Refresh tokens
+   *
+   * 1. Verified refresh token
+   * 2. Check if refresh token valid
+   * 3. Generate new jti
+   * 4. Generate tokens
+   * 5. Save token in redis
+   * 6. Update refresh token in session
+   *
+   * @returns JwtTokensPair
+   */
+  public async refreshTokens(refreshToken: string): Promise<JwtTokensPair> {
+    // 1. Verified refresh token
+    const verifiedRefreshToken =
+      this.jwtInternalService.verifyRefreshToken(refreshToken);
+
+    // 2. Check if refresh token valid
+    if (
+      await this.redisService.getValue({
+        key: `refreshed-${verifiedRefreshToken.jti}`,
+      })
+    ) {
+      throw new BadRequestException();
+    }
+
+    // 3. Generate new jti
+    const jti = randomUUID();
+
+    // 4. Generate tokens
+    const pairTokens = this.jwtInternalService.generatePairTokens({
+      id: verifiedRefreshToken.id,
+      jti: jti,
+    });
+
+    // 5. Save tokens in redis
+    await this.redisService.setValue({
+      key: `refreshed-${verifiedRefreshToken.jti}`,
+      value: 1,
+      ttl: this.configService.getOrThrow<number>('JWT_ACCESS_TOKEN_EXPIRES_IN'),
+    });
+
+    // 6. Update refresh token in session
+    await this.sessionService.updateSessionToken({
+      userId: verifiedRefreshToken.id,
+      oldRefreshToken: refreshToken,
+      refreshToken: pairTokens.refreshToken,
+      jti,
+    });
+
+    return pairTokens;
   }
 }

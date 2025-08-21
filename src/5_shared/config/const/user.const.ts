@@ -64,6 +64,6 @@ export const USER_PROPERTIES: Record<string, UserProperties> = {
     type: String,
     example: '12341234',
     maxLength: 128,
-    minLength: 6,
+    minLength: 8,
   },
 } satisfies Record<string, UserProperties>;

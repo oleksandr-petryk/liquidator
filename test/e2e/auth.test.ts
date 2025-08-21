@@ -93,15 +93,13 @@ describe('Auth Tests', () => {
       try {
         await API.post('/v1/auth/log-in', {
           ...data,
-          password: '------',
+          password: '--------',
         });
 
         throw new Error('Error expected');
       } catch (e: any) {
         expect(e?.response?.status).toBe(400);
-        expect(e?.response?.data?.message).toBe(
-          'User not exists or password is wrong',
-        );
+        expect(e?.response?.data?.message).toBe('Incorrect password');
       }
     });
 
@@ -449,7 +447,7 @@ describe('Auth Tests', () => {
 
       const tokens = await API.post('/v1/auth/log-in', data);
 
-      const response = await API.get('/v1/auth/user', {
+      const response = await API.get('/v1/user', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -619,6 +617,74 @@ describe('Auth Tests', () => {
       );
 
       expect(response.status).toEqual(400);
+    });
+  });
+
+  describe('Refresh token', () => {
+    test('Refresh token - OK', async () => {
+      const data = {
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: faker.internet.password(),
+      };
+
+      await API.post('/v1/auth/register', data);
+
+      const tokens = await API.post('/v1/auth/log-in', data);
+
+      const newAccessToken = await API.post('/v1/auth/refresh', {
+        refreshToken: tokens.data.payload.refreshToken,
+      });
+
+      const response_1 = await expectApiError(() =>
+        API.post('/v1/auth/refresh', {
+          refreshToken: tokens.data.payload.refreshToken,
+        }),
+      );
+
+      expect(response_1.status).toEqual(400);
+
+      const response_2 = await API.get('/v1/user', {
+        headers: {
+          Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
+        },
+      });
+
+      expect(response_2.status).toEqual(200);
+
+      const response_3 = await expectApiError(() =>
+        API.get('/v1/user', {
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
+          },
+        }),
+      );
+
+      expect(response_3.status).toEqual(401);
+
+      const session = await API.get('/v1/auth/sessions', {
+        headers: {
+          Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
+        },
+      });
+
+      const id = session.data.payload.items[0].id;
+
+      await API.delete(`/v1/auth/sessions/${id}`, {
+        headers: {
+          Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
+        },
+      });
+
+      const response_4 = await expectApiError(() =>
+        API.get('/v1/user', {
+          headers: {
+            Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
+          },
+        }),
+      );
+
+      expect(response_4.status).toEqual(401);
     });
   });
 });
