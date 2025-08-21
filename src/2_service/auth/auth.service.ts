@@ -4,7 +4,10 @@ import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
-import { ClientFingerprintDao } from '../../3_components/dao/client-fingerprint.dao';
+import {
+  ClientFingerprintDao,
+  ClientFingerprintSelectModel,
+} from '../../3_components/dao/client-fingerprint.dao';
 import { PasswordResetRequestDao } from '../../3_components/dao/password-reset-request.dao';
 import {
   SessionDao,
@@ -69,7 +72,13 @@ export class AuthService {
    *
    * @returns new user
    */
-  async register(data: RegisterRequestBodyDto): Promise<UserInsertModel> {
+  async register({
+    fingerprint,
+    data,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    data: RegisterRequestBodyDto;
+  }): Promise<UserInsertModel> {
     const emailLowerCase = data.email.toLowerCase();
     const usernameLowerCase = data.username.toLowerCase();
 
@@ -137,6 +146,7 @@ export class AuthService {
 
     await this.activityLogService.createLog_Registration({
       userId: newUser.id,
+      clientFingerprintId: fingerprint.id,
     });
 
     return newUser;
@@ -147,9 +157,9 @@ export class AuthService {
    *
    * Logic:
    * 1. Check if a user exists
-   * 2. Check if a password is correct
-   * 3. Generate tokens
-   * 4. Create a client-fingerprint
+   * 2. Create a client-fingerprint
+   * 3. Check if a password is correct
+   * 4. Generate tokens
    * 5. Create a session
    */
   async login(
@@ -165,30 +175,32 @@ export class AuthService {
       throw new BadRequestException('User not exists or password is wrong');
     }
 
-    // 2. Check if password is correct
+    // 2. Create client-fingerprint
+    const clientFingerprint = await this.clientFingerprintDao.create({
+      data: {
+        ip: userAgentAndIp.ipAddress,
+        userAgent: userAgentAndIp.userAgent,
+      },
+    });
+
+    // 3. Check if password is correct
     const passwordCheck = await bcrypt.compare(data.password, user.password);
+
     if (!passwordCheck) {
       this.logger.debug(`Wrong password, email ${data.email}`);
       await this.activityLogService.createLog_LoginFailedWithInvalidPassword({
         userId: user.id,
+        clientFingerprintId: clientFingerprint.id,
       });
       throw new BadRequestException('User not exists or password is wrong');
     }
 
     const jti = randomUUID();
 
-    // 3. Generate tokens
+    // 4. Generate tokens
     const tokensPair = this.jwtInternalService.generatePairTokens({
       id: user.id,
       jti,
-    });
-
-    // 4. Create client-fingerprint
-    const clientFingerprint = await this.clientFingerprintDao.create({
-      data: {
-        ip: userAgentAndIp.ipAddress,
-        userAgent: userAgentAndIp.userAgent,
-      },
     });
 
     // 5. Create session
@@ -361,7 +373,13 @@ export class AuthService {
    * 3. Check if user can send request
    * 4. Create password reset request record in DB and send password reset email
    */
-  async sendPasswordResetRequestEmail(email: string): Promise<void> {
+  async sendPasswordResetRequestEmail({
+    fingerprint,
+    email,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    email: string;
+  }): Promise<void> {
     // 1. Get user by email
     const user = await this.userDao.findByEmail({ email });
 
@@ -371,7 +389,12 @@ export class AuthService {
     }
 
     // 3. Check if user can send request
-    if (!(await this.passwordResetRequestService.canSendRequest(user.id))) {
+    if (
+      !(await this.passwordResetRequestService.canSendRequest({
+        fingerprint,
+        userId: user.id,
+      }))
+    ) {
       throw new BadRequestException();
     }
 
@@ -384,6 +407,7 @@ export class AuthService {
 
     await this.activityLogService.createLog_SendPasswordResetEmail({
       userId: user.id,
+      clientFingerprintId: fingerprint.id,
     });
   }
 
@@ -397,10 +421,12 @@ export class AuthService {
    * 4. Change password in db
    */
   async passwordReset({
+    fingerprint,
     email,
     code,
     newPassword,
   }: {
+    fingerprint: ClientFingerprintSelectModel;
     email: string;
     code: string;
     newPassword: string;
@@ -418,6 +444,7 @@ export class AuthService {
 
     if (
       (await this.passwordResetRequestService.canResetPassword({
+        fingerprint,
         passwordResetRequestRecord,
         code,
         userId: user.id,
@@ -439,6 +466,7 @@ export class AuthService {
 
     await this.activityLogService.createLog_ResetPassword({
       userId: user.id,
+      clientFingerprintId: fingerprint.id,
     });
 
     return { message: 'Password successfully changed' };
@@ -531,7 +559,13 @@ export class AuthService {
    *
    * @returns JwtTokensPair
    */
-  public async refreshTokens(refreshToken: string): Promise<JwtTokensPair> {
+  public async refreshTokens({
+    fingerprint,
+    refreshToken,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    refreshToken: string;
+  }): Promise<JwtTokensPair> {
     // 1. Verified refresh token
     const verifiedRefreshToken =
       this.jwtInternalService.verifyRefreshToken(refreshToken);
@@ -542,6 +576,11 @@ export class AuthService {
         key: `refreshed-${verifiedRefreshToken.jti}`,
       })
     ) {
+      await this.activityLogService.createLog_RefreshFailedWithOldRefreshToken({
+        userId: verifiedRefreshToken.id,
+        clientFingerprintId: fingerprint.id,
+      });
+
       throw new BadRequestException();
     }
 
@@ -567,6 +606,11 @@ export class AuthService {
       oldRefreshToken: refreshToken,
       refreshToken: pairTokens.refreshToken,
       jti,
+    });
+
+    await this.activityLogService.createLog_RefreshTokens({
+      userId: verifiedRefreshToken.id,
+      clientFingerprintId: fingerprint.id,
     });
 
     return pairTokens;

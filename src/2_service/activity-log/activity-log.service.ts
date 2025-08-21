@@ -1,19 +1,31 @@
 import { Injectable } from '@nestjs/common';
 
-import { ActivityLogDao } from '../../3_components/dao/activity-log.dao';
+import {
+  ActivityLogDao,
+  ActivityLogSelectModel,
+} from '../../3_components/dao/activity-log.dao';
 import { ActivityLogAction } from '../../5_shared/enums/db.enum';
+
+type CreateActivityLogDefaultOptions = Pick<
+  ActivityLogSelectModel,
+  'userId' | 'clientFingerprintId'
+>;
 
 @Injectable()
 export class ActivityLogService {
   constructor(private readonly activityLogDao: ActivityLogDao) {}
 
-  async createLog_Registration({ userId }: { userId: string }): Promise<void> {
+  async createLog_Registration({
+    userId,
+    clientFingerprintId,
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.Registration,
+        action: ActivityLogAction.Registration,
         secretContext: {},
         context: {},
+        clientFingerprintId,
       },
     });
   }
@@ -21,14 +33,11 @@ export class ActivityLogService {
   async createLog_Login({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.Login,
+        action: ActivityLogAction.Login,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -38,15 +47,15 @@ export class ActivityLogService {
 
   async createLog_LoginFailedWithInvalidPassword({
     userId,
-  }: {
-    userId: string;
-  }): Promise<void> {
+    clientFingerprintId,
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.LoginFailedWithInvalidPassword,
+        action: ActivityLogAction.LoginFailedWithInvalidPassword,
         secretContext: {},
         context: {},
+        clientFingerprintId,
       },
     });
   }
@@ -54,14 +63,11 @@ export class ActivityLogService {
   async createLog_RefreshTokens({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.RefreshTokens,
+        action: ActivityLogAction.RefreshTokens,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -72,14 +78,11 @@ export class ActivityLogService {
   async createLog_RefreshTokensFailedWithExpiredRefreshToken({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.RefreshTokensFailedWithExpiredRefreshToken,
+        action: ActivityLogAction.RefreshTokensFailedWithExpiredRefreshToken,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -90,14 +93,11 @@ export class ActivityLogService {
   async createLog_RefreshFailedWithOldRefreshToken({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.RefreshFailedWithOldRefreshToken,
+        action: ActivityLogAction.RefreshFailedWithOldRefreshToken,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -108,14 +108,11 @@ export class ActivityLogService {
   async createLog_AccountVerification({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.AccountVerification,
+        action: ActivityLogAction.AccountVerification,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -126,14 +123,11 @@ export class ActivityLogService {
   async createLog_AccountVerificationFailedWithWrongCode({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.AccountVerificationFailedWithWrongCode,
+        action: ActivityLogAction.AccountVerificationFailedWithWrongCode,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -144,14 +138,11 @@ export class ActivityLogService {
   async createLog_UpdateSessionName({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.UpdateSessionName,
+        action: ActivityLogAction.UpdateSessionName,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -162,14 +153,11 @@ export class ActivityLogService {
   async createLog_DeleteSession({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.DeleteSession,
+        action: ActivityLogAction.DeleteSession,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -179,56 +167,60 @@ export class ActivityLogService {
 
   async createLog_SendPasswordResetEmail({
     userId,
-  }: {
-    userId: string;
-  }): Promise<void> {
+    clientFingerprintId,
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.SendPasswordResetEmail,
+        action: ActivityLogAction.SendPasswordResetEmail,
         secretContext: {},
         context: {},
+        clientFingerprintId,
       },
     });
   }
 
   async createLog_SendPasswordResetEmailFailedReachedLimit({
     userId,
-  }: {
-    userId: string;
-  }): Promise<void> {
+    clientFingerprintId,
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.SendPasswordResetEmailFailedReachedLimit,
+        action: ActivityLogAction.SendPasswordResetEmailFailedReachedLimit,
         secretContext: {},
         context: {},
+        clientFingerprintId,
       },
     });
   }
 
-  async createLog_ResetPassword({ userId }: { userId: string }): Promise<void> {
+  async createLog_ResetPassword({
+    userId,
+    clientFingerprintId,
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.ResetPassword,
+        action: ActivityLogAction.ResetPassword,
         secretContext: {},
         context: {},
+        clientFingerprintId,
       },
     });
   }
 
   async createLog_ResetPasswordFailedWithWrongCode({
     userId,
-  }: {
-    userId: string;
-  }): Promise<void> {
+    clientFingerprintId,
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.ResetPasswordFailedWithWrongCode,
+        action: ActivityLogAction.ResetPasswordFailedWithWrongCode,
         secretContext: {},
         context: {},
+        clientFingerprintId,
       },
     });
   }
@@ -236,14 +228,11 @@ export class ActivityLogService {
   async createLog_ChangePassword({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.ChangePassword,
+        action: ActivityLogAction.ChangePassword,
         secretContext: {},
         context: {},
         clientFingerprintId,
@@ -254,14 +243,11 @@ export class ActivityLogService {
   async createLog_ChangePasswordFailedWithWrongOldPassword({
     userId,
     clientFingerprintId,
-  }: {
-    userId: string;
-    clientFingerprintId: string;
-  }): Promise<void> {
+  }: CreateActivityLogDefaultOptions): Promise<void> {
     await this.activityLogDao.create({
       data: {
         userId,
-        actions: ActivityLogAction.ChangePasswordFailedWithWrongOldPassword,
+        action: ActivityLogAction.ChangePasswordFailedWithWrongOldPassword,
         secretContext: {},
         context: {},
         clientFingerprintId,

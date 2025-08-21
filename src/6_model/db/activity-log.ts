@@ -11,9 +11,9 @@ export const activityLog = pgTable('activity_log', {
   userId: uuid('user_id')
     .references(() => user.id)
     .notNull(),
-  actions: ActivityLogActionEnum().notNull(),
-  secretContext: jsonb().notNull(),
-  context: jsonb().notNull(),
+  action: ActivityLogActionEnum().notNull(),
+  secretContext: jsonb(),
+  context: jsonb(),
   clientFingerprintId: uuid('client-fingerprint-id')
     .references(() => clientFingerprint.id)
     .notNull(),

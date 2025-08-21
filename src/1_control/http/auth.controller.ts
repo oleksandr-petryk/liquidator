@@ -15,6 +15,7 @@ import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
 import { AuthService } from '../../2_service/auth/auth.service';
+import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fingerprint.dao';
 import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
@@ -28,6 +29,7 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../5_shared/interfaces/jwt-token.interface';
+import { SaveFingerprintPipe } from '../../5_shared/pipes/SaveFingerprintPipe.pipe';
 import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
 import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
@@ -66,10 +68,14 @@ export class AuthController {
     summary: 'Register a new user',
   })
   @Post('register')
-  async register(@Body() dto: RegisterRequestBodyDto): Promise<void> {
+  async register(
+    @GetUserAgentAndIp(SaveFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
+    @Body() dto: RegisterRequestBodyDto,
+  ): Promise<void> {
     this.logger.info(`${this.register.name}, dto: ${JSON.stringify(dto)}`);
 
-    await this.authService.register(dto);
+    await this.authService.register({ fingerprint, data: dto });
   }
 
   @ApiOperation({
@@ -227,13 +233,18 @@ export class AuthController {
   @HttpCode(200)
   @Post('password-reset/send')
   async sendPasswordResetRequestEmail(
+    @GetUserAgentAndIp(SaveFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @Body() data: SendPasswordResetEmailRequestBody,
   ): Promise<void> {
     this.logger.info(
       `${this.sendPasswordResetRequestEmail.name}, data: ${JSON.stringify(data)}`,
     );
 
-    await this.authService.sendPasswordResetRequestEmail(data.email);
+    await this.authService.sendPasswordResetRequestEmail({
+      fingerprint,
+      email: data.email,
+    });
   }
 
   @ApiOperation({
@@ -242,13 +253,15 @@ export class AuthController {
   @ApiAbstractResponse(PasswordResetResponseBodyDto)
   @Patch('password-reset')
   async passwordReset(
+    @GetUserAgentAndIp(SaveFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @Body() data: PasswordResetRequestBody,
   ): Promise<PasswordResetResponseBodyDto | undefined> {
     this.logger.info(
       `${this.passwordReset.name}, data: ${JSON.stringify(data)}`,
     );
 
-    return await this.authService.passwordReset(data);
+    return await this.authService.passwordReset({ fingerprint, ...data });
   }
 
   @ApiOperation({
@@ -278,12 +291,17 @@ export class AuthController {
   @ApiAbstractResponse(RefreshTokenResponseBodyDto)
   @Post('refresh')
   async refreshTokens(
+    @GetUserAgentAndIp(SaveFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @Body() data: RefreshTokenRequestBody,
   ): Promise<JwtTokensPair> {
     this.logger.info(
       `${this.refreshTokens.name}, data: ${JSON.stringify(data)}`,
     );
 
-    return await this.authService.refreshTokens(data.refreshToken);
+    return await this.authService.refreshTokens({
+      fingerprint,
+      refreshToken: data.refreshToken,
+    });
   }
 }

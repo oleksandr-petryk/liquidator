@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fingerprint.dao';
 import {
   PasswordResetRequestDao,
   PasswordResetRequestSelectModel,
@@ -21,10 +22,12 @@ export class PasswordResetRequestService {
   ) {}
 
   public async canResetPassword({
+    fingerprint,
     passwordResetRequestRecord,
     code,
     userId,
   }: {
+    fingerprint: ClientFingerprintSelectModel;
     passwordResetRequestRecord: Omit<PasswordResetRequestSelectModel, 'user'>;
     code: string;
     userId?: string;
@@ -34,6 +37,7 @@ export class PasswordResetRequestService {
         await this.activityLogService.createLog_ResetPasswordFailedWithWrongCode(
           {
             userId,
+            clientFingerprintId: fingerprint.id,
           },
         );
       }
@@ -48,7 +52,13 @@ export class PasswordResetRequestService {
     return true;
   }
 
-  public async canSendRequest(userId: string): Promise<boolean> {
+  public async canSendRequest({
+    fingerprint,
+    userId,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    userId: string;
+  }): Promise<boolean> {
     const records = await this.passwordResetRequestDao.findManyByUserId({
       userId,
     });
@@ -58,6 +68,7 @@ export class PasswordResetRequestService {
         await this.activityLogService.createLog_SendPasswordResetEmailFailedReachedLimit(
           {
             userId,
+            clientFingerprintId: fingerprint.id,
           },
         );
 
