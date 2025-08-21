@@ -5,5 +5,5 @@ export const drizzleTimestamps = {
     .timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-  updatedAt: t.timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  updatedAt: t.timestamp('updated_at', { withTimezone: true }),
 };

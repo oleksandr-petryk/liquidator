@@ -63,7 +63,7 @@ export const USER_PROPERTIES: Record<string, UserProperties> = {
     description: 'User password',
     type: String,
     example: '12341234',
-    maxLength: 6,
-    minLength: 128,
+    maxLength: 128,
+    minLength: 8,
   },
 } satisfies Record<string, UserProperties>;

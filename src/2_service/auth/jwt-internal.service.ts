@@ -62,7 +62,7 @@ export class JwtInternalService {
     return this.jwtService.sign(payload, {
       privateKey: this.JWT_ACCESS_KEY_PRIVATE,
       algorithm: this.JWT_ACCESS_ALGORITHM,
-      expiresIn: this.JWT_REFRESH_TOKEN_EXPIRES_IN,
+      expiresIn: this.JWT_ACCESS_TOKEN_EXPIRES_IN,
     });
   }
 
@@ -76,7 +76,7 @@ export class JwtInternalService {
     return this.jwtService.sign(payload, {
       privateKey: this.JWT_REFRESH_KEY_PRIVATE,
       algorithm: this.JWT_REFRESH_ALGORITHM,
-      expiresIn: this.JWT_ACCESS_TOKEN_EXPIRES_IN,
+      expiresIn: this.JWT_REFRESH_TOKEN_EXPIRES_IN,
     });
   }
 

@@ -50,4 +50,54 @@ export class SessionService {
       },
     });
   }
+
+  public async getSessionByUserIdAndRefreshTokenHash({
+    userId,
+    refreshTokenHash,
+  }: {
+    userId: string;
+    refreshTokenHash: string;
+  }): Promise<SessionSelectModel> {
+    const result = await this.sessionDao.findByUserIdAndRefreshTokenHash({
+      userId,
+      refreshTokenHash,
+    });
+
+    return nonNullableUtils(
+      result,
+      new BadRequestException('Session not found, userId: ' + userId),
+    );
+  }
+
+  public async updateSessionToken({
+    userId,
+    oldRefreshToken,
+    refreshToken,
+    jti,
+  }: {
+    userId: string;
+    oldRefreshToken: string;
+    refreshToken: string;
+    jti: string;
+  }): Promise<SessionSelectModel> {
+    const oldRefreshTokenHash = crypto
+      .createHash('sha256')
+      .update(oldRefreshToken)
+      .digest('hex');
+
+    const sessionId = await this.getSessionByUserIdAndRefreshTokenHash({
+      userId,
+      refreshTokenHash: oldRefreshTokenHash,
+    });
+
+    const refreshTokenHash = crypto
+      .createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
+
+    return await this.sessionDao.updateSession({
+      data: { refreshTokenHash, jti },
+      id: sessionId.id,
+    });
+  }
 }

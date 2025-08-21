@@ -53,3 +53,5 @@ export class PasswordResetResponseBodyDto {
   @IsString()
   message!: 'Password successfully changed';
 }
+
+export class RefreshTokenResponseBodyDto extends JwtTokensPairDto {}
