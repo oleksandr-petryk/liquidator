@@ -51,7 +51,7 @@ export class SessionService {
     });
   }
 
-  public async getSessionByUserIdAndRefreshTokenHash({
+  public async getSessionByUserIdAndRefreshToken({
     userId,
     oldRefreshTokenHash,
   }: {
@@ -85,7 +85,7 @@ export class SessionService {
       .update(oldRefreshToken)
       .digest('hex');
 
-    const sessionId = await this.getSessionByUserIdAndRefreshTokenHash({
+    const sessionId = await this.getSessionByUserIdAndRefreshToken({
       userId,
       oldRefreshTokenHash,
     });
