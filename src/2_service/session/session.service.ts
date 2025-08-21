@@ -51,6 +51,24 @@ export class SessionService {
     });
   }
 
+  public async getSessionByUserIdAndRefreshTokenHash({
+    userId,
+    oldRefreshTokenHash,
+  }: {
+    userId: string;
+    oldRefreshTokenHash: string;
+  }): Promise<SessionSelectModel> {
+    const result = await this.sessionDao.findByUserIdAndRefreshTokenHash({
+      userId,
+      refreshTokenHash: oldRefreshTokenHash,
+    });
+
+    return nonNullableUtils(
+      result,
+      new BadRequestException('Session not found, userId: ' + userId),
+    );
+  }
+
   public async updateSessionToken({
     userId,
     oldRefreshToken,
@@ -67,9 +85,9 @@ export class SessionService {
       .update(oldRefreshToken)
       .digest('hex');
 
-    const sessionId = await this.sessionDao.findByUserIdAndRefreshTokenHash({
+    const sessionId = await this.getSessionByUserIdAndRefreshTokenHash({
       userId,
-      refreshTokenHash: oldRefreshTokenHash,
+      oldRefreshTokenHash,
     });
 
     const refreshTokenHash = crypto
