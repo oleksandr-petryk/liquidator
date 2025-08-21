@@ -127,6 +127,13 @@
       "when": 1755622078021,
       "tag": "0017_mighty_lord_hawal",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1755809049647,
+      "tag": "0018_stale_slapstick",
+      "breakpoints": true
     }
   ]
 }

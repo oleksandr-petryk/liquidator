@@ -474,7 +474,7 @@ export class AuthService {
     const passwordCheck = await bcrypt.compare(oldPassword, user.password);
 
     const sessionRecord = await this.sessionService.getByJti(jti);
-    
+
     if (!passwordCheck) {
       await this.activityLogService.createLog_ChangePasswordFailedWithWrongOldPassword(
         {

@@ -59,7 +59,7 @@ export class SessionService {
       new BadRequestException('Session not found, jti: ' + jti),
     );
   }
-  
+
   public async getSessionByUserIdAndRefreshTokenHash({
     userId,
     refreshTokenHash,

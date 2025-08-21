@@ -14,9 +14,9 @@ export const activityLog = pgTable('activity_log', {
   actions: ActivityLogActionEnum().notNull(),
   secretContext: jsonb().notNull(),
   context: jsonb().notNull(),
-  clientFingerprintId: uuid('client-fingerprint-id').references(
-    () => clientFingerprint.id,
-  ),
+  clientFingerprintId: uuid('client-fingerprint-id')
+    .references(() => clientFingerprint.id)
+    .notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
