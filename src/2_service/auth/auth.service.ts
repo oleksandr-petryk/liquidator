@@ -456,18 +456,18 @@ export class AuthService {
    * 5. Send email about password change
    */
   async passwordChange({
-    userId,
+    id,
     jti,
     oldPassword,
     newPassword,
   }: {
-    userId: string;
+    id: string;
     jti: string;
     oldPassword: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
     // 1. Get user
-    const user = await this.userDao.findById({ id: userId });
+    const user = await this.userDao.findById({ id });
 
     // 2. Check password
     const passwordCheck = await bcrypt.compare(oldPassword, user.password);

@@ -262,8 +262,7 @@ export class AuthController {
     );
 
     return await this.authService.passwordChange({
-      userId: user.id,
-      jti: user.jti,
+      ...user,
       ...data,
     });
   }
