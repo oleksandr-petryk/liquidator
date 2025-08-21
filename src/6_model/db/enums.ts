@@ -21,7 +21,7 @@ export const RoleEnum = pgEnum('user_roles', [
   Role.Owner,
 ]);
 
-export const ActivityLogActionEnum = pgEnum('activity-log-action', [
+export const ActivityLogActionEnum = pgEnum('activity_log_action', [
   ActivityLogAction.Registration,
   ActivityLogAction.Login,
   ActivityLogAction.LoginFailedWithInvalidPassword,
