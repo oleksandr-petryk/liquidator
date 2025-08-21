@@ -1,6 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TokenExpiredError } from '@nestjs/jwt';
+import { NotBeforeError, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
@@ -574,6 +578,8 @@ export class AuthService {
       verifiedRefreshToken =
         this.jwtInternalService.verifyRefreshToken(refreshToken);
     } catch (error) {
+      let message = 'Invalid refresh token';
+
       if (error instanceof TokenExpiredError) {
         const decoded =
           this.jwtInternalService.decodeRefreshToken(refreshToken);
@@ -584,9 +590,12 @@ export class AuthService {
             clientFingerprintId: fingerprint.id,
           },
         );
+        message = 'Refresh token expired';
+      } else if (error instanceof NotBeforeError) {
+        message = 'Refresh token not active yet';
       }
 
-      throw error;
+      throw new UnauthorizedException(message);
     }
 
     // 2. Check if refresh token valid
