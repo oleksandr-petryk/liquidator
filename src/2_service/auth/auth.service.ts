@@ -152,8 +152,12 @@ export class AuthService {
   ): Promise<JwtTokensPair> {
     const emailLowerCase = data.email.toLowerCase();
 
-    // 1. Check if user exist
-    const user = await this.userService.getByEmail({ email: emailLowerCase });
+    // 1. Check if user exists
+    const user = await this.userDao.findByEmail({ email: emailLowerCase });
+    if (!user) {
+      this.logger.debug(`User not found, email ${data.email}`);
+      throw new BadRequestException('User not exists or password is wrong');
+    }
 
     // 2. Check if password is correct
     const passwordCheck = await bcrypt.compare(data.password, user.password);
