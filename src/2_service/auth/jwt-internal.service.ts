@@ -110,6 +110,16 @@ export class JwtInternalService {
    * Verify refresh token
    *
    * @param token JWT
+   * @returns not verified decoded token
+   */
+  decodeRefreshToken(token: string): JwtTokenPayload | never {
+    return this.jwtService.decode(token);
+  }
+
+  /**
+   * Verify refresh token
+   *
+   * @param token JWT
    * @returns verified and decoded token
    */
   verifyRefreshToken(token: string): JwtTokenPayload | never {
