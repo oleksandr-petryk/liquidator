@@ -595,11 +595,6 @@ export class AuthService {
         key: `refreshed-${verifiedRefreshToken.jti}`,
       })
     ) {
-      await this.activityLogService.createLog_RefreshFailedWithOldRefreshToken({
-        userId: verifiedRefreshToken.id,
-        clientFingerprintId: fingerprint.id,
-      });
-
       throw new BadRequestException();
     }
 
