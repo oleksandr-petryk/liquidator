@@ -51,21 +51,19 @@ export class AccountVerificationService {
   }: {
     userId: string;
     code?: string;
-    jti?: string;
+    jti: string;
   }): Promise<void> {
     const accountVerificationRecord = await this.getByUserId(userId);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
-      if (jti) {
-        const sessionRecord = await this.sessionService.getByJti(jti);
+      const sessionRecord = await this.sessionService.getByJti(jti);
 
-        await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
-          {
-            userId,
-            clientFingerprintId: sessionRecord.clientFingerprintId,
-          },
-        );
-      }
+      await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
+        {
+          userId,
+          clientFingerprintId: sessionRecord.clientFingerprintId,
+        },
+      );
 
       throw new UnauthorizedException('Code wrong');
     }
@@ -96,6 +94,13 @@ export class AccountVerificationService {
     await this.userDao.update({
       data: { verified: true },
       id: userId,
+    });
+
+    const sessionRecord = await this.sessionService.getByJti(jti);
+
+    await this.activityLogService.createLog_AccountVerification({
+      userId,
+      clientFingerprintId: sessionRecord.clientFingerprintId,
     });
   }
 

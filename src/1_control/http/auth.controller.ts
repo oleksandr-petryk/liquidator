@@ -211,7 +211,7 @@ export class AuthController {
       `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
     );
 
-    await this.authService.sendVerificationEmail(user.id);
+    await this.authService.sendVerificationEmail(user);
 
     return { message: 'Verification email sent successfully' };
   }

@@ -321,13 +321,6 @@ export class AuthService {
       code,
       jti,
     });
-
-    const sessionRecord = await this.sessionService.getByJti(jti);
-
-    await this.activityLogService.createLog_AccountVerification({
-      userId,
-      clientFingerprintId: sessionRecord.clientFingerprintId,
-    });
   }
 
   /**
@@ -338,12 +331,18 @@ export class AuthService {
    * 2. Get user by id
    * 3. Create account verification record in DB and send verification email
    */
-  async sendVerificationEmail(userId: string): Promise<void> {
+  async sendVerificationEmail({
+    id,
+    jti,
+  }: {
+    id: string;
+    jti: string;
+  }): Promise<void> {
     // 1. Check is account can verify
-    await this.accountVerificationService.canVerifyAccount({ userId });
+    await this.accountVerificationService.canVerifyAccount({ userId: id, jti });
 
     // 2. Get user by id
-    const user = await this.userService.getById({ id: userId });
+    const user = await this.userService.getById({ id });
 
     // 3. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
