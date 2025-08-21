@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
+  and,
   count,
   desc,
   eq,
@@ -72,15 +73,22 @@ export class SessionDao extends BaseDao<typeof session> {
       .limit(1);
   }
 
-  async findByRefreshTokenHash({
+  async findByUserIdAndRefreshTokenHash({
+    userId,
     refreshTokenHash,
   }: {
+    userId: string;
     refreshTokenHash: string;
   }): Promise<SessionSelectModel> {
     const [sessionRecord] = await this.postgresDatabase
       .select()
       .from(session)
-      .where(eq(session.refreshTokenHash, refreshTokenHash))
+      .where(
+        and(
+          eq(session.userId, userId),
+          eq(session.refreshTokenHash, refreshTokenHash),
+        ),
+      )
       .orderBy(desc(session.createdAt))
       .limit(1);
 

@@ -495,6 +495,7 @@ export class AuthService {
 
     // 6. Update refresh token in session
     await this.sessionService.updateSessionToken({
+      userId: verifiedRefreshToken.id,
       oldRefreshToken: refreshToken,
       refreshToken: pairTokens.refreshToken,
       jti,

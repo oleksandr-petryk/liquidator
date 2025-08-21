@@ -52,10 +52,12 @@ export class SessionService {
   }
 
   public async updateSessionToken({
+    userId,
     oldRefreshToken,
     refreshToken,
     jti,
   }: {
+    userId: string;
     oldRefreshToken: string;
     refreshToken: string;
     jti: string;
@@ -65,7 +67,8 @@ export class SessionService {
       .update(oldRefreshToken)
       .digest('hex');
 
-    const sessionId = await this.sessionDao.findByRefreshTokenHash({
+    const sessionId = await this.sessionDao.findByUserIdAndRefreshTokenHash({
+      userId,
       refreshTokenHash: oldRefreshTokenHash,
     });
 
