@@ -122,7 +122,7 @@ describe('Auth Tests', () => {
       } catch (e: any) {
         expect(e?.response?.status).toBe(400);
         expect(e?.response?.data?.message).toBe(
-          'User not found, email: a@mail.com',
+          'User not exists or password is wrong',
         );
       }
     });
