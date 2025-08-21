@@ -51,16 +51,16 @@ export class SessionService {
     });
   }
 
-  public async getSessionByUserIdAndRefreshToken({
+  public async getSessionByUserIdAndRefreshTokenHash({
     userId,
-    oldRefreshTokenHash,
+    refreshTokenHash,
   }: {
     userId: string;
-    oldRefreshTokenHash: string;
+    refreshTokenHash: string;
   }): Promise<SessionSelectModel> {
     const result = await this.sessionDao.findByUserIdAndRefreshTokenHash({
       userId,
-      refreshTokenHash: oldRefreshTokenHash,
+      refreshTokenHash,
     });
 
     return nonNullableUtils(
@@ -85,9 +85,9 @@ export class SessionService {
       .update(oldRefreshToken)
       .digest('hex');
 
-    const sessionId = await this.getSessionByUserIdAndRefreshToken({
+    const sessionId = await this.getSessionByUserIdAndRefreshTokenHash({
       userId,
-      oldRefreshTokenHash,
+      refreshTokenHash: oldRefreshTokenHash,
     });
 
     const refreshTokenHash = crypto
