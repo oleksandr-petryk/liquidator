@@ -72,6 +72,21 @@ export class SessionDao extends BaseDao<typeof session> {
       .limit(1);
   }
 
+  async findByRefreshTokenHash({
+    refreshTokenHash,
+  }: {
+    refreshTokenHash: string;
+  }): Promise<SessionSelectModel> {
+    const [sessionRecord] = await this.postgresDatabase
+      .select()
+      .from(session)
+      .where(eq(session.refreshTokenHash, refreshTokenHash))
+      .orderBy(desc(session.createdAt))
+      .limit(1);
+
+    return sessionRecord;
+  }
+
   async countByUserId({ userId }: { userId: string }): Promise<number> {
     const result = await this.postgresDatabase
       .select({ count: count(session.userId) })

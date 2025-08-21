@@ -52,26 +52,31 @@ export class SessionService {
   }
 
   public async updateSessionToken({
-    userId,
+    oldRefreshToken,
     refreshToken,
     jti,
   }: {
-    userId: string;
+    oldRefreshToken: string;
     refreshToken: string;
     jti: string;
   }): Promise<SessionSelectModel> {
+    const oldRefreshTokenHash = crypto
+      .createHash('sha256')
+      .update(oldRefreshToken)
+      .digest('hex');
+
+    const sessionId = await this.sessionDao.findByRefreshTokenHash({
+      refreshTokenHash: oldRefreshTokenHash,
+    });
+
     const refreshTokenHash = crypto
       .createHash('sha256')
       .update(refreshToken)
       .digest('hex');
 
-    const sessionId = await this.sessionDao.findByUserId({
-      userId: userId,
-    });
-
     return await this.sessionDao.updateSession({
       data: { refreshTokenHash, jti },
-      id: sessionId[0].id,
+      id: sessionId.id,
     });
   }
 }
