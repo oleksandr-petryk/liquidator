@@ -6,7 +6,6 @@ import {
   SessionSelectModel,
 } from '../../3_components/dao/session.dao';
 import { UserAgentAndIp } from '../../5_shared/decorators/user-agent-and-ip.decorator';
-import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { nonNullableUtils } from '../../5_shared/utils/db.util';
 
 @Injectable()
@@ -50,17 +49,6 @@ export class SessionService {
         jti,
       },
     });
-  }
-
-  public async getByJtiAndUserId(
-    user: JwtTokenPayload,
-  ): Promise<SessionSelectModel> {
-    const result = await this.sessionDao.findByJtiAndUserId({ user });
-
-    return nonNullableUtils(
-      result,
-      new BadRequestException('Session not found, jti: ' + user.jti),
-    );
   }
 
   public async getSessionByUserIdAndRefreshTokenHash({
