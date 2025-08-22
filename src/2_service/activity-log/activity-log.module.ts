@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { DaoModule } from '../../3_components/dao/dao.module';
-import { ActivityLogService } from './activity-log.service';
+import { ActivityLogService } from './activity-log-creation.service';
 
 @Module({
   imports: [DaoModule],

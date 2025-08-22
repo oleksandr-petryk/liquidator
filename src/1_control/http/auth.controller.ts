@@ -279,7 +279,7 @@ export class AuthController {
     );
 
     return await this.authService.passwordChange({
-      ...user,
+      user,
       ...data,
     });
   }

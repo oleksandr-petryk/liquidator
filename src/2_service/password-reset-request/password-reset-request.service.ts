@@ -10,7 +10,7 @@ import { HandlebarsService } from '../../3_components/handlebars/handlebars.serv
 import { MailService } from '../../3_components/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
-import { ActivityLogService } from '../activity-log/activity-log.service';
+import { ActivityLogService } from '../activity-log/activity-log-creation.service';
 
 @Injectable()
 export class PasswordResetRequestService {

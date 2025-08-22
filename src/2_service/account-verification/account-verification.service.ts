@@ -18,7 +18,7 @@ import {
   generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
-import { ActivityLogService } from '../activity-log/activity-log.service';
+import { ActivityLogService } from '../activity-log/activity-log-creation.service';
 import { SessionService } from '../session/session.service';
 
 @Injectable()
@@ -55,7 +55,7 @@ export class AccountVerificationService {
     const accountVerificationRecord = await this.getByUserId(user.id);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
-      const sessionRecord = await this.sessionService.getByJti(user.jti);
+      const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
 
       await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
         {
@@ -93,7 +93,7 @@ export class AccountVerificationService {
       id: user.id,
     });
 
-    const sessionRecord = await this.sessionService.getByJti(user.jti);
+    const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
 
     await this.activityLogService.createLog_AccountVerification({
       userId: user.id,

@@ -38,7 +38,7 @@ import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-nam
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
-import { ActivityLogService } from '../activity-log/activity-log.service';
+import { ActivityLogService } from '../activity-log/activity-log-creation.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -481,23 +481,24 @@ export class AuthService {
    * @returns PasswordResetResponseBodyDto
    */
   async passwordChange({
-    id,
-    jti,
+    user,
     oldPassword,
     newPassword,
   }: {
-    id: string;
-    jti: string;
+    user: JwtTokenPayload;
     oldPassword: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
     // 1. Get user
-    const user = await this.userDao.findById({ id });
+    const userRecord = await this.userDao.findById({ id: user.id });
 
     // 2. Check password
-    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
+    const passwordCheck = await bcrypt.compare(
+      oldPassword,
+      userRecord.password,
+    );
 
-    const sessionRecord = await this.sessionService.getByJti(jti);
+    const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
 
     if (!passwordCheck) {
       await this.activityLogService.createLog_ChangePasswordFailedWithWrongOldPassword(
@@ -523,20 +524,20 @@ export class AuthService {
 
     // 5. Send email
     await this.mailService.sendEmail({
-      to: user.email,
+      to: userRecord.email,
       subject: 'Password changed',
       html: await this.handlebarsService.render(
         TemplatesEnum.passwordChangedNotification,
         {
-          name: user.username,
-          email: user.email,
+          name: userRecord.username,
+          email: userRecord.email,
           year: new Date().getFullYear(),
         },
       ),
     });
 
     await this.activityLogService.createLog_ChangePassword({
-      userId: user.id,
+      userId: userRecord.id,
       clientFingerprintId: sessionRecord.clientFingerprintId,
     });
 
