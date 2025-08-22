@@ -12,6 +12,7 @@ import {
 import { UserDao } from '../../3_components/dao/user.dao';
 import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
 import { MailService } from '../../3_components/mail/mail.service';
+import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import {
   generate6DigitsCode,
@@ -45,22 +46,20 @@ export class AccountVerificationService {
   }
 
   public async canVerifyAccount({
-    userId,
+    user,
     code,
-    jti,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     code?: string;
-    jti: string;
   }): Promise<void> {
-    const accountVerificationRecord = await this.getByUserId(userId);
+    const accountVerificationRecord = await this.getByUserId(user.id);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
-      const sessionRecord = await this.sessionService.getByJti(jti);
+      const sessionRecord = await this.sessionService.getByJti(user.jti);
 
       await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
         {
-          userId,
+          userId: user.id,
           clientFingerprintId: sessionRecord.clientFingerprintId,
         },
       );
@@ -75,31 +74,29 @@ export class AccountVerificationService {
       throw new GoneException('The code has expired');
     }
 
-    if ((await this.userDao.findById({ id: userId }))?.verified === true) {
+    if ((await this.userDao.findById({ id: user.id }))?.verified === true) {
       throw new BadRequestException('User is already verified');
     }
   }
 
   public async verifyUserAccount({
-    userId,
+    user,
     code,
-    jti,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     code: string;
-    jti: string;
   }): Promise<void> {
-    await this.canVerifyAccount({ userId, code, jti });
+    await this.canVerifyAccount({ user, code });
 
     await this.userDao.update({
       data: { verified: true },
-      id: userId,
+      id: user.id,
     });
 
-    const sessionRecord = await this.sessionService.getByJti(jti);
+    const sessionRecord = await this.sessionService.getByJti(user.jti);
 
     await this.activityLogService.createLog_AccountVerification({
-      userId,
+      userId: user.id,
       clientFingerprintId: sessionRecord.clientFingerprintId,
     });
   }

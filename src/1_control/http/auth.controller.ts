@@ -29,7 +29,7 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../5_shared/interfaces/jwt-token.interface';
-import { SaveFingerprintPipe } from '../../5_shared/pipes/create-fingerprint.pipe';
+import { CreateFingerprintPipe } from '../../5_shared/pipes/create-fingerprint.pipe';
 import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
 import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
@@ -69,7 +69,7 @@ export class AuthController {
   })
   @Post('register')
   async register(
-    @GetUserAgentAndIp(SaveFingerprintPipe)
+    @GetUserAgentAndIp(CreateFingerprintPipe)
     fingerprint: ClientFingerprintSelectModel,
     @Body() dto: RegisterRequestBodyDto,
   ): Promise<void> {
@@ -200,9 +200,8 @@ export class AuthController {
     );
 
     await this.authService.accountVerification({
-      userId: user.id,
+      user,
       code: data.code,
-      jti: user.jti,
     });
 
     return { message: 'Account successfully verified' };
@@ -233,7 +232,7 @@ export class AuthController {
   @HttpCode(200)
   @Post('password-reset/send')
   async sendPasswordResetRequestEmail(
-    @GetUserAgentAndIp(SaveFingerprintPipe)
+    @GetUserAgentAndIp(CreateFingerprintPipe)
     fingerprint: ClientFingerprintSelectModel,
     @Body() data: SendPasswordResetEmailRequestBody,
   ): Promise<void> {
@@ -253,7 +252,7 @@ export class AuthController {
   @ApiAbstractResponse(PasswordResetResponseBodyDto)
   @Patch('password-reset')
   async passwordReset(
-    @GetUserAgentAndIp(SaveFingerprintPipe)
+    @GetUserAgentAndIp(CreateFingerprintPipe)
     fingerprint: ClientFingerprintSelectModel,
     @Body() data: PasswordResetRequestBody,
   ): Promise<PasswordResetResponseBodyDto | undefined> {
@@ -291,7 +290,7 @@ export class AuthController {
   @ApiAbstractResponse(RefreshTokenResponseBodyDto)
   @Post('refresh')
   async refreshTokens(
-    @GetUserAgentAndIp(SaveFingerprintPipe)
+    @GetUserAgentAndIp(CreateFingerprintPipe)
     fingerprint: ClientFingerprintSelectModel,
     @Body() data: RefreshTokenRequestBody,
   ): Promise<JwtTokensPair> {

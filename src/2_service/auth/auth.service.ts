@@ -325,18 +325,15 @@ export class AuthService {
    * 1. Check is account can verify and set user verified field to true
    */
   async accountVerification({
-    userId,
+    user,
     code,
-    jti,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     code: string;
-    jti: string;
   }): Promise<void> {
     await this.accountVerificationService.verifyUserAccount({
-      userId,
+      user,
       code,
-      jti,
     });
   }
 
@@ -348,24 +345,18 @@ export class AuthService {
    * 2. Get user by id
    * 3. Create account verification record in DB and send verification email
    */
-  async sendVerificationEmail({
-    id,
-    jti,
-  }: {
-    id: string;
-    jti: string;
-  }): Promise<void> {
+  async sendVerificationEmail(user: JwtTokenPayload): Promise<void> {
     // 1. Check is account can verify
-    await this.accountVerificationService.canVerifyAccount({ userId: id, jti });
+    await this.accountVerificationService.canVerifyAccount({ user });
 
     // 2. Get user by id
-    const user = await this.userService.getById({ id });
+    const userRecord = await this.userService.getById({ id: user.id });
 
     // 3. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
-      username: user.username,
-      email: user.email,
-      userId: user.id,
+      username: userRecord.username,
+      email: userRecord.email,
+      userId: userRecord.id,
     });
   }
 
