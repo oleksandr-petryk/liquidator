@@ -29,7 +29,7 @@ import {
   JwtTokenPayload,
   JwtTokensPair,
 } from '../../5_shared/interfaces/jwt-token.interface';
-import { SaveFingerprintPipe } from '../../5_shared/pipes/SaveFingerprintPipe.pipe';
+import { SaveFingerprintPipe } from '../../5_shared/pipes/create-fingerprint.pipe';
 import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
 import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
