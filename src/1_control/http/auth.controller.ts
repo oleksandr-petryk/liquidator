@@ -71,11 +71,11 @@ export class AuthController {
   async register(
     @GetUserAgentAndIp(CreateFingerprintPipe)
     fingerprint: ClientFingerprintSelectModel,
-    @Body() dto: RegisterRequestBodyDto,
+    @Body() data: RegisterRequestBodyDto,
   ): Promise<void> {
-    this.logger.info(`${this.register.name}, dto: ${JSON.stringify(dto)}`);
+    this.logger.info(`${this.register.name}, data: ${JSON.stringify(data)}`);
 
-    await this.authService.register({ fingerprint, data: dto });
+    await this.authService.register({ fingerprint, data });
   }
 
   @ApiOperation({
@@ -84,11 +84,11 @@ export class AuthController {
   @Post('log-in')
   async login(
     @GetUserAgentAndIp() agent: UserAgentAndIp,
-    @Body() dto: LoginRequestBodyDto,
+    @Body() data: LoginRequestBodyDto,
   ): Promise<LoginResponseBodyDto> {
-    this.logger.info(`${this.login.name}, dto: ${JSON.stringify(dto)}`);
+    this.logger.info(`${this.login.name}, data: ${JSON.stringify(data)}`);
 
-    const result = await this.authService.login(dto, agent);
+    const result = await this.authService.login(data, agent);
 
     return this.dtoMapper.mapJwtTokensPairDto(result);
   }
