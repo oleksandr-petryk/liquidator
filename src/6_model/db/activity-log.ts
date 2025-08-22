@@ -1,9 +1,10 @@
 import { relations } from 'drizzle-orm';
 import { jsonb, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 
+import { ActivityLogAction } from '../../5_shared/enums/db.enum';
 import { clientFingerprint } from './client-fingerprint';
 import { drizzlePrimaryKey } from './consts/primaryKey';
-import { ActivityLogActionEnum } from './enums';
+import { activityLogActionEnum } from './enums';
 import { user } from './user';
 
 export const activityLog = pgTable('activity_log', {
@@ -11,7 +12,7 @@ export const activityLog = pgTable('activity_log', {
   userId: uuid('user_id')
     .references(() => user.id)
     .notNull(),
-  action: ActivityLogActionEnum().notNull(),
+  action: activityLogActionEnum('action').$type<ActivityLogAction>().notNull(),
   secretContext: jsonb(),
   context: jsonb(),
   clientFingerprintId: uuid('client-fingerprint-id')

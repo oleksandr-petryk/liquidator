@@ -21,21 +21,7 @@ export const RoleEnum = pgEnum('user_roles', [
   Role.Owner,
 ]);
 
-export const ActivityLogActionEnum = pgEnum('activity_log_action', [
-  ActivityLogAction.Registration,
-  ActivityLogAction.Login,
-  ActivityLogAction.LoginFailedWithInvalidPassword,
-  ActivityLogAction.RefreshTokens,
-  ActivityLogAction.RefreshTokensFailedWithExpiredRefreshToken,
-  ActivityLogAction.RefreshFailedWithOldRefreshToken,
-  ActivityLogAction.AccountVerification,
-  ActivityLogAction.AccountVerificationFailedWithWrongCode,
-  ActivityLogAction.UpdateSessionName,
-  ActivityLogAction.DeleteSession,
-  ActivityLogAction.SendPasswordResetEmail,
-  ActivityLogAction.SendPasswordResetEmailFailedReachedLimit,
-  ActivityLogAction.ResetPassword,
-  ActivityLogAction.ResetPasswordFailedWithWrongCode,
-  ActivityLogAction.ChangePassword,
-  ActivityLogAction.ChangePasswordFailedWithWrongOldPassword,
-]);
+export const activityLogActionEnum = pgEnum(
+  'activity_log_action',
+  ActivityLogAction,
+);
