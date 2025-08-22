@@ -1,10 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NotBeforeError, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
-import { ClientFingerprintDao } from '../../3_components/dao/client-fingerprint.dao';
+import {
+  ClientFingerprintDao,
+  ClientFingerprintSelectModel,
+} from '../../3_components/dao/client-fingerprint.dao';
 import { PasswordResetRequestDao } from '../../3_components/dao/password-reset-request.dao';
 import {
   SessionDao,
@@ -30,6 +38,7 @@ import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-nam
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -52,6 +61,7 @@ export class AuthService {
     private readonly configService: ConfigService<EnvConfig>,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly activityLogCreationService: ActivityLogCreationService,
   ) {}
 
   /**
@@ -67,7 +77,13 @@ export class AuthService {
    *
    * @returns new user
    */
-  async register(data: RegisterRequestBodyDto): Promise<UserInsertModel> {
+  async register({
+    fingerprint,
+    data,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    data: RegisterRequestBodyDto;
+  }): Promise<UserInsertModel> {
     const emailLowerCase = data.email.toLowerCase();
     const usernameLowerCase = data.username.toLowerCase();
 
@@ -133,6 +149,11 @@ export class AuthService {
       userId: newUser.id,
     });
 
+    await this.activityLogCreationService.createLog_Registration({
+      userId: newUser.id,
+      clientFingerprintId: fingerprint.id,
+    });
+
     return newUser;
   }
 
@@ -141,9 +162,9 @@ export class AuthService {
    *
    * Logic:
    * 1. Check if a user exists
-   * 2. Check if a password is correct
-   * 3. Generate tokens
-   * 4. Create a client-fingerprint
+   * 2. Create a client-fingerprint
+   * 3. Check if a password is correct
+   * 4. Generate tokens
    * 5. Create a session
    */
   async login(
@@ -159,27 +180,34 @@ export class AuthService {
       throw new BadRequestException('User not exists or password is wrong');
     }
 
-    // 2. Check if password is correct
-    const passwordCheck = await bcrypt.compare(data.password, user.password);
-    if (!passwordCheck) {
-      this.logger.debug(`Wrong password, email ${data.email}`);
-      throw new BadRequestException('Incorrect password');
-    }
-
-    const jti = randomUUID();
-
-    // 3. Generate tokens
-    const tokensPair = this.jwtInternalService.generatePairTokens({
-      id: user.id,
-      jti,
-    });
-
-    // 4. Create client-fingerprint
+    // 2. Create client-fingerprint
     const clientFingerprint = await this.clientFingerprintDao.create({
       data: {
         ip: userAgentAndIp.ipAddress,
         userAgent: userAgentAndIp.userAgent,
       },
+    });
+
+    // 3. Check if password is correct
+    const passwordCheck = await bcrypt.compare(data.password, user.password);
+
+    if (!passwordCheck) {
+      this.logger.debug(`Wrong password, email ${data.email}`);
+      await this.activityLogCreationService.createLog_LoginFailedWithInvalidPassword(
+        {
+          userId: user.id,
+          clientFingerprintId: clientFingerprint.id,
+        },
+      );
+      throw new BadRequestException('User not exists or password is wrong');
+    }
+
+    const jti = randomUUID();
+
+    // 4. Generate tokens
+    const tokensPair = this.jwtInternalService.generatePairTokens({
+      id: user.id,
+      jti,
     });
 
     // 5. Create session
@@ -189,6 +217,11 @@ export class AuthService {
       clientFingerprintId: clientFingerprint.id,
       refreshToken: tokensPair.refreshToken,
       jti,
+    });
+
+    await this.activityLogCreationService.createLog_Login({
+      userId: user.id,
+      clientFingerprintId: clientFingerprint.id,
     });
 
     return tokensPair;
@@ -238,12 +271,19 @@ export class AuthService {
   async updateSession({
     id,
     name,
+    fingerprint,
   }: {
     id: string;
     name: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<SessionSelectModel> {
     // 1. Check if session exist
-    await this.sessionService.getById({ id });
+    const sessionRecord = await this.sessionService.getById({ id });
+
+    await this.activityLogCreationService.createLog_UpdateSessionName({
+      userId: sessionRecord.userId,
+      clientFingerprintId: fingerprint.id,
+    });
 
     // 2. Update session name
     return await this.sessionDao.updateSession({
@@ -262,7 +302,13 @@ export class AuthService {
    * 2. Save token in redis
    * 3. Delete session
    */
-  async deleteSession({ id }: { id: string }): Promise<void> {
+  async deleteSession({
+    id,
+    fingerprint,
+  }: {
+    id: string;
+    fingerprint: ClientFingerprintSelectModel;
+  }): Promise<void> {
     // 1. Get session if exist
     const session = await this.sessionService.getById({ id });
 
@@ -275,6 +321,11 @@ export class AuthService {
 
     // 3. Delete session
     await this.sessionDao.delete({ id: id });
+
+    await this.activityLogCreationService.createLog_DeleteSession({
+      userId: session.userId,
+      clientFingerprintId: fingerprint.id,
+    });
   }
 
   /**
@@ -284,13 +335,19 @@ export class AuthService {
    * 1. Check is account can verify and set user verified field to true
    */
   async accountVerification({
-    userId,
+    user,
     code,
+    fingerprint,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     code: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<void> {
-    await this.accountVerificationService.verifyUserAccount({ userId, code });
+    await this.accountVerificationService.verifyUserAccount({
+      user,
+      code,
+      fingerprint,
+    });
   }
 
   /**
@@ -301,18 +358,27 @@ export class AuthService {
    * 2. Get user by id
    * 3. Create account verification record in DB and send verification email
    */
-  async sendVerificationEmail(userId: string): Promise<void> {
+  async sendVerificationEmail({
+    user,
+    fingerprint,
+  }: {
+    user: JwtTokenPayload;
+    fingerprint: ClientFingerprintSelectModel;
+  }): Promise<void> {
     // 1. Check is account can verify
-    await this.accountVerificationService.canVerifyAccount({ userId });
+    await this.accountVerificationService.canVerifyAccount({
+      user,
+      fingerprint,
+    });
 
     // 2. Get user by id
-    const user = await this.userService.getById({ id: userId });
+    const userRecord = await this.userService.getById({ id: user.id });
 
     // 3. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
-      username: user.username,
-      email: user.email,
-      userId: user.id,
+      username: userRecord.username,
+      email: userRecord.email,
+      userId: userRecord.id,
     });
   }
 
@@ -325,7 +391,13 @@ export class AuthService {
    * 3. Check if user can send request
    * 4. Create password reset request record in DB and send password reset email
    */
-  async sendPasswordResetRequestEmail(email: string): Promise<void> {
+  async sendPasswordResetRequestEmail({
+    fingerprint,
+    email,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    email: string;
+  }): Promise<void> {
     // 1. Get user by email
     const user = await this.userDao.findByEmail({ email });
 
@@ -335,7 +407,12 @@ export class AuthService {
     }
 
     // 3. Check if user can send request
-    if (!(await this.passwordResetRequestService.canSendRequest(user.id))) {
+    if (
+      !(await this.passwordResetRequestService.canSendRequest({
+        fingerprint,
+        userId: user.id,
+      }))
+    ) {
       throw new BadRequestException();
     }
 
@@ -345,48 +422,69 @@ export class AuthService {
       email: user.email,
       userId: user.id,
     });
+
+    await this.activityLogCreationService.createLog_SendPasswordResetEmail({
+      userId: user.id,
+      clientFingerprintId: fingerprint.id,
+    });
   }
 
   /**
    * Password reset
    *
    * Logic:
-   * 1. Check if user can reset password, hash password and change password in db
+   * 1. Get user if exist
+   * 2. Check if user can reset password
+   * 3. Hash password
+   * 4. Change password in db
    */
   async passwordReset({
+    fingerprint,
     email,
     code,
     newPassword,
   }: {
+    fingerprint: ClientFingerprintSelectModel;
     email: string;
     code: string;
     newPassword: string;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
+    // 1. Get user if exist
     const user = await this.userDao.findByEmail({ email });
 
     if (!user) {
       throw new BadRequestException();
     }
 
+    // 2. Check if user can reset password
     const passwordResetRequestRecord =
       await this.passwordResetRequestDao.findByUserId({ userId: user.id });
 
     if (
       (await this.passwordResetRequestService.canResetPassword({
+        fingerprint,
         passwordResetRequestRecord,
         code,
+        userId: user.id,
       })) === false
     ) {
       throw new BadRequestException();
     }
 
+    // 3. Hash password
     const saltRounds = 10; // TODO: use different salt each time
 
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
+    // 4. Change password in db
     await this.userService.changePassword({
       newPassword: hashedPassword,
       userId: user.id,
+    });
+
+    await this.activityLogCreationService.createLog_ResetPassword({
+      userId: user.id,
+      clientFingerprintId: fingerprint.id,
     });
 
     return { message: 'Password successfully changed' };
@@ -405,30 +503,42 @@ export class AuthService {
    * @returns PasswordResetResponseBodyDto
    */
   async passwordChange({
-    userId,
+    user,
     oldPassword,
     newPassword,
+    fingerprint,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     oldPassword: string;
     newPassword: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
     // 1. Get user
-    const user = await this.userDao.findById({ id: userId });
+    const userRecord = await this.userDao.findById({ id: user.id });
 
-    const saltRounds = 10; // TODO: use different salt each time
+    // 2. Check password
+    const passwordCheck = await bcrypt.compare(
+      oldPassword,
+      userRecord.password,
+    );
 
-    // 2. Check old password
-
-    const passwordCheck = await bcrypt.compare(oldPassword, user.password);
     if (!passwordCheck) {
+      await this.activityLogCreationService.createLog_ChangePasswordFailedWithWrongOldPassword(
+        {
+          userId: user.id,
+          clientFingerprintId: fingerprint.id,
+        },
+      );
+
       throw new BadRequestException('Incorrect password');
     }
 
-    // 3. Hash new password
+    // 3. Hash password
+    const saltRounds = 10; // TODO: use different salt each time
+
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // 4. Change user password
+    // 4. Change password in db
     await this.userService.changePassword({
       newPassword: hashedPassword,
       userId: user.id,
@@ -436,16 +546,21 @@ export class AuthService {
 
     // 5. Send email
     await this.mailService.sendEmail({
-      to: user.email,
+      to: userRecord.email,
       subject: 'Password changed',
       html: await this.handlebarsService.render(
         TemplatesEnum.passwordChangedNotification,
         {
-          name: user.username,
-          email: user.email,
+          name: userRecord.username,
+          email: userRecord.email,
           year: new Date().getFullYear(),
         },
       ),
+    });
+
+    await this.activityLogCreationService.createLog_ChangePassword({
+      userId: userRecord.id,
+      clientFingerprintId: fingerprint.id,
     });
 
     return { message: 'Password successfully changed' };
@@ -463,10 +578,39 @@ export class AuthService {
    *
    * @returns JwtTokensPair
    */
-  public async refreshTokens(refreshToken: string): Promise<JwtTokensPair> {
+  public async refreshTokens({
+    fingerprint,
+    refreshToken,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    refreshToken: string;
+  }): Promise<JwtTokensPair> {
     // 1. Verified refresh token
-    const verifiedRefreshToken =
-      this.jwtInternalService.verifyRefreshToken(refreshToken);
+    let verifiedRefreshToken;
+
+    try {
+      verifiedRefreshToken =
+        this.jwtInternalService.verifyRefreshToken(refreshToken);
+    } catch (error) {
+      let message = 'Invalid refresh token';
+
+      if (error instanceof TokenExpiredError) {
+        const decoded =
+          this.jwtInternalService.decodeRefreshToken(refreshToken);
+
+        await this.activityLogCreationService.createLog_RefreshTokensFailedWithExpiredRefreshToken(
+          {
+            userId: decoded.id,
+            clientFingerprintId: fingerprint.id,
+          },
+        );
+        message = 'Refresh token expired';
+      } else if (error instanceof NotBeforeError) {
+        message = 'Refresh token not active yet';
+      }
+
+      throw new UnauthorizedException(message);
+    }
 
     // 2. Check if refresh token valid
     if (
@@ -499,6 +643,11 @@ export class AuthService {
       oldRefreshToken: refreshToken,
       refreshToken: pairTokens.refreshToken,
       jti,
+    });
+
+    await this.activityLogCreationService.createLog_RefreshTokens({
+      userId: verifiedRefreshToken.id,
+      clientFingerprintId: fingerprint.id,
     });
 
     return pairTokens;

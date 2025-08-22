@@ -1,6 +1,11 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 
-import { Gender, Role, Status } from '../../5_shared/enums/db.enum';
+import {
+  ActivityLogAction,
+  Gender,
+  Role,
+  Status,
+} from '../../5_shared/enums/db.enum';
 
 export const StatusEnum = pgEnum('publish_status', [
   Status.Published,
@@ -15,3 +20,8 @@ export const RoleEnum = pgEnum('user_roles', [
   Role.Admin,
   Role.Owner,
 ]);
+
+export const activityLogActionEnum = pgEnum(
+  'activity_log_action',
+  ActivityLogAction,
+);

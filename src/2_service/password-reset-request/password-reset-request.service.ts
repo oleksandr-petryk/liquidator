@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fingerprint.dao';
 import {
   PasswordResetRequestDao,
   PasswordResetRequestSelectModel,
@@ -9,6 +10,7 @@ import { HandlebarsService } from '../../3_components/handlebars/handlebars.serv
 import { MailService } from '../../3_components/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 
 @Injectable()
 export class PasswordResetRequestService {
@@ -16,16 +18,30 @@ export class PasswordResetRequestService {
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly activityLogCreationService: ActivityLogCreationService,
   ) {}
 
   public async canResetPassword({
+    fingerprint,
     passwordResetRequestRecord,
     code,
+    userId,
   }: {
+    fingerprint: ClientFingerprintSelectModel;
     passwordResetRequestRecord: Omit<PasswordResetRequestSelectModel, 'user'>;
     code: string;
+    userId?: string;
   }): Promise<boolean> {
     if (!(await bcrypt.compare(code, passwordResetRequestRecord.code))) {
+      if (userId) {
+        await this.activityLogCreationService.createLog_ResetPasswordFailedWithWrongCode(
+          {
+            userId,
+            clientFingerprintId: fingerprint.id,
+          },
+        );
+      }
+
       return false;
     }
 
@@ -36,13 +52,26 @@ export class PasswordResetRequestService {
     return true;
   }
 
-  public async canSendRequest(userId: string): Promise<boolean> {
+  public async canSendRequest({
+    fingerprint,
+    userId,
+  }: {
+    fingerprint: ClientFingerprintSelectModel;
+    userId: string;
+  }): Promise<boolean> {
     const records = await this.passwordResetRequestDao.findManyByUserId({
       userId,
     });
 
     if (records.length !== 0) {
       if (records.length >= 10) {
+        await this.activityLogCreationService.createLog_SendPasswordResetEmailFailedReachedLimit(
+          {
+            userId,
+            clientFingerprintId: fingerprint.id,
+          },
+        );
+
         return false;
       }
 

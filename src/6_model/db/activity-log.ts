@@ -1,0 +1,35 @@
+import { relations } from 'drizzle-orm';
+import { jsonb, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
+
+import { ActivityLogAction } from '../../5_shared/enums/db.enum';
+import { clientFingerprint } from './client-fingerprint';
+import { drizzlePrimaryKey } from './consts/primaryKey';
+import { activityLogActionEnum } from './enums';
+import { user } from './user';
+
+export const activityLog = pgTable('activity_log', {
+  ...drizzlePrimaryKey,
+  userId: uuid('user_id')
+    .references(() => user.id)
+    .notNull(),
+  action: activityLogActionEnum('action').$type<ActivityLogAction>().notNull(),
+  secretContext: jsonb(),
+  context: jsonb(),
+  clientFingerprintId: uuid('client-fingerprint-id')
+    .references(() => clientFingerprint.id)
+    .notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
+  user: one(user, {
+    fields: [activityLog.userId],
+    references: [user.id],
+  }),
+  clientFingerprint: one(clientFingerprint, {
+    fields: [activityLog.clientFingerprintId],
+    references: [clientFingerprint.id],
+  }),
+}));

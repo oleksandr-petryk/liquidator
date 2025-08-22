@@ -9,14 +9,18 @@ import {
   AccountVerificationDao,
   AccountVerificationSelectModel,
 } from '../../3_components/dao/account-verification.dao';
+import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fingerprint.dao';
 import { UserDao } from '../../3_components/dao/user.dao';
 import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
 import { MailService } from '../../3_components/mail/mail.service';
+import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import {
   generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
+import { SessionService } from '../session/session.service';
 
 @Injectable()
 export class AccountVerificationService {
@@ -25,6 +29,8 @@ export class AccountVerificationService {
     private readonly userDao: UserDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
+    private readonly activityLogCreationService: ActivityLogCreationService,
+    private readonly sessionService: SessionService,
   ) {}
 
   public async getByUserId(
@@ -41,15 +47,24 @@ export class AccountVerificationService {
   }
 
   public async canVerifyAccount({
-    userId,
+    user,
     code,
+    fingerprint,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     code?: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<void> {
-    const accountVerificationRecord = await this.getByUserId(userId);
+    const accountVerificationRecord = await this.getByUserId(user.id);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
+      await this.activityLogCreationService.createLog_AccountVerificationFailedWithWrongCode(
+        {
+          userId: user.id,
+          clientFingerprintId: fingerprint.id,
+        },
+      );
+
       throw new UnauthorizedException('Code wrong');
     }
 
@@ -60,23 +75,30 @@ export class AccountVerificationService {
       throw new GoneException('The code has expired');
     }
 
-    if ((await this.userDao.findById({ id: userId }))?.verified === true) {
+    if ((await this.userDao.findById({ id: user.id }))?.verified === true) {
       throw new BadRequestException('User is already verified');
     }
   }
 
   public async verifyUserAccount({
-    userId,
+    user,
     code,
+    fingerprint,
   }: {
-    userId: string;
+    user: JwtTokenPayload;
     code: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<void> {
-    await this.canVerifyAccount({ userId, code });
+    await this.canVerifyAccount({ user, code, fingerprint });
 
     await this.userDao.update({
       data: { verified: true },
-      id: userId,
+      id: user.id,
+    });
+
+    await this.activityLogCreationService.createLog_AccountVerification({
+      userId: user.id,
+      clientFingerprintId: fingerprint.id,
     });
   }
 

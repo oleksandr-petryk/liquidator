@@ -14,6 +14,7 @@ import {
 } from '../../4_low/drizzle/drizzle.module';
 import { Listable } from '../../5_shared/interfaces/abstract.interface';
 import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
+import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { session } from '../../6_model/db';
 import { BaseDao } from './base.dao';
 
@@ -139,5 +140,25 @@ export class SessionDao extends BaseDao<typeof session> {
       .returning();
 
     return updatedSession;
+  }
+
+  public async findByJtiAndUserId({
+    db = this.postgresDatabase,
+    user,
+  }: {
+    db?: Drizzle;
+    user: JwtTokenPayload;
+  }): Promise<SessionSelectModel | undefined> {
+    try {
+      const result = await db
+        .select()
+        .from(session)
+        .where(and(eq(session.jti, user.jti), eq(session.userId, user.id)));
+
+      return result[0];
+    } catch (error) {
+      this.logger.error(`An error occurred when trying to findByUsername`);
+      throw error;
+    }
   }
 }

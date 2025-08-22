@@ -7,6 +7,7 @@ import { HandlebarsService } from '../../3_components/handlebars/handlebars.serv
 import { MailService } from '../../3_components/mail/mail.service';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -17,6 +18,7 @@ import { JwtInternalService } from './jwt-internal.service';
   controllers: [AuthController],
   providers: [
     AuthService,
+    ActivityLogCreationService,
     JwtInternalService,
     AccountVerificationService,
     DtoMapper,
