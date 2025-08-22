@@ -10,7 +10,7 @@ import { HandlebarsService } from '../../3_components/handlebars/handlebars.serv
 import { MailService } from '../../3_components/mail/mail.service';
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { generate6DigitsCode } from '../../5_shared/utils/db.util';
-import { ActivityLogService } from '../activity-log/activity-log-creation.service';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 
 @Injectable()
 export class PasswordResetRequestService {
@@ -18,7 +18,7 @@ export class PasswordResetRequestService {
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
-    private readonly activityLogService: ActivityLogService,
+    private readonly activityLogCreationService: ActivityLogCreationService,
   ) {}
 
   public async canResetPassword({
@@ -34,7 +34,7 @@ export class PasswordResetRequestService {
   }): Promise<boolean> {
     if (!(await bcrypt.compare(code, passwordResetRequestRecord.code))) {
       if (userId) {
-        await this.activityLogService.createLog_ResetPasswordFailedWithWrongCode(
+        await this.activityLogCreationService.createLog_ResetPasswordFailedWithWrongCode(
           {
             userId,
             clientFingerprintId: fingerprint.id,
@@ -65,7 +65,7 @@ export class PasswordResetRequestService {
 
     if (records.length !== 0) {
       if (records.length >= 10) {
-        await this.activityLogService.createLog_SendPasswordResetEmailFailedReachedLimit(
+        await this.activityLogCreationService.createLog_SendPasswordResetEmailFailedReachedLimit(
           {
             userId,
             clientFingerprintId: fingerprint.id,

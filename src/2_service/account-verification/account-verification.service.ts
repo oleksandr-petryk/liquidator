@@ -18,7 +18,7 @@ import {
   generate6DigitsCode,
   nonNullableUtils,
 } from '../../5_shared/utils/db.util';
-import { ActivityLogService } from '../activity-log/activity-log-creation.service';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 import { SessionService } from '../session/session.service';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class AccountVerificationService {
     private readonly userDao: UserDao,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
-    private readonly activityLogService: ActivityLogService,
+    private readonly activityLogCreationService: ActivityLogCreationService,
     private readonly sessionService: SessionService,
   ) {}
 
@@ -57,7 +57,7 @@ export class AccountVerificationService {
     if (code !== undefined && accountVerificationRecord.code !== code) {
       const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
 
-      await this.activityLogService.createLog_AccountVerificationFailedWithWrongCode(
+      await this.activityLogCreationService.createLog_AccountVerificationFailedWithWrongCode(
         {
           userId: user.id,
           clientFingerprintId: sessionRecord.clientFingerprintId,
@@ -95,7 +95,7 @@ export class AccountVerificationService {
 
     const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
 
-    await this.activityLogService.createLog_AccountVerification({
+    await this.activityLogCreationService.createLog_AccountVerification({
       userId: user.id,
       clientFingerprintId: sessionRecord.clientFingerprintId,
     });

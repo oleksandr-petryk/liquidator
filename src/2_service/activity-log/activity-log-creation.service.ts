@@ -12,7 +12,7 @@ type CreateActivityLogDefaultOptions = Pick<
 >;
 
 @Injectable()
-export class ActivityLogService {
+export class ActivityLogCreationService {
   constructor(private readonly activityLogDao: ActivityLogDao) {}
 
   async createLog_Registration({

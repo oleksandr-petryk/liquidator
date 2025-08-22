@@ -38,7 +38,7 @@ import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-nam
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
-import { ActivityLogService } from '../activity-log/activity-log-creation.service';
+import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -61,7 +61,7 @@ export class AuthService {
     private readonly configService: ConfigService<EnvConfig>,
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
-    private readonly activityLogService: ActivityLogService,
+    private readonly activityLogCreationService: ActivityLogCreationService,
   ) {}
 
   /**
@@ -149,7 +149,7 @@ export class AuthService {
       userId: newUser.id,
     });
 
-    await this.activityLogService.createLog_Registration({
+    await this.activityLogCreationService.createLog_Registration({
       userId: newUser.id,
       clientFingerprintId: fingerprint.id,
     });
@@ -193,10 +193,12 @@ export class AuthService {
 
     if (!passwordCheck) {
       this.logger.debug(`Wrong password, email ${data.email}`);
-      await this.activityLogService.createLog_LoginFailedWithInvalidPassword({
-        userId: user.id,
-        clientFingerprintId: clientFingerprint.id,
-      });
+      await this.activityLogCreationService.createLog_LoginFailedWithInvalidPassword(
+        {
+          userId: user.id,
+          clientFingerprintId: clientFingerprint.id,
+        },
+      );
       throw new BadRequestException('User not exists or password is wrong');
     }
 
@@ -217,7 +219,7 @@ export class AuthService {
       jti,
     });
 
-    await this.activityLogService.createLog_Login({
+    await this.activityLogCreationService.createLog_Login({
       userId: user.id,
       clientFingerprintId: clientFingerprint.id,
     });
@@ -276,7 +278,7 @@ export class AuthService {
     // 1. Check if session exist
     const sessionRecord = await this.sessionService.getById({ id });
 
-    await this.activityLogService.createLog_UpdateSessionName({
+    await this.activityLogCreationService.createLog_UpdateSessionName({
       userId: sessionRecord.userId,
       clientFingerprintId: sessionRecord.clientFingerprintId,
     });
@@ -312,7 +314,7 @@ export class AuthService {
     // 3. Delete session
     await this.sessionDao.delete({ id: id });
 
-    await this.activityLogService.createLog_DeleteSession({
+    await this.activityLogCreationService.createLog_DeleteSession({
       userId: session.userId,
       clientFingerprintId: session.clientFingerprintId,
     });
@@ -401,7 +403,7 @@ export class AuthService {
       userId: user.id,
     });
 
-    await this.activityLogService.createLog_SendPasswordResetEmail({
+    await this.activityLogCreationService.createLog_SendPasswordResetEmail({
       userId: user.id,
       clientFingerprintId: fingerprint.id,
     });
@@ -460,7 +462,7 @@ export class AuthService {
       userId: user.id,
     });
 
-    await this.activityLogService.createLog_ResetPassword({
+    await this.activityLogCreationService.createLog_ResetPassword({
       userId: user.id,
       clientFingerprintId: fingerprint.id,
     });
@@ -501,7 +503,7 @@ export class AuthService {
     const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
 
     if (!passwordCheck) {
-      await this.activityLogService.createLog_ChangePasswordFailedWithWrongOldPassword(
+      await this.activityLogCreationService.createLog_ChangePasswordFailedWithWrongOldPassword(
         {
           userId: user.id,
           clientFingerprintId: sessionRecord.clientFingerprintId,
@@ -536,7 +538,7 @@ export class AuthService {
       ),
     });
 
-    await this.activityLogService.createLog_ChangePassword({
+    await this.activityLogCreationService.createLog_ChangePassword({
       userId: userRecord.id,
       clientFingerprintId: sessionRecord.clientFingerprintId,
     });
@@ -576,7 +578,7 @@ export class AuthService {
         const decoded =
           this.jwtInternalService.decodeRefreshToken(refreshToken);
 
-        await this.activityLogService.createLog_RefreshTokensFailedWithExpiredRefreshToken(
+        await this.activityLogCreationService.createLog_RefreshTokensFailedWithExpiredRefreshToken(
           {
             userId: decoded.id,
             clientFingerprintId: fingerprint.id,
@@ -623,7 +625,7 @@ export class AuthService {
       jti,
     });
 
-    await this.activityLogService.createLog_RefreshTokens({
+    await this.activityLogCreationService.createLog_RefreshTokens({
       userId: verifiedRefreshToken.id,
       clientFingerprintId: fingerprint.id,
     });
