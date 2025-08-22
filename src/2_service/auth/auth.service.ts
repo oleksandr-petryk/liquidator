@@ -271,16 +271,18 @@ export class AuthService {
   async updateSession({
     id,
     name,
+    fingerprint,
   }: {
     id: string;
     name: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<SessionSelectModel> {
     // 1. Check if session exist
     const sessionRecord = await this.sessionService.getById({ id });
 
     await this.activityLogCreationService.createLog_UpdateSessionName({
       userId: sessionRecord.userId,
-      clientFingerprintId: sessionRecord.clientFingerprintId,
+      clientFingerprintId: fingerprint.id,
     });
 
     // 2. Update session name
@@ -300,7 +302,13 @@ export class AuthService {
    * 2. Save token in redis
    * 3. Delete session
    */
-  async deleteSession({ id }: { id: string }): Promise<void> {
+  async deleteSession({
+    id,
+    fingerprint,
+  }: {
+    id: string;
+    fingerprint: ClientFingerprintSelectModel;
+  }): Promise<void> {
     // 1. Get session if exist
     const session = await this.sessionService.getById({ id });
 
@@ -316,7 +324,7 @@ export class AuthService {
 
     await this.activityLogCreationService.createLog_DeleteSession({
       userId: session.userId,
-      clientFingerprintId: session.clientFingerprintId,
+      clientFingerprintId: fingerprint.id,
     });
   }
 
@@ -329,13 +337,16 @@ export class AuthService {
   async accountVerification({
     user,
     code,
+    fingerprint,
   }: {
     user: JwtTokenPayload;
     code: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<void> {
     await this.accountVerificationService.verifyUserAccount({
       user,
       code,
+      fingerprint,
     });
   }
 
@@ -347,9 +358,18 @@ export class AuthService {
    * 2. Get user by id
    * 3. Create account verification record in DB and send verification email
    */
-  async sendVerificationEmail(user: JwtTokenPayload): Promise<void> {
+  async sendVerificationEmail({
+    user,
+    fingerprint,
+  }: {
+    user: JwtTokenPayload;
+    fingerprint: ClientFingerprintSelectModel;
+  }): Promise<void> {
     // 1. Check is account can verify
-    await this.accountVerificationService.canVerifyAccount({ user });
+    await this.accountVerificationService.canVerifyAccount({
+      user,
+      fingerprint,
+    });
 
     // 2. Get user by id
     const userRecord = await this.userService.getById({ id: user.id });
@@ -486,10 +506,12 @@ export class AuthService {
     user,
     oldPassword,
     newPassword,
+    fingerprint,
   }: {
     user: JwtTokenPayload;
     oldPassword: string;
     newPassword: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<PasswordResetResponseBodyDto | undefined> {
     // 1. Get user
     const userRecord = await this.userDao.findById({ id: user.id });
@@ -500,13 +522,11 @@ export class AuthService {
       userRecord.password,
     );
 
-    const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
-
     if (!passwordCheck) {
       await this.activityLogCreationService.createLog_ChangePasswordFailedWithWrongOldPassword(
         {
           userId: user.id,
-          clientFingerprintId: sessionRecord.clientFingerprintId,
+          clientFingerprintId: fingerprint.id,
         },
       );
 
@@ -540,7 +560,7 @@ export class AuthService {
 
     await this.activityLogCreationService.createLog_ChangePassword({
       userId: userRecord.id,
-      clientFingerprintId: sessionRecord.clientFingerprintId,
+      clientFingerprintId: fingerprint.id,
     });
 
     return { message: 'Password successfully changed' };

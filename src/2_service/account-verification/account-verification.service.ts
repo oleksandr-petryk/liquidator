@@ -9,6 +9,7 @@ import {
   AccountVerificationDao,
   AccountVerificationSelectModel,
 } from '../../3_components/dao/account-verification.dao';
+import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fingerprint.dao';
 import { UserDao } from '../../3_components/dao/user.dao';
 import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
 import { MailService } from '../../3_components/mail/mail.service';
@@ -48,19 +49,19 @@ export class AccountVerificationService {
   public async canVerifyAccount({
     user,
     code,
+    fingerprint,
   }: {
     user: JwtTokenPayload;
     code?: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<void> {
     const accountVerificationRecord = await this.getByUserId(user.id);
 
     if (code !== undefined && accountVerificationRecord.code !== code) {
-      const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
-
       await this.activityLogCreationService.createLog_AccountVerificationFailedWithWrongCode(
         {
           userId: user.id,
-          clientFingerprintId: sessionRecord.clientFingerprintId,
+          clientFingerprintId: fingerprint.id,
         },
       );
 
@@ -82,22 +83,22 @@ export class AccountVerificationService {
   public async verifyUserAccount({
     user,
     code,
+    fingerprint,
   }: {
     user: JwtTokenPayload;
     code: string;
+    fingerprint: ClientFingerprintSelectModel;
   }): Promise<void> {
-    await this.canVerifyAccount({ user, code });
+    await this.canVerifyAccount({ user, code, fingerprint });
 
     await this.userDao.update({
       data: { verified: true },
       id: user.id,
     });
 
-    const sessionRecord = await this.sessionService.getByJtiAndUserId(user);
-
     await this.activityLogCreationService.createLog_AccountVerification({
       userId: user.id,
-      clientFingerprintId: sessionRecord.clientFingerprintId,
+      clientFingerprintId: fingerprint.id,
     });
   }
 

@@ -152,6 +152,8 @@ export class AuthController {
   @ApiAbstractResponse(SessionDto)
   @Patch('sessions/:sessionId')
   async updateSession(
+    @GetUserAgentAndIp(CreateFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @Param('sessionId', ParseUUIDPipe) sessionId: string,
     @Body() data: UpdateSessionRequestBody,
   ): Promise<SessionDto> {
@@ -162,6 +164,7 @@ export class AuthController {
     const response = await this.authService.updateSession({
       id: sessionId,
       name: data.name,
+      fingerprint,
     });
 
     return this.dtoMapper.mapSessionDto(response);
@@ -175,13 +178,15 @@ export class AuthController {
   @ApiAbstractResponse(SessionDto)
   @Delete('sessions/:sessionId')
   async deleteSession(
+    @GetUserAgentAndIp(CreateFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @Param('sessionId', ParseUUIDPipe) sessionId: string,
   ): Promise<void> {
     this.logger.info(
       `${this.deleteSession.name}, session id: ${JSON.stringify(sessionId)}`,
     );
 
-    await this.authService.deleteSession({ id: sessionId });
+    await this.authService.deleteSession({ id: sessionId, fingerprint });
   }
 
   @ApiOperation({
@@ -192,6 +197,8 @@ export class AuthController {
   @ApiAbstractResponse(AccountVerificationResponseBodyDto)
   @Post('verify')
   async accountVerification(
+    @GetUserAgentAndIp(CreateFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @GetUserFromRequest() user: JwtTokenPayload,
     @Body() data: AccountVerificationRequestBody,
   ): Promise<AccountVerificationResponseBodyDto> {
@@ -202,6 +209,7 @@ export class AuthController {
     await this.authService.accountVerification({
       user,
       code: data.code,
+      fingerprint,
     });
 
     return { message: 'Account successfully verified' };
@@ -215,13 +223,15 @@ export class AuthController {
   @ApiAbstractResponse(SendVerificationEmailResponseBodyDto)
   @Post('verify/send')
   async sendVerificationEmail(
+    @GetUserAgentAndIp(CreateFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @GetUserFromRequest() user: JwtTokenPayload,
   ): Promise<SendVerificationEmailResponseBodyDto> {
     this.logger.info(
       `${this.sendVerificationEmail.name}, user: ${JSON.stringify(user)}`,
     );
 
-    await this.authService.sendVerificationEmail(user);
+    await this.authService.sendVerificationEmail({ user, fingerprint });
 
     return { message: 'Verification email sent successfully' };
   }
@@ -271,6 +281,8 @@ export class AuthController {
   @UseGuards(JwtAccessGuard)
   @Patch('password-change')
   async changePassword(
+    @GetUserAgentAndIp(CreateFingerprintPipe)
+    fingerprint: ClientFingerprintSelectModel,
     @GetUserFromRequest() user: JwtTokenPayload,
     @Body() data: PasswordChangeRequestBody,
   ): Promise<PasswordResetResponseBodyDto | undefined> {
@@ -281,6 +293,7 @@ export class AuthController {
     return await this.authService.passwordChange({
       user,
       ...data,
+      fingerprint,
     });
   }
 
