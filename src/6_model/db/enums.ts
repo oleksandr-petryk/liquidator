@@ -4,6 +4,7 @@ import {
   ActivityLogAction,
   Gender,
   Role,
+  SessionStatus,
   Status,
 } from '../../5_shared/enums/db.enum';
 
@@ -25,3 +26,9 @@ export const activityLogActionEnum = pgEnum(
   'activity_log_action',
   ActivityLogAction,
 );
+
+export const SessionStatusEnum = pgEnum('session-status', [
+  SessionStatus.Expired,
+  SessionStatus.Refreshed,
+  SessionStatus.Deleted,
+]);
