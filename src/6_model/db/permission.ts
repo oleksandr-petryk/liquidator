@@ -5,6 +5,6 @@ import { drizzleTimestamps } from './consts/timestamps';
 
 export const permission = pgTable('permission', {
   ...drizzlePrimaryKey,
-  action: varchar(),
+  action: varchar().notNull(),
   ...drizzleTimestamps,
 });

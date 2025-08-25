@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, primaryKey, uuid } from 'drizzle-orm/pg-core';
 
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
@@ -22,12 +22,7 @@ export const member = pgTable(
       .notNull(),
     ...drizzleTimestamps,
   },
-  (t) => ({
-    uniqueUserOrganization: uniqueIndex('unique_user_organization').on(
-      t.userId,
-      t.organizationId,
-    ),
-  }),
+  (t) => [primaryKey({ columns: [t.userId, t.organizationId] })],
 );
 
 export const memberRelations = relations(member, ({ one }) => ({
