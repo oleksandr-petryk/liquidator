@@ -4,12 +4,10 @@ import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 import { clientFingerprint } from './client-fingerprint';
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
-import { SessionStatusEnum } from './enums';
 import { user } from './user';
 
 export const session = pgTable('session', {
   ...drizzlePrimaryKey,
-  status: SessionStatusEnum(),
   jti: uuid('jti').notNull(),
   refreshTokenHash: varchar('refresh_token_hash', { length: 64 }).notNull(),
   userId: uuid('user_id')

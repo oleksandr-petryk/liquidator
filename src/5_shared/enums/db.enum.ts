@@ -33,9 +33,3 @@ export enum ActivityLogAction {
   ChangePassword = 'change_password',
   ChangePasswordFailedWithWrongOldPassword = 'change_password_failed_with_wrong_old_password',
 }
-
-export enum SessionStatus {
-  Expired = 'expired',
-  Refreshed = 'refreshed',
-  Deleted = 'deleted',
-}
