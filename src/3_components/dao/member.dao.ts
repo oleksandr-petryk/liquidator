@@ -29,7 +29,7 @@ export class MemberDao extends BaseDao<typeof member> {
     super(member, postgresDatabase, {
       entityName: {
         singular: 'member',
-        plural: 'member',
+        plural: 'members',
       },
     });
   }

@@ -22,7 +22,7 @@ export class PermissionDao extends BaseDao<typeof permission> {
     super(permission, postgresDatabase, {
       entityName: {
         singular: 'permission',
-        plural: 'permission',
+        plural: 'permissions',
       },
     });
   }

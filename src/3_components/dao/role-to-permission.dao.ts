@@ -31,7 +31,7 @@ export class RoleToPermissionDao extends BaseDao<typeof roleToPermission> {
     super(roleToPermission, postgresDatabase, {
       entityName: {
         singular: 'role-to-permission',
-        plural: 'role-to-permission',
+        plural: 'role-to-permissions',
       },
     });
   }

@@ -25,7 +25,7 @@ export class RoleDao extends BaseDao<typeof role> {
     super(role, postgresDatabase, {
       entityName: {
         singular: 'role',
-        plural: 'role',
+        plural: 'roles',
       },
     });
   }
