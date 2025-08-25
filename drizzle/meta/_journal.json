@@ -141,6 +141,13 @@
       "when": 1755814879231,
       "tag": "0019_volatile_mysterio",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1756119209430,
+      "tag": "0020_round_lord_tyger",
+      "breakpoints": true
     }
   ]
 }
