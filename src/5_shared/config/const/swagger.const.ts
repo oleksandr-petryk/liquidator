@@ -17,4 +17,7 @@ export const SWAGGER_TAGS = {
   user: {
     title: 'User',
   },
+  organization: {
+    title: 'organization',
+  },
 } satisfies SwaggerTags;

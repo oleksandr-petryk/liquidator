@@ -1,5 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import {
+  and,
+  desc,
+  eq,
+  type InferInsertModel,
+  type InferSelectModel,
+} from 'drizzle-orm';
 
 import {
   Drizzle,
@@ -32,5 +38,27 @@ export class MemberDao extends BaseDao<typeof member> {
         plural: 'members',
       },
     });
+  }
+
+  public async findByUserIdAndOrganizationId({
+    userId,
+    organizationId,
+  }: {
+    userId: string;
+    organizationId: string;
+  }): Promise<Omit<MemberSelectModel, 'user' | 'organization' | 'role'>> {
+    const [find] = await this.postgresDatabase
+      .select()
+      .from(member)
+      .where(
+        and(
+          eq(member.organizationId, organizationId),
+          eq(member.userId, userId),
+        ),
+      )
+      .orderBy(desc(member.createdAt))
+      .limit(1);
+
+    return find;
   }
 }

@@ -5,10 +5,8 @@ import { ClientFingerprintSelectModel } from '../../3_components/dao/client-fing
 import { MemberSelectModel } from '../../3_components/dao/member.dao';
 import { OrganizationSelectModel } from '../../3_components/dao/organization.dao';
 import { PasswordResetRequestSelectModel } from '../../3_components/dao/password-reset-request.dao';
-import { PermissionSelectModel } from '../../3_components/dao/permission.dao';
 import { PictureSelectModel } from '../../3_components/dao/pictures.dao';
 import { RoleSelectModel } from '../../3_components/dao/role.dao';
-import { RoleToPermissionSelectModel } from '../../3_components/dao/role-to-permission.dao';
 import { SessionSelectModel } from '../../3_components/dao/session.dao';
 import { TeamSelectModel } from '../../3_components/dao/team.dao';
 import { TeamToUserSelectModel } from '../../3_components/dao/team-to-user.dao';
@@ -20,10 +18,8 @@ import { JwtTokensPairDto } from './entities/jwt-token.dto';
 import { MemberDto } from './entities/member.dto';
 import { OrganizationDto } from './entities/organization.dto';
 import { PasswordResetRequestDto } from './entities/password-reset-request.dto';
-import { PermissionDto } from './entities/permission.dto';
 import { PictureDto } from './entities/picture.dto';
 import { RoleDto } from './entities/role.dto';
-import { RoleToPermissionDto } from './entities/role-to-permission.dto';
 import { SessionDto } from './entities/session.dto';
 import { TeamDto } from './entities/team.dto';
 import { TeamToUserDto } from './entities/team-to-user.dto';
@@ -170,32 +166,12 @@ export class DtoMapper {
     };
   }
 
-  public mapPermissionDto(data: PermissionSelectModel): PermissionDto {
-    return {
-      id: data.id,
-      action: data.action,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    };
-  }
-
   public mapRoleDto(data: RoleSelectModel): RoleDto {
     return {
       id: data.id,
       name: data.name,
       organizationId: data.organizationId,
       permissions: data.permissions,
-    };
-  }
-
-  public mapRoleToPermissionDto(
-    data: RoleToPermissionSelectModel,
-  ): RoleToPermissionDto {
-    return {
-      roleId: data.roleId,
-      permissionId: data.permissionId,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
     };
   }
 }
