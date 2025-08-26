@@ -39,6 +39,7 @@ import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.d
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
+import { OrganizationService } from '../organization/organization.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -62,6 +63,7 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
     private readonly activityLogCreationService: ActivityLogCreationService,
+    private readonly organizationService: OrganizationService,
   ) {}
 
   /**
@@ -146,6 +148,12 @@ export class AuthService {
     await this.accountVerificationService.sendRequest({
       username: newUser.username,
       email: newUser.email,
+      userId: newUser.id,
+    });
+
+    await this.organizationService.createOrganization({
+      name: newUser.username,
+      slug: newUser.username,
       userId: newUser.id,
     });
 
