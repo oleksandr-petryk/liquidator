@@ -1,17 +1,13 @@
-import { Inject, Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
 
 import {
   ClientFingerprintDao,
   ClientFingerprintSelectModel,
 } from '../../3_components/dao/client-fingerprint.dao';
-import { DRIZZLE_CONNECTION } from '../../4_low/drizzle/drizzle.module';
 
 @Injectable()
 export class CreateFingerprintPipe implements PipeTransform {
-  constructor(
-    @Inject(DRIZZLE_CONNECTION)
-    private readonly clientFingerprintDao: ClientFingerprintDao,
-  ) {}
+  constructor(private readonly clientFingerprintDao: ClientFingerprintDao) {}
 
   async transform(value: {
     userAgent?: string;
