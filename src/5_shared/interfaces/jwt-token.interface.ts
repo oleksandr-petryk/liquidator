@@ -11,6 +11,21 @@ export interface JwtTokenPayload {
    * Unique token ID
    */
   jti: string;
+
+  /**
+   * Organization ID
+   */
+  orgId?: string;
+
+  /**
+   * User roles
+   */
+  roles?: string[];
+
+  /**
+   * User permissions
+   */
+  permissions?: string[];
 }
 
 /**
