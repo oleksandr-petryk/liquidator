@@ -10,7 +10,7 @@ export const role = pgTable('role', {
     .references(() => organization.id)
     .notNull(),
   name: varchar({ length: 30 }).notNull(),
-  permissions: jsonb(),
+  permissions: jsonb().$type<{ action: string }>().notNull(),
 });
 
 export const roleRelations = relations(role, ({ one }) => ({

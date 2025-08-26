@@ -15,17 +15,17 @@ export interface JwtTokenPayload {
   /**
    * Organization ID
    */
-  orgId?: string;
+  orgId: string;
 
   /**
    * User roles
    */
-  roles?: string[];
+  roles: string[];
 
   /**
    * User permissions
    */
-  permissions?: string[];
+  permissions: string[];
 }
 
 /**

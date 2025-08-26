@@ -216,6 +216,9 @@ export class AuthService {
     const tokensPair = this.jwtInternalService.generatePairTokens({
       id: user.id,
       jti,
+      orgId: '', // todo
+      roles: [], // todo
+      permissions: [], // todo
     });
 
     // 5. Create session
@@ -640,9 +643,10 @@ export class AuthService {
     const jti = randomUUID();
 
     // 4. Generate tokens
-    const pairTokens = this.jwtInternalService.generatePairTokens({
-      id: verifiedRefreshToken.id,
-      jti: jti,
+    const pairTokens = await this.organizationService.generatePairTokens({
+      organizationId: verifiedRefreshToken.orgId,
+      userId: fingerprint.id,
+      jti,
     });
 
     // 5. Save tokens in redis

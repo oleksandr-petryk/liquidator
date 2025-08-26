@@ -22,12 +22,7 @@ export const member = pgTable(
       .notNull(),
     ...drizzleTimestamps,
   },
-  (t) => ({
-    uniqueUserOrganization: unique('unique_user_organization').on(
-      t.userId,
-      t.organizationId,
-    ),
-  }),
+  (t) => [unique('unique_user_organization').on(t.userId, t.organizationId)],
 );
 
 export const memberRelations = relations(member, ({ one }) => ({

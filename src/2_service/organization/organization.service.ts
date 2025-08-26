@@ -7,13 +7,14 @@ import {
   OrganizationSelectModel,
 } from '../../3_components/dao/organization.dao';
 import { RoleDao } from '../../3_components/dao/role.dao';
+import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
 import { JwtInternalService } from '../auth/jwt-internal.service';
 
 @Injectable()
 export class OrganizationService {
   constructor(
     protected readonly configService: ConfigService,
-    private readonly jwtInternalService: JwtInternalService,  
+    private readonly jwtInternalService: JwtInternalService,
     private readonly organizationDao: OrganizationDao,
     private readonly memberDao: MemberDao,
     private readonly roleDao: RoleDao,
@@ -33,7 +34,11 @@ export class OrganizationService {
     });
 
     const role = await this.roleDao.create({
-      data: { organizationId: newOrganization.id, name: 'owner' },
+      data: {
+        organizationId: newOrganization.id,
+        name: 'owner',
+        permissions: { action: 'any' },
+      },
     });
 
     await this.memberDao.create({
@@ -43,22 +48,32 @@ export class OrganizationService {
     return newOrganization;
   }
 
-  public async getOrganizationTokens({
+  public async generatePairTokens({
     organizationId,
     userId,
+    jti,
   }: {
     organizationId: string;
     userId: string;
-  }): Promise<Omit<OrganizationSelectModel, 'picture'>> {
-    const user = await this.memberDao.findByUserIdAndOrganizationId({
+    jti: string;
+  }): Promise<JwtTokensPair> {
+    const member = await this.memberDao.findByUserIdAndOrganizationId({
       organizationId,
       userId,
     });
 
-    const role = await this.roleDao.findById({
-      id: user.roleId,
+    const role = await this.roleDao.findManyById({
+      id: member.roleId,
     });
-    
-    const accessTokens = this.jwtInternalService.
+
+    const pairTokens = this.jwtInternalService.generatePairTokens({
+      jti,
+      id: userId,
+      orgId: organizationId,
+      roles: role.map((role) => role.name),
+      permissions: role.map((item) => item.permissions.action),
+    });
+
+    return pairTokens;
   }
 }
