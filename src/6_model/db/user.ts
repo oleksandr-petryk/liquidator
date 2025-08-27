@@ -13,6 +13,7 @@ import { accountVerification } from './account-verification';
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
 import { GenderEnum, StatusEnum } from './enums';
+import { organization } from './organization';
 import { passwordResetRequest } from './password-reset-request';
 import { picture } from './picture';
 import { teamToUser } from './team-to-user';
@@ -45,6 +46,9 @@ export const user = pgTable('user', {
   recoveryEmailAddress: varchar('recovery_email_address', {
     length: USER_PROPERTIES.email.maxLength,
   }),
+  lastOrganizationId: uuid('last_organization_id')
+    .references(() => organization.id)
+    .notNull(),
   ...drizzleTimestamps,
 });
 
@@ -52,6 +56,10 @@ export const userRelations = relations(user, ({ one, many }) => ({
   picture: one(picture, {
     fields: [user.pictureId],
     references: [picture.id],
+  }),
+  organization: one(organization, {
+    fields: [user.lastOrganizationId],
+    references: [organization.id],
   }),
   passwordResetRequest: many(passwordResetRequest),
   accountVerification: many(accountVerification),

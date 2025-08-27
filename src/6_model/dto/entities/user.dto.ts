@@ -124,6 +124,13 @@ export class UserDto
   picture!: PictureDto | null | undefined;
 
   @ApiProperty({
+    description: 'Last organization ID',
+    type: String,
+    example: randomUUID(),
+  })
+  lastOrganizationId!: string;
+
+  @ApiProperty({
     description: 'Date created',
     type: Date,
     example: new Date(),

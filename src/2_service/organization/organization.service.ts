@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { MemberDao } from '../../3_components/dao/member.dao';
+import {
+  MemberDao,
+  MemberSelectModel,
+} from '../../3_components/dao/member.dao';
 import {
   OrganizationDao,
   OrganizationSelectModel,
 } from '../../3_components/dao/organization.dao';
 import { RoleDao } from '../../3_components/dao/role.dao';
+import { Listable } from '../../5_shared/interfaces/abstract.interface';
+import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
 import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
+import { CreateOrganizationResponseBodyDto } from '../../6_model/dto/io/organization/response-body.dto';
 import { JwtInternalService } from '../auth/jwt-internal.service';
 
 @Injectable()
@@ -20,7 +26,7 @@ export class OrganizationService {
     private readonly roleDao: RoleDao,
   ) {}
 
-  public async createOrganization({
+  public async createOrganizationWithOwner({
     name,
     slug,
     userId,
@@ -28,7 +34,7 @@ export class OrganizationService {
     name: string;
     slug: string;
     userId: string;
-  }): Promise<Omit<OrganizationSelectModel, 'picture'>> {
+  }): Promise<CreateOrganizationResponseBodyDto> {
     const newOrganization = await this.organizationDao.create({
       data: { name, slug },
     });
@@ -46,6 +52,46 @@ export class OrganizationService {
     });
 
     return newOrganization;
+  }
+
+  public async getListOfUserOrganizations({
+    userId,
+    pagination,
+  }: {
+    userId: string;
+    pagination: DrizzlePagination;
+  }): Promise<Listable<Omit<MemberSelectModel, 'user' | 'role'>>> {
+    const organizationsList = await this.memberDao.listSessionsByUserId({
+      userId,
+      pagination,
+    });
+
+    return organizationsList;
+  }
+
+  public async createOrganizationWithoutOwner({
+    name,
+    slug,
+  }: {
+    name: string;
+    slug: string;
+  }): Promise<{
+    organization: Omit<OrganizationSelectModel, 'picture'>;
+    roleId: string;
+  }> {
+    const newOrganization = await this.organizationDao.create({
+      data: { name, slug },
+    });
+
+    const role = await this.roleDao.create({
+      data: {
+        organizationId: newOrganization.id,
+        name: 'owner',
+        permissions: { action: 'any' },
+      },
+    });
+
+    return { organization: newOrganization, roleId: role.id };
   }
 
   public async generatePairTokens({
@@ -66,7 +112,7 @@ export class OrganizationService {
       id: member.roleId,
     });
 
-    const pairTokens = this.jwtInternalService.generatePairTokens({
+    const tokensPair = this.jwtInternalService.generatePairTokens({
       jti,
       id: userId,
       orgId: organizationId,
@@ -74,6 +120,6 @@ export class OrganizationService {
       permissions: role.map((item) => item.permissions.action),
     });
 
-    return pairTokens;
+    return tokensPair;
   }
 }

@@ -13,7 +13,9 @@ import {
   ClientFingerprintDao,
   ClientFingerprintSelectModel,
 } from '../../3_components/dao/client-fingerprint.dao';
+import { MemberDao } from '../../3_components/dao/member.dao';
 import { PasswordResetRequestDao } from '../../3_components/dao/password-reset-request.dao';
+import { RoleDao } from '../../3_components/dao/role.dao';
 import {
   SessionDao,
   SessionSelectModel,
@@ -53,6 +55,8 @@ export class AuthService {
     private readonly sessionDao: SessionDao,
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly clientFingerprintDao: ClientFingerprintDao,
+    private readonly memberDao: MemberDao,
+    private readonly roleDao: RoleDao,
     private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
@@ -130,6 +134,13 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
+    // 5. Create user organization
+    const organizationAndRole =
+      await this.organizationService.createOrganizationWithoutOwner({
+        name: usernameLowerCase,
+        slug: usernameLowerCase,
+      });
+
     // 5. Create new user in DB
     const newUser = await this.userDao.create({
       data: {
@@ -141,6 +152,15 @@ export class AuthService {
         dateOfBirth: data.dateOfBirth,
         password: hashedPassword,
         gender: data.gender,
+        lastOrganizationId: organizationAndRole.organization.id,
+      },
+    });
+
+    await this.memberDao.create({
+      data: {
+        userId: newUser.id,
+        organizationId: organizationAndRole.organization.id,
+        roleId: organizationAndRole.roleId,
       },
     });
 
@@ -148,12 +168,6 @@ export class AuthService {
     await this.accountVerificationService.sendRequest({
       username: newUser.username,
       email: newUser.email,
-      userId: newUser.id,
-    });
-
-    await this.organizationService.createOrganization({
-      name: newUser.username,
-      slug: newUser.username,
       userId: newUser.id,
     });
 
@@ -213,13 +227,41 @@ export class AuthService {
     const jti = randomUUID();
 
     // 4. Generate tokens
-    const tokensPair = this.jwtInternalService.generatePairTokens({
-      id: user.id,
-      jti,
-      orgId: '', // todo
-      roles: [], // todo
-      permissions: [], // todo
-    });
+    let tokensPair; // maybe і move it somewhere
+    if (user.lastOrganizationId) {
+      const member = await this.memberDao.findByUserIdAndOrganizationId({
+        organizationId: user.lastOrganizationId,
+        userId: user.id,
+      });
+
+      const role = await this.roleDao.findManyById({
+        id: member.roleId,
+      });
+
+      tokensPair = this.jwtInternalService.generatePairTokens({
+        id: user.id,
+        jti,
+        orgId: user.lastOrganizationId,
+        roles: role.map((role) => role.name),
+        permissions: role.map((permission) => permission.permissions.action),
+      });
+    } else {
+      const member = await this.memberDao.findByUserId({
+        userId: user.id,
+      });
+
+      const role = await this.roleDao.findManyById({
+        id: member.roleId,
+      });
+
+      tokensPair = this.jwtInternalService.generatePairTokens({
+        id: user.id,
+        jti,
+        orgId: member.organizationId,
+        roles: role.map((role) => role.name),
+        permissions: role.map((permission) => permission.permissions.action),
+      });
+    }
 
     // 5. Create session
     await this.sessionService.createNewSession({

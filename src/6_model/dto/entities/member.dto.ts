@@ -2,10 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
 import { MemberSelectModel } from '../../../3_components/dao/member.dao';
+import { PageableDto } from './base.dto';
+import { OrganizationDto } from './organization.dto';
 
 export class MemberDto
-  implements
-    Record<keyof Omit<MemberSelectModel, 'user' | 'organization' | 'role'>, any>
+  implements Record<keyof Omit<MemberSelectModel, 'user' | 'role'>, any>
 {
   @ApiProperty({
     description: 'ID',
@@ -50,7 +51,16 @@ export class MemberDto
   })
   updatedAt!: Date | null;
 
+  @ApiProperty({
+    description: 'Organization',
+    type: OrganizationDto,
+    nullable: true,
+  })
+  organization!: OrganizationDto | null;
+
   constructor(props: MemberDto) {
     Object.assign(this, props);
   }
 }
+
+export class MemberPageableDto extends PageableDto(MemberDto) {}

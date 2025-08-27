@@ -43,6 +43,7 @@ export class DtoMapper {
       pictureId: data.pictureId,
       picture: data.picture,
       recoveryEmailAddress: data.recoveryEmailAddress,
+      lastOrganizationId: data.lastOrganizationId,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
@@ -163,6 +164,7 @@ export class DtoMapper {
       userId: data.userId,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
+      organization: data.organization,
     };
   }
 

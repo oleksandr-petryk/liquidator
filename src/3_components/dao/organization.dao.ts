@@ -11,7 +11,7 @@ import { PictureSelectModel } from './pictures.dao';
 
 export type OrganizationInsertModel = InferInsertModel<typeof organization>;
 export type OrganizationSelectModel = InferSelectModel<typeof organization> & {
-  picture: PictureSelectModel | null;
+  picture?: PictureSelectModel | null;
 };
 
 @Injectable()
