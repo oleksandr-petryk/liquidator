@@ -11,6 +11,7 @@ import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
 import { OrganizationService } from '../../2_service/organization/organization.service';
+import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
 import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
 import { GetUserFromRequest } from '../../5_shared/decorators/get-user-from-request.decorator';
@@ -28,7 +29,7 @@ import { CreateOrganizationRequestBodyDto } from '../../6_model/dto/io/organizat
 import { CreateOrganizationResponseBodyDto } from '../../6_model/dto/io/organization/response-body.dto';
 
 @ApiTags(SWAGGER_TAGS.organization.title)
-@Controller()
+@Controller(`${APP_DEFAULT_V1_PREFIX}/organization`)
 export class OrganizationController {
   constructor(
     private readonly logger: PinoLogger,
@@ -103,20 +104,17 @@ export class OrganizationController {
     });
   }
 
-  // @ApiOperation({
-  //   summary: 'Create organization',
-  // })
-  // @ApiAbstractResponse(CreateOrganizationResponseBodyDto)
-  // @ApiBasicAuth('Bearer')
-  // @UseGuards(JwtAccessGuard)
-  // @Post('create')
-  // async getOrganization(
-  //   @GetUserFromRequest() user: JwtTokenPayload,
-  //   @Body() data: CreateOrganizationRequestBodyDto,
-  // ): Promise<CreateOrganizationResponseBodyDto> {
-  //   return await this.organizationService.createOrganizationWithOwner({
-  //     userId: user.id,
-  //     ...data,
-  //   });
-  // }
+  //   @ApiOperation({
+  //     summary: 'Create new permission',
+  //   })
+  //   @ApiAbstractResponse()
+  //   @ApiBasicAuth('Bearer')
+  //   @UseGuards(JwtAccessGuard)
+  //   @Post('permission')
+  //   async createPermission(
+  //     @GetUserFromRequest() user: JwtTokenPayload,
+  //     @Body() data: null,
+  //   ): Promise<null> {
+  //     return await this.organizationService.createPermission({});
+  //   }
 }
