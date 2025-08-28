@@ -41,6 +41,7 @@ import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.d
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
+import { TransactionService } from '../database/database.service';
 import { OrganizationService } from '../organization/organization.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
@@ -68,6 +69,7 @@ export class AuthService {
     private readonly handlebarsService: HandlebarsService,
     private readonly activityLogCreationService: ActivityLogCreationService,
     private readonly organizationService: OrganizationService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   /**
@@ -150,10 +152,12 @@ export class AuthService {
     });
 
     // 6. Create user organization
-    const usetOrganization = await this.organizationService.createOrganization({
-      userId: newUser.id,
-      name: usernameLowerCase,
-      slug: usernameLowerCase,
+    this.transactionService.transaction(async () => {
+      return await this.organizationService.createOrganization({
+        userId: newUser.id,
+        name: usernameLowerCase,
+        slug: usernameLowerCase,
+      });
     });
 
     // 7. Create account verification record in DB and send verification email
