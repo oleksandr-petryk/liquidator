@@ -4,7 +4,6 @@ import { pgTable, unique, uuid } from 'drizzle-orm/pg-core';
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
 import { organization } from './organization';
-import { role } from './role';
 import { user } from './user';
 
 export const member = pgTable(
@@ -16,9 +15,6 @@ export const member = pgTable(
       .notNull(),
     organizationId: uuid('organization_id')
       .references(() => organization.id)
-      .notNull(),
-    roleId: uuid('role_id')
-      .references(() => role.id)
       .notNull(),
     ...drizzleTimestamps,
   },
@@ -33,9 +29,5 @@ export const memberRelations = relations(member, ({ one }) => ({
   organization: one(organization, {
     fields: [member.organizationId],
     references: [organization.id],
-  }),
-  role: one(role, {
-    fields: [member.roleId],
-    references: [role.id],
   }),
 }));

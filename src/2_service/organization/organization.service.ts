@@ -5,10 +5,7 @@ import {
   MemberDao,
   MemberSelectModel,
 } from '../../3_components/dao/member.dao';
-import {
-  OrganizationDao,
-  OrganizationSelectModel,
-} from '../../3_components/dao/organization.dao';
+import { OrganizationDao } from '../../3_components/dao/organization.dao';
 import { RoleDao } from '../../3_components/dao/role.dao';
 import { Listable } from '../../5_shared/interfaces/abstract.interface';
 import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
@@ -26,7 +23,7 @@ export class OrganizationService {
     private readonly roleDao: RoleDao,
   ) {}
 
-  public async createOrganizationWithOwner({
+  public async createOrganization({
     name,
     slug,
     userId,
@@ -67,31 +64,6 @@ export class OrganizationService {
     });
 
     return organizationsList;
-  }
-
-  public async createOrganizationWithoutOwner({
-    name,
-    slug,
-  }: {
-    name: string;
-    slug: string;
-  }): Promise<{
-    organization: Omit<OrganizationSelectModel, 'picture'>;
-    roleId: string;
-  }> {
-    const newOrganization = await this.organizationDao.create({
-      data: { name, slug },
-    });
-
-    const role = await this.roleDao.create({
-      data: {
-        organizationId: newOrganization.id,
-        name: 'owner',
-        permissions: { action: 'any' },
-      },
-    });
-
-    return { organization: newOrganization, roleId: role.id };
   }
 
   public async generatePairTokens({

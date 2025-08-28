@@ -15,7 +15,7 @@ export interface JwtTokenPayload {
   /**
    * Organization ID
    */
-  orgId: string;
+  orgId?: string;
 
   /**
    * User roles

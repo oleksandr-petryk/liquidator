@@ -79,7 +79,8 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
-   * 6. Create account verification record in DB and send verification email
+   * 6. Create user organization
+   * 7. Create account verification record in DB and send verification email
    *
    * @returns new user
    */
@@ -134,13 +135,6 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    // 5. Create user organization
-    const organizationAndRole =
-      await this.organizationService.createOrganizationWithoutOwner({
-        name: usernameLowerCase,
-        slug: usernameLowerCase,
-      });
-
     // 5. Create new user in DB
     const newUser = await this.userDao.create({
       data: {
@@ -152,19 +146,17 @@ export class AuthService {
         dateOfBirth: data.dateOfBirth,
         password: hashedPassword,
         gender: data.gender,
-        lastOrganizationId: organizationAndRole.organization.id,
       },
     });
 
-    await this.memberDao.create({
-      data: {
-        userId: newUser.id,
-        organizationId: organizationAndRole.organization.id,
-        roleId: organizationAndRole.roleId,
-      },
+    // 6. Create user organization
+    const usetOrganization = await this.organizationService.createOrganization({
+      userId: newUser.id,
+      name: usernameLowerCase,
+      slug: usernameLowerCase,
     });
 
-    // 6. Create account verification record in DB and send verification email
+    // 7. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
       username: newUser.username,
       email: newUser.email,
@@ -227,41 +219,21 @@ export class AuthService {
     const jti = randomUUID();
 
     // 4. Generate tokens
-    let tokensPair; // maybe і move it somewhere
-    if (user.lastOrganizationId) {
-      const member = await this.memberDao.findByUserIdAndOrganizationId({
-        organizationId: user.lastOrganizationId,
-        userId: user.id,
-      });
+    const member = await this.memberDao.findByUserId({
+      userId: user.id,
+    });
 
-      const role = await this.roleDao.findManyById({
-        id: member.roleId,
-      });
+    const role = await this.roleDao.findManyById({
+      id: member.roleId,
+    });
 
-      tokensPair = this.jwtInternalService.generatePairTokens({
-        id: user.id,
-        jti,
-        orgId: user.lastOrganizationId,
-        roles: role.map((role) => role.name),
-        permissions: role.map((permission) => permission.permissions.action),
-      });
-    } else {
-      const member = await this.memberDao.findByUserId({
-        userId: user.id,
-      });
-
-      const role = await this.roleDao.findManyById({
-        id: member.roleId,
-      });
-
-      tokensPair = this.jwtInternalService.generatePairTokens({
-        id: user.id,
-        jti,
-        orgId: member.organizationId,
-        roles: role.map((role) => role.name),
-        permissions: role.map((permission) => permission.permissions.action),
-      });
-    }
+    const tokensPair = this.jwtInternalService.generatePairTokens({
+      id: user.id,
+      jti,
+      orgId: member.organizationId,
+      roles: role.map((role) => role.name),
+      permissions: role.map((permission) => permission.permissions.action),
+    });
 
     // 5. Create session
     await this.sessionService.createNewSession({
