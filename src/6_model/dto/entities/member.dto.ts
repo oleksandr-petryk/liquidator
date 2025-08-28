@@ -37,6 +37,14 @@ export class MemberDto
   roleId!: string;
 
   @ApiProperty({
+    description: 'Current organization',
+    type: Boolean,
+    example: true,
+    default: false,
+  })
+  currentOrganization?: boolean;
+
+  @ApiProperty({
     description: 'Date created',
     type: Date,
     example: new Date(),

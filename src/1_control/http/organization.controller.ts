@@ -71,6 +71,12 @@ export class OrganizationController {
       items: result.items.map((i) => {
         const session = this.dtoMapper.mapMemberDto(i);
 
+        if (i.organizationId === user.orgId) {
+          session.currentOrganization = true;
+        } else {
+          session.currentOrganization = false;
+        }
+
         return session;
       }),
       count: result.count,
