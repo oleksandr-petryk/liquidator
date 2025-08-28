@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 
 import { MemberSelectModel } from '../../../3_components/dao/member.dao';
@@ -61,10 +61,10 @@ export class MemberDto
 
   @ApiProperty({
     description: 'Organization',
-    type: OrganizationDto,
+    type: OmitType(OrganizationDto, ['picture']),
     nullable: true,
   })
-  organization!: OrganizationDto | null;
+  organization!: Omit<OrganizationDto, 'picture'> | null;
 
   constructor(props: MemberDto) {
     Object.assign(this, props);

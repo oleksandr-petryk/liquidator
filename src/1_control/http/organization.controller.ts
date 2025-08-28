@@ -19,7 +19,10 @@ import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
 import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
-import { MemberPageableDto } from '../../6_model/dto/entities/member.dto';
+import {
+  MemberDto,
+  MemberPageableDto,
+} from '../../6_model/dto/entities/member.dto';
 import { LoginResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 import { CreateOrganizationRequestBodyDto } from '../../6_model/dto/io/organization/request-body.dto';
 import { CreateOrganizationResponseBodyDto } from '../../6_model/dto/io/organization/response-body.dto';
@@ -54,7 +57,7 @@ export class OrganizationController {
   @ApiOperation({
     summary: 'Get user organizations',
   })
-  @ApiAbstractResponse(MemberPageableDto)
+  @ApiAbstractResponse(MemberDto, { pageable: true })
   @ApiBasicAuth('Bearer')
   @UseGuards(JwtAccessGuard)
   @Get()
