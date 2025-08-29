@@ -159,16 +159,13 @@ export class DtoMapper {
     };
   }
 
-  public mapMemberDto(
-    data: MemberSelectModel & { currentOrganization?: boolean },
-  ): MemberDto {
+  public mapMemberDto(data: MemberSelectModel): MemberDto {
     return {
       id: data.id,
       organizationId: data.organizationId,
-      roleId: data.roleId,
       userId: data.userId,
-      currentOrganization: data.currentOrganization,
       createdAt: data.createdAt,
+      isDefault: data.isDefault,
       updatedAt: data.updatedAt,
       organization: data.organization,
     };

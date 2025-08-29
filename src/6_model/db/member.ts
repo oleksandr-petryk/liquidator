@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, unique, uuid } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, unique, uuid } from 'drizzle-orm/pg-core';
 
 import { drizzlePrimaryKey } from './consts/primaryKey';
 import { drizzleTimestamps } from './consts/timestamps';
@@ -17,6 +17,7 @@ export const member = pgTable(
       .references(() => organization.id)
       .notNull(),
     ...drizzleTimestamps,
+    isDefault: boolean('is_default').notNull(),
   },
   (t) => [unique('unique_user_organization').on(t.userId, t.organizationId)],
 );

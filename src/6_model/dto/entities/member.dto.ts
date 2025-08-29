@@ -30,19 +30,12 @@ export class MemberDto
   organizationId!: string;
 
   @ApiProperty({
-    description: 'Role ID',
-    type: String,
-    example: randomUUID(),
-  })
-  roleId!: string;
-
-  @ApiProperty({
-    description: 'Current organization',
+    description: 'Default user organization',
     type: Boolean,
     example: true,
     default: false,
   })
-  currentOrganization?: boolean;
+  isDefault!: boolean;
 
   @ApiProperty({
     description: 'Date created',

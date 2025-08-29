@@ -12,9 +12,8 @@ import {
   Drizzle,
   DRIZZLE_CONNECTION,
 } from '../../4_low/drizzle/drizzle.module';
-import { Listable } from '../../5_shared/interfaces/abstract.interface';
-import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
-import { member, organization } from '../../6_model/db';
+import { member, permission, role, roleToPermission } from '../../6_model/db';
+import { memberToRole } from '../../6_model/db/member-to-role';
 import { BaseDao } from './base.dao';
 import { OrganizationSelectModel } from './organization.dao';
 import { RoleSelectModel } from './role.dao';
@@ -74,65 +73,6 @@ export class MemberDao extends BaseDao<typeof member> {
     return result[0]?.count;
   }
 
-  public async findManyByUserId({
-    userId,
-    pagination,
-  }: {
-    userId: string;
-    pagination?: DrizzlePagination;
-  }): Promise<Omit<MemberSelectModel, 'user' | 'role'>[]> {
-    if (pagination) {
-      return await this.postgresDatabase
-        .select({
-          id: member.id,
-          userId: member.userId,
-          roleId: member.roleId,
-          organizationId: member.organizationId,
-          createdAt: member.createdAt,
-          updatedAt: member.updatedAt,
-          organization: organization,
-        })
-        .from(member)
-        .innerJoin(organization, eq(member.organizationId, organization.id))
-        .where(eq(member.userId, userId))
-        .offset(pagination.offset)
-        .limit(pagination.limit)
-        .orderBy(desc(member.createdAt));
-    }
-
-    return await this.postgresDatabase
-      .select({
-        id: member.id,
-        userId: member.userId,
-        roleId: member.roleId,
-        organizationId: member.organizationId,
-        createdAt: member.createdAt,
-        updatedAt: member.updatedAt,
-        organization: organization,
-      })
-      .from(member)
-      .innerJoin(organization, eq(member.organizationId, organization.id))
-      .where(eq(member.userId, userId));
-  }
-
-  async listSessionsByUserId({
-    userId,
-    pagination,
-  }: {
-    userId: string;
-    pagination: DrizzlePagination;
-  }): Promise<Listable<Omit<MemberSelectModel, 'user' | 'role'>>> {
-    const [items, count] = await Promise.all([
-      await this.findManyByUserId({ userId, pagination }),
-      await this.countByUserId({ userId }),
-    ]);
-
-    return {
-      items,
-      count,
-    };
-  }
-
   public async findByUserId({
     userId,
   }: {
@@ -146,5 +86,51 @@ export class MemberDao extends BaseDao<typeof member> {
       .limit(1);
 
     return find;
+  }
+
+  public async findDefaultByUserId({
+    userId,
+  }: {
+    userId: string;
+  }): Promise<Omit<MemberSelectModel, 'user' | 'organization' | 'role'>> {
+    const [find] = await this.postgresDatabase
+      .select()
+      .from(member)
+      .where(and(eq(member.userId, userId), eq(member.isDefault, true)))
+      .orderBy(desc(member.createdAt))
+      .limit(1);
+
+    return find;
+  }
+
+  public async findUserRolesAndPermissionsByUserAndOrganizationId({
+    userId,
+    orgId,
+  }: {
+    userId: string;
+    orgId: string;
+  }): Promise<
+    {
+      memberId: string;
+      roleId: string;
+      roleName: string;
+      permissionId: string;
+      permission: string;
+    }[]
+  > {
+    return await this.postgres
+      .select({
+        memberId: member.id,
+        roleId: role.id,
+        roleName: role.name,
+        permissionId: permission.id,
+        permission: permission.action,
+      })
+      .from(member)
+      .innerJoin(memberToRole, eq(member.id, memberToRole.memberId))
+      .innerJoin(role, eq(memberToRole.roleId, role.id))
+      .innerJoin(roleToPermission, eq(role.id, roleToPermission.roleId))
+      .innerJoin(permission, eq(roleToPermission.permissionId, permission.id))
+      .where(and(eq(member.userId, userId), eq(member.organizationId, orgId)));
   }
 }

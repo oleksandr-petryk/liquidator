@@ -6,6 +6,7 @@ import { DaoModule } from '../../3_components/dao/dao.module';
 import { HandlebarsService } from '../../3_components/handlebars/handlebars.service';
 import { MailService } from '../../3_components/mail/mail.service';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
+import { AccessService } from '../access/access.service';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 import { TransactionService } from '../database/database.service';
@@ -26,6 +27,7 @@ import { JwtInternalService } from './jwt-internal.service';
     JwtInternalService,
     AccountVerificationService,
     DtoMapper,
+    AccessService,
     UserService,
     SessionService,
     MailService,
