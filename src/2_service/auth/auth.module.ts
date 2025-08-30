@@ -10,6 +10,7 @@ import { AccessService } from '../access/access.service';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
 import { TransactionService } from '../database/database.service';
+import { MemberService } from '../member/member.service';
 import { OrganizationService } from '../organization/organization.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
@@ -23,6 +24,7 @@ import { JwtInternalService } from './jwt-internal.service';
     AuthService,
     ActivityLogCreationService,
     TransactionService,
+    MemberService,
     OrganizationService,
     JwtInternalService,
     AccountVerificationService,

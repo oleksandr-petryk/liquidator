@@ -1,36 +1,16 @@
-import {
-  // Body,
-  Controller,
-  // Get,
-  // Param,
-  // Post,
-  // Query,
-  // UseGuards,
-} from '@nestjs/common';
-import {
-  // ApiBasicAuth,
-  // ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBasicAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
 import { OrganizationService } from '../../2_service/organization/organization.service';
 import { APP_DEFAULT_V1_PREFIX } from '../../5_shared/config/const/app.const';
 import { SWAGGER_TAGS } from '../../5_shared/config/const/swagger.const';
-// import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
-// import { GetUserFromRequest } from '../../5_shared/decorators/get-user-from-request.decorator';
-// import { JwtAccessGuard } from '../../5_shared/guards/auth.guard';
-// import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
-// import { paginationQueryToDrizzle } from '../../5_shared/utils/db.util';
-// import { PaginationQueryDto } from '../../6_model/dto/common/pagination-query.dto';
+import { ApiAbstractResponse } from '../../5_shared/decorators/api-abstract-response.decorator';
+import { GetUserFromRequest } from '../../5_shared/decorators/get-user-from-request.decorator';
+import { JwtAccessGuard } from '../../5_shared/guards/auth.guard';
+import { JwtTokenPayload } from '../../5_shared/interfaces/jwt-token.interface';
 import { DtoMapper } from '../../6_model/dto/dto.mapper';
-// import {
-//   MemberDto,
-//   MemberPageableDto,
-// } from '../../6_model/dto/entities/member.dto';
-// import { LoginResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
-// import { CreateOrganizationRequestBodyDto } from '../../6_model/dto/io/organization/request-body.dto';
-// import { CreateOrganizationResponseBodyDto } from '../../6_model/dto/io/organization/response-body.dto';
+import { LoginResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
 
 @ApiTags(SWAGGER_TAGS.organization.title)
 @Controller(`${APP_DEFAULT_V1_PREFIX}/organization`)
@@ -41,84 +21,25 @@ export class OrganizationController {
     private readonly dtoMapper: DtoMapper,
   ) {}
 
-  // @ApiOperation({
-  //   summary: 'Get token with organization',
-  // })
-  // @ApiAbstractResponse(LoginResponseBodyDto)
-  // @ApiBasicAuth('Bearer')
-  // @UseGuards(JwtAccessGuard)
-  // @Post(':id/token')
-  // async getOrganizationToken(
-  //   @GetUserFromRequest() user: JwtTokenPayload,
-  //   @Param('id') organizationId: string,
-  // ): Promise<LoginResponseBodyDto> {
-  //   return await this.organizationService.generatePairTokens({
-  //     organizationId,
-  //     userId: user.id,
-  //     jti: user.jti,
-  //   });
-  // }
+  @ApiOperation({
+    summary: 'Get token with organization',
+  })
+  @ApiAbstractResponse(LoginResponseBodyDto)
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Post(':id/token')
+  async getOrganizationTokens(
+    @GetUserFromRequest() user: JwtTokenPayload,
+    @Param('id') organizationId: string,
+  ): Promise<LoginResponseBodyDto> {
+    this.logger.info(
+      `${this.getOrganizationTokens.name}, user: ${JSON.stringify(user)}, organizationId: ${JSON.stringify(organizationId)}`,
+    );
 
-  // @ApiOperation({
-  //   summary: 'Get user organizations',
-  // })
-  // @ApiAbstractResponse(MemberDto, { pageable: true })
-  // @ApiBasicAuth('Bearer')
-  // @UseGuards(JwtAccessGuard)
-  // @Get()
-  // async getListUserOrganizations(
-  //   @Query() query: PaginationQueryDto,
-  //   @GetUserFromRequest() user: JwtTokenPayload,
-  // ): Promise<MemberPageableDto> {
-  //   const result = await this.organizationService.getListOfUserOrganizations({
-  //     userId: user.id,
-  //     pagination: paginationQueryToDrizzle(query),
-  //   });
-
-  //   return new MemberPageableDto({
-  //     items: result.items.map((i) => {
-  //       const session = this.dtoMapper.mapMemberDto(i);
-
-  //       if (i.organizationId === user.orgId) {
-  //         session.currentOrganization = true;
-  //       } else {
-  //         session.currentOrganization = false;
-  //       }
-
-  //       return session;
-  //     }),
-  //     count: result.count,
-  //   });
-  // }
-
-  // @ApiOperation({
-  //   summary: 'Create organization',
-  // })
-  // @ApiAbstractResponse(CreateOrganizationResponseBodyDto)
-  // @ApiBasicAuth('Bearer')
-  // @UseGuards(JwtAccessGuard)
-  // @Post('create')
-  // async createOrganization(
-  //   @GetUserFromRequest() user: JwtTokenPayload,
-  //   @Body() data: CreateOrganizationRequestBodyDto,
-  // ): Promise<CreateOrganizationResponseBodyDto> {
-  //   return await this.organizationService.createOrganizationWithOwner({
-  //     userId: user.id,
-  //     ...data,
-  //   });
-  // }
-
-  //   @ApiOperation({
-  //     summary: 'Create new permission',
-  //   })
-  //   @ApiAbstractResponse()
-  //   @ApiBasicAuth('Bearer')
-  //   @UseGuards(JwtAccessGuard)
-  //   @Post('permission')
-  //   async createPermission(
-  //     @GetUserFromRequest() user: JwtTokenPayload,
-  //     @Body() data: null,
-  //   ): Promise<null> {
-  //     return await this.organizationService.createPermission({});
-  //   }
+    return await this.organizationService.generateOrganizationTokens({
+      organizationId,
+      userId: user.id,
+      jti: user.jti,
+    });
+  }
 }

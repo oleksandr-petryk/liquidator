@@ -15,19 +15,26 @@ import {
   ACCESS_DEFAULT_LIST_OF_ROLES,
   ACCESS_DEFAULT_ROLE_TO_PERMISSION_RELATION,
 } from '../../5_shared/config/const/access.const';
+import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
+import { AccessService } from '../access/access.service';
+import { JwtInternalService } from '../auth/jwt-internal.service';
 import { TransactionService } from '../database/database.service';
+import { MemberService } from '../member/member.service';
 
 @Injectable()
 export class OrganizationService {
   constructor(
     protected readonly configService: ConfigService,
     private readonly transactionService: TransactionService,
+    private readonly memberService: MemberService,
     private readonly organizationDao: OrganizationDao,
     private readonly roleDao: RoleDao,
     private readonly roleToPermissionDao: RoleToPermissionDao,
     private readonly permissionDao: PermissionDao,
     private readonly memberDao: MemberDao,
     private readonly memberToRoleDao: MemberToRoleDao,
+    private readonly accessService: AccessService,
+    private readonly jwtInternalService: JwtInternalService,
   ) {}
 
   public async create(user: UserSelectModel): Promise<OrganizationSelectModel> {
@@ -88,75 +95,35 @@ export class OrganizationService {
     return org;
   }
 
-  // public async createOrganization({
-  //   name,
-  //   slug,
-  //   userId,
-  // }: {
-  //   name: string;
-  //   slug: string;
-  //   userId: string;
-  // }): Promise<CreateOrganizationResponseBodyDto> {
-  //   const newOrganization = await this.organizationDao.create({
-  //     data: { name, slug },
-  //   });
+  public async generateOrganizationTokens({
+    organizationId,
+    userId,
+    jti,
+  }: {
+    organizationId: string;
+    userId: string;
+    jti: string;
+  }): Promise<JwtTokensPair> {
+    const member = await this.memberService.getByUserIdAndOrganizationId({
+      organizationId,
+      userId,
+    });
 
-  //   const role = await this.roleDao.create({
-  //     data: {
-  //       organizationId: newOrganization.id,
-  //       name: 'owner',
-  //       permissions: { action: 'any' },
-  //     },
-  //   });
+    const accessData = member
+      ? await this.accessService.serializeUserAccess({
+          userId,
+          orgId: member.organizationId,
+        })
+      : { roles: [], permissions: [] };
 
-  //   await this.memberDao.create({
-  //     data: { userId, organizationId: newOrganization.id, roleId: role.id },
-  //   });
+    const tokensPair = this.jwtInternalService.generatePairTokens({
+      id: userId,
+      jti,
+      orgId: member?.organizationId,
+      roles: accessData.roles,
+      permissions: accessData.permissions,
+    });
 
-  //   return newOrganization;
-  // }
-
-  // public async getListOfUserOrganizations({
-  //   userId,
-  //   pagination,
-  // }: {
-  //   userId: string;
-  //   pagination: DrizzlePagination;
-  // }): Promise<Listable<Omit<MemberSelectModel, 'user' | 'role'>>> {
-  //   const organizationsList = await this.memberDao.listSessionsByUserId({
-  //     userId,
-  //     pagination,
-  //   });
-
-  //   return organizationsList;
-  // }
-
-  // public async generatePairTokens({
-  //   organizationId,
-  //   userId,
-  //   jti,
-  // }: {
-  //   organizationId: string;
-  //   userId: string;
-  //   jti: string;
-  // }): Promise<JwtTokensPair> {
-  //   const member = await this.memberDao.findByUserIdAndOrganizationId({
-  //     organizationId,
-  //     userId,
-  //   });
-
-  //   const role = await this.roleDao.findManyById({
-  //     id: member.roleId,
-  //   });
-
-  //   const tokensPair = this.jwtInternalService.generatePairTokens({
-  //     jti,
-  //     id: userId,
-  //     orgId: organizationId,
-  //     roles: role.map((role) => role.name),
-  //     permissions: role.map((item) => item.permissions.action),
-  //   });
-
-  //   return tokensPair;
-  // }
+    return tokensPair;
+  }
 }
