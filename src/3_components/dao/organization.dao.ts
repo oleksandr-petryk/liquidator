@@ -1,11 +1,17 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import {
+  desc,
+  eq,
+  type InferInsertModel,
+  type InferSelectModel,
+} from 'drizzle-orm';
 
 import {
   Drizzle,
   DRIZZLE_CONNECTION,
 } from '../../4_low/drizzle/drizzle.module';
-import { organization } from '../../6_model/db';
+import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
+import { member, organization } from '../../6_model/db';
 import { BaseDao } from './base.dao';
 import { PictureSelectModel } from './pictures.dao';
 
@@ -28,5 +34,30 @@ export class OrganizationDao extends BaseDao<typeof organization> {
         plural: 'organization',
       },
     });
+  }
+
+  async findManyByMemberUserId({
+    userId,
+    pagination,
+  }: {
+    userId: string;
+    pagination: DrizzlePagination;
+  }): Promise<OrganizationSelectModel[]> {
+    return await this.postgresDatabase
+      .select({
+        name: organization.name,
+        slug: organization.slug,
+        status: organization.status,
+        createdAt: organization.createdAt,
+        updatedAt: organization.updatedAt,
+        id: organization.id,
+        pictureId: organization.pictureId,
+      })
+      .from(member)
+      .innerJoin(organization, eq(member.organizationId, organization.id))
+      .where(eq(member.userId, userId))
+      .offset(pagination.offset)
+      .limit(pagination.limit)
+      .orderBy(desc(organization.createdAt));
   }
 }

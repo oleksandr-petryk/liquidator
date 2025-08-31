@@ -15,7 +15,12 @@ import {
   ACCESS_DEFAULT_LIST_OF_ROLES,
   ACCESS_DEFAULT_ROLE_TO_PERMISSION_RELATION,
 } from '../../5_shared/config/const/access.const';
-import { JwtTokensPair } from '../../5_shared/interfaces/jwt-token.interface';
+import { Listable } from '../../5_shared/interfaces/abstract.interface';
+import { DrizzlePagination } from '../../5_shared/interfaces/db.interface';
+import {
+  JwtTokenPayload,
+  JwtTokensPair,
+} from '../../5_shared/interfaces/jwt-token.interface';
 import { AccessService } from '../access/access.service';
 import { JwtInternalService } from '../auth/jwt-internal.service';
 import { TransactionService } from '../database/database.service';
@@ -125,5 +130,23 @@ export class OrganizationService {
     });
 
     return tokensPair;
+  }
+
+  public async getListOfUserOrganization(
+    user: JwtTokenPayload,
+    pagination: DrizzlePagination,
+  ): Promise<Listable<OrganizationSelectModel>> {
+    const [items, count] = await Promise.all([
+      await this.organizationDao.findManyByMemberUserId({
+        userId: user.id,
+        pagination,
+      }),
+      await this.memberDao.countByUserId({ userId: user.id }),
+    ]);
+
+    return {
+      items,
+      count,
+    };
   }
 }

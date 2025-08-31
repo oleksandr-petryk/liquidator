@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 
 import { OrganizationSelectModel } from '../../../3_components/dao/organization.dao';
 import { Status } from '../../../5_shared/enums/db.enum';
+import { PageableDto } from './base.dto';
 import { PictureDto } from './picture.dto';
 
 type OrganizationDtoBase = Omit<OrganizationSelectModel, 'picture'> & {
@@ -74,3 +75,5 @@ export class OrganizationDto implements OrganizationDtoBase {
     Object.assign(this, props);
   }
 }
+
+export class OrganizationPageableDto extends PageableDto(OrganizationDto) {}

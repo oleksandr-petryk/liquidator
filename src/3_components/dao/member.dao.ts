@@ -64,15 +64,6 @@ export class MemberDao extends BaseDao<typeof member> {
     return find;
   }
 
-  async countByUserId({ userId }: { userId: string }): Promise<number> {
-    const result = await this.postgresDatabase
-      .select({ count: count(member.userId) })
-      .from(member)
-      .where(eq(member.userId, userId));
-
-    return result[0]?.count;
-  }
-
   public async findByUserId({
     userId,
   }: {
@@ -132,5 +123,14 @@ export class MemberDao extends BaseDao<typeof member> {
       .innerJoin(roleToPermission, eq(role.id, roleToPermission.roleId))
       .innerJoin(permission, eq(roleToPermission.permissionId, permission.id))
       .where(and(eq(member.userId, userId), eq(member.organizationId, orgId)));
+  }
+
+  public async countByUserId({ userId }: { userId: string }): Promise<number> {
+    const result = await this.postgresDatabase
+      .select({ count: count(member.userId) })
+      .from(member)
+      .where(eq(member.userId, userId));
+
+    return result[0]?.count;
   }
 }
