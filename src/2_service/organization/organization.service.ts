@@ -10,7 +10,6 @@ import {
 import { PermissionDao } from '../../3_components/dao/permission.dao';
 import { RoleDao } from '../../3_components/dao/role.dao';
 import { RoleToPermissionDao } from '../../3_components/dao/role-to-permission.dao';
-import { UserSelectModel } from '../../3_components/dao/user.dao';
 import {
   ACCESS_DEFAULT_LIST_OF_ROLES,
   ACCESS_DEFAULT_ROLE_TO_PERMISSION_RELATION,
@@ -42,9 +41,17 @@ export class OrganizationService {
     private readonly jwtInternalService: JwtInternalService,
   ) {}
 
-  public async create(user: UserSelectModel): Promise<OrganizationSelectModel> {
+  public async create({
+    userId,
+    name,
+    slug,
+  }: {
+    userId: string;
+    name: string;
+    slug: string;
+  }): Promise<OrganizationSelectModel> {
     const org = await this.organizationDao.create({
-      data: { name: user.username, slug: user.username },
+      data: { name, slug },
     });
 
     const roles = Object.keys(
@@ -55,7 +62,7 @@ export class OrganizationService {
       data: {
         isDefault: true,
         organizationId: org.id,
-        userId: user.id,
+        userId: userId,
       },
     });
 

@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiTags, OmitType } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -17,6 +25,8 @@ import {
   OrganizationPageableDto,
 } from '../../6_model/dto/entities/organization.dto';
 import { LoginResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
+import { CreateOrganizationRequestBodyDto } from '../../6_model/dto/io/organization/request-body.dto';
+import { CreateOrganizationResponseBodyDto } from '../../6_model/dto/io/organization/response-body.dto';
 
 @ApiTags(SWAGGER_TAGS.organization.title)
 @Controller(`${APP_DEFAULT_V1_PREFIX}/organization`)
@@ -78,6 +88,23 @@ export class OrganizationController {
         return organization;
       }),
       count: result.count,
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Create new organization',
+  })
+  @ApiAbstractResponse(CreateOrganizationResponseBodyDto)
+  @ApiBasicAuth('Bearer')
+  @UseGuards(JwtAccessGuard)
+  @Post('create')
+  async createOrganization(
+    @GetUserFromRequest() user: JwtTokenPayload,
+    @Body() data: CreateOrganizationRequestBodyDto,
+  ): Promise<CreateOrganizationResponseBodyDto> {
+    return await this.organizationService.create({
+      userId: user.id,
+      ...data,
     });
   }
 }

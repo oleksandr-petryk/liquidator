@@ -150,7 +150,11 @@ export class AuthService {
     });
 
     // 6. Create user organization
-    await this.organizationService.create(newUser);
+    await this.organizationService.create({
+      userId: newUser.id,
+      name: newUser.username,
+      slug: newUser.username,
+    });
 
     // 7. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
