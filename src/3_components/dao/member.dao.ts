@@ -48,7 +48,9 @@ export class MemberDao extends BaseDao<typeof member> {
   }: {
     userId: string;
     organizationId: string;
-  }): Promise<Omit<MemberSelectModel, 'user' | 'organization' | 'role'>> {
+  }): Promise<
+    Omit<MemberSelectModel, 'user' | 'organization' | 'role'> | undefined
+  > {
     const [find] = await this.postgresDatabase
       .select()
       .from(member)
@@ -68,7 +70,9 @@ export class MemberDao extends BaseDao<typeof member> {
     userId,
   }: {
     userId: string;
-  }): Promise<Omit<MemberSelectModel, 'user' | 'organization' | 'role'>> {
+  }): Promise<
+    Omit<MemberSelectModel, 'user' | 'organization' | 'role'> | undefined
+  > {
     const [find] = await this.postgresDatabase
       .select()
       .from(member)
@@ -83,7 +87,9 @@ export class MemberDao extends BaseDao<typeof member> {
     userId,
   }: {
     userId: string;
-  }): Promise<Omit<MemberSelectModel, 'user' | 'organization' | 'role'>> {
+  }): Promise<
+    Omit<MemberSelectModel, 'user' | 'organization' | 'role'> | undefined
+  > {
     const [find] = await this.postgresDatabase
       .select()
       .from(member)

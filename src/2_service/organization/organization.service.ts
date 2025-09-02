@@ -119,22 +119,18 @@ export class OrganizationService {
       userId,
     });
 
-    const accessData = member
-      ? await this.accessService.serializeUserAccess({
-          userId,
-          orgId: member.organizationId,
-        })
-      : { roles: [], permissions: [] };
+    const accessData = await this.accessService.serializeUserAccess({
+      userId,
+      orgId: member.organizationId,
+    });
 
-    const tokensPair = this.jwtInternalService.generatePairTokens({
+    return this.jwtInternalService.generatePairTokens({
       id: userId,
       jti,
       orgId: member?.organizationId,
       roles: accessData.roles,
       permissions: accessData.permissions,
     });
-
-    return tokensPair;
   }
 
   public async getListOfUserOrganization(

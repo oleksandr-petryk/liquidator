@@ -37,8 +37,6 @@ export class RoleDao extends BaseDao<typeof role> {
     db?: Drizzle;
     id: string;
   }): Promise<Omit<RoleSelectModel, 'organization'>[]> {
-    const find = await db.select().from(role).where(eq(role.id, id));
-
-    return find;
+    return await db.select().from(role).where(eq(role.id, id));
   }
 }
