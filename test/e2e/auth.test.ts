@@ -99,7 +99,9 @@ describe('Auth Tests', () => {
         throw new Error('Error expected');
       } catch (e: any) {
         expect(e?.response?.status).toBe(400);
-        expect(e?.response?.data?.message).toBe('Incorrect password');
+        expect(e?.response?.data?.message).toBe(
+          'User not exists or password is wrong',
+        );
       }
     });
 
