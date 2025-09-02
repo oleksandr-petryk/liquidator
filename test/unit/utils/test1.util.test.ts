@@ -1,4 +1,4 @@
-import { testAdd } from '../../../src/shared/utils/test1.util';
+import { testAdd } from '../../../src/5_shared/utils/test1.util';
 
 test('testAdd', () => {
   const A = 10;
