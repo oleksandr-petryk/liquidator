@@ -64,7 +64,7 @@ export class OrganizationService {
       },
     });
 
-    this.transactionService.transaction(async () => {
+    await this.transactionService.transaction(async () => {
       for (const roleKey of roles) {
         const role = await this.roleDao.create({
           data: {
