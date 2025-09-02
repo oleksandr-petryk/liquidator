@@ -1,4 +1,10 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import {
   desc,
   eq,
@@ -59,5 +65,30 @@ export class OrganizationDao extends BaseDao<typeof organization> {
       .offset(pagination.offset)
       .limit(pagination.limit)
       .orderBy(desc(organization.createdAt));
+  }
+
+  public async createOrThrow({
+    name,
+    slug,
+  }: {
+    name: string;
+    slug: string;
+  }): Promise<OrganizationSelectModel> {
+    try {
+      const [inserted] = await this.postgres
+        .insert(organization)
+        .values({ name, slug })
+        .returning();
+      return inserted;
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        throw new ConflictException(
+          'Organization with this name or slug already exists',
+        );
+      }
+      throw new InternalServerErrorException(
+        'Unexpected error while creating organization',
+      );
+    }
   }
 }

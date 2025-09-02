@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { MemberDao } from '../../3_components/dao/member.dao';
@@ -45,31 +41,6 @@ export class OrganizationService {
     private readonly jwtInternalService: JwtInternalService,
   ) {}
 
-  private async createOrganizationOrThrow({
-    name,
-    slug,
-  }: {
-    name: string;
-    slug: string;
-  }): Promise<OrganizationSelectModel> {
-    try {
-      const org = await this.organizationDao.create({
-        data: { name, slug },
-      });
-
-      return org;
-    } catch (error: any) {
-      if (error?.code === '23505') {
-        throw new ConflictException(
-          'Organization with this name or slug already exists',
-        );
-      }
-      throw new InternalServerErrorException(
-        'Unexpected error while creating organization',
-      );
-    }
-  }
-
   public async create({
     userId,
     name,
@@ -79,7 +50,7 @@ export class OrganizationService {
     name: string;
     slug: string;
   }): Promise<OrganizationSelectModel> {
-    const org = await this.createOrganizationOrThrow({ name, slug });
+    const org = await this.organizationDao.createOrThrow({ name, slug });
 
     const roles = Object.keys(
       ACCESS_DEFAULT_ROLE_TO_PERMISSION_RELATION,
