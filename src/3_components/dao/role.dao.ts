@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { eq, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 
 import {
   Drizzle,
@@ -28,5 +28,15 @@ export class RoleDao extends BaseDao<typeof role> {
         plural: 'roles',
       },
     });
+  }
+
+  async findManyById({
+    db = this.postgresDatabase,
+    id,
+  }: {
+    db?: Drizzle;
+    id: string;
+  }): Promise<Omit<RoleSelectModel, 'organization'>[]> {
+    return await db.select().from(role).where(eq(role.id, id));
   }
 }

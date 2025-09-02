@@ -5,6 +5,8 @@ import { LoggerModule } from 'nestjs-pino';
 import { AccountVerificationModule } from './2_service/account-verification/account-verification.module';
 import { ActivityLogModule } from './2_service/activity-log/activity-log.module';
 import { AuthModule } from './2_service/auth/auth.module';
+import { MemberModule } from './2_service/member/member.module';
+import { OrganizationModule } from './2_service/organization/organization.module';
 import { PasswordResetRequestModule } from './2_service/password-reset-request/password-reset-request.module';
 import { PictureModule } from './2_service/picture/picture.module';
 import { PlatformModule } from './2_service/platform/platform.module';
@@ -50,6 +52,8 @@ const DEFAULT_MODULES = [
   imports: [
     ...DEFAULT_MODULES,
     AuthModule,
+    MemberModule,
+    OrganizationModule,
     ActivityLogModule,
     DrizzleModule,
     KafkaModule,

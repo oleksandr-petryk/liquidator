@@ -20,12 +20,12 @@ export interface JwtTokenPayload {
   /**
    * User roles
    */
-  roles?: string[];
+  roles: string[];
 
   /**
    * User permissions
    */
-  permissions?: string[];
+  permissions: string[];
 }
 
 /**

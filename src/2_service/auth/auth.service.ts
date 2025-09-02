@@ -13,6 +13,7 @@ import {
   ClientFingerprintDao,
   ClientFingerprintSelectModel,
 } from '../../3_components/dao/client-fingerprint.dao';
+import { MemberDao } from '../../3_components/dao/member.dao';
 import { PasswordResetRequestDao } from '../../3_components/dao/password-reset-request.dao';
 import {
   SessionDao,
@@ -37,8 +38,10 @@ import {
 import { TemplatesEnum } from '../../5_shared/misc/handlebars/email/template-names';
 import { RegisterRequestBodyDto } from '../../6_model/dto/io/auth/request-body.dto';
 import { PasswordResetResponseBodyDto } from '../../6_model/dto/io/auth/response-body.dto';
+import { AccessService } from '../access/access.service';
 import { AccountVerificationService } from '../account-verification/account-verification.service';
 import { ActivityLogCreationService } from '../activity-log/activity-log-creation.service';
+import { OrganizationService } from '../organization/organization.service';
 import { PasswordResetRequestService } from '../password-reset-request/password-reset-request.service';
 import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
@@ -52,6 +55,7 @@ export class AuthService {
     private readonly sessionDao: SessionDao,
     private readonly passwordResetRequestDao: PasswordResetRequestDao,
     private readonly clientFingerprintDao: ClientFingerprintDao,
+    private readonly memberDao: MemberDao,
     private readonly sessionService: SessionService,
     private readonly jwtInternalService: JwtInternalService,
     private readonly userService: UserService,
@@ -62,6 +66,8 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly handlebarsService: HandlebarsService,
     private readonly activityLogCreationService: ActivityLogCreationService,
+    private readonly organizationService: OrganizationService,
+    private readonly accessService: AccessService,
   ) {}
 
   /**
@@ -73,7 +79,8 @@ export class AuthService {
    * 3. Check if user with username already exists
    * 4. Hash password
    * 5. Create new user in DB
-   * 6. Create account verification record in DB and send verification email
+   * 6. Create user organization
+   * 7. Create account verification record in DB and send verification email
    *
    * @returns new user
    */
@@ -142,7 +149,14 @@ export class AuthService {
       },
     });
 
-    // 6. Create account verification record in DB and send verification email
+    // 6. Create user organization
+    await this.organizationService.create({
+      userId: newUser.id,
+      name: newUser.username,
+      slug: newUser.username,
+    });
+
+    // 7. Create account verification record in DB and send verification email
     await this.accountVerificationService.sendRequest({
       username: newUser.username,
       email: newUser.email,
@@ -205,9 +219,23 @@ export class AuthService {
     const jti = randomUUID();
 
     // 4. Generate tokens
+    const memberDefaultOrganization = await this.memberDao.findDefaultByUserId({
+      userId: user.id,
+    });
+
+    const accessData = memberDefaultOrganization
+      ? await this.accessService.serializeUserAccess({
+          userId: user.id,
+          orgId: memberDefaultOrganization.organizationId,
+        })
+      : { roles: [], permissions: [] };
+
     const tokensPair = this.jwtInternalService.generatePairTokens({
       id: user.id,
       jti,
+      orgId: memberDefaultOrganization?.organizationId,
+      roles: accessData.roles,
+      permissions: accessData.permissions,
     });
 
     // 5. Create session
@@ -632,9 +660,23 @@ export class AuthService {
     const jti = randomUUID();
 
     // 4. Generate tokens
-    const pairTokens = this.jwtInternalService.generatePairTokens({
+    const memberDefaultOrganization = await this.memberDao.findDefaultByUserId({
+      userId: verifiedRefreshToken.id,
+    });
+
+    const accessData = memberDefaultOrganization
+      ? await this.accessService.serializeUserAccess({
+          userId: verifiedRefreshToken.id,
+          orgId: memberDefaultOrganization.organizationId,
+        })
+      : { roles: [], permissions: [] };
+
+    const tokensPair = this.jwtInternalService.generatePairTokens({
       id: verifiedRefreshToken.id,
-      jti: jti,
+      jti,
+      orgId: memberDefaultOrganization?.organizationId,
+      roles: accessData.roles,
+      permissions: accessData.permissions,
     });
 
     // 5. Save tokens in redis
@@ -648,7 +690,7 @@ export class AuthService {
     await this.sessionService.updateSessionToken({
       userId: verifiedRefreshToken.id,
       oldRefreshToken: refreshToken,
-      refreshToken: pairTokens.refreshToken,
+      refreshToken: tokensPair.refreshToken,
       jti,
     });
 
@@ -657,6 +699,6 @@ export class AuthService {
       clientFingerprintId: fingerprint.id,
     });
 
-    return pairTokens;
+    return tokensPair;
   }
 }

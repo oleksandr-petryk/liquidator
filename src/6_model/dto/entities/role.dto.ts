@@ -27,13 +27,6 @@ export class RoleDto
   })
   name!: string;
 
-  @ApiProperty({
-    description: 'Role permissions',
-    type: String,
-    example: 'member',
-  })
-  permissions!: unknown;
-
   constructor(props: RoleDto) {
     Object.assign(this, props);
   }

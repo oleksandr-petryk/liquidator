@@ -3,11 +3,14 @@ import { randomUUID } from 'crypto';
 
 import { OrganizationSelectModel } from '../../../3_components/dao/organization.dao';
 import { Status } from '../../../5_shared/enums/db.enum';
+import { PageableDto } from './base.dto';
 import { PictureDto } from './picture.dto';
 
-export class OrganizationDto
-  implements Record<keyof OrganizationSelectModel, any>
-{
+type OrganizationDtoBase = Omit<OrganizationSelectModel, 'picture'> & {
+  picture?: OrganizationSelectModel['picture'];
+};
+
+export class OrganizationDto implements OrganizationDtoBase {
   @ApiProperty({
     description: 'ID',
     type: String,
@@ -51,7 +54,7 @@ export class OrganizationDto
     type: PictureDto,
     nullable: true,
   })
-  picture!: PictureDto | null;
+  picture?: PictureDto | null;
 
   @ApiProperty({
     description: 'Date created',
@@ -72,3 +75,5 @@ export class OrganizationDto
     Object.assign(this, props);
   }
 }
+
+export class OrganizationPageableDto extends PageableDto(OrganizationDto) {}

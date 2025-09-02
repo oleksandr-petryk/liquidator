@@ -163,10 +163,11 @@ export class DtoMapper {
     return {
       id: data.id,
       organizationId: data.organizationId,
-      roleId: data.roleId,
       userId: data.userId,
       createdAt: data.createdAt,
+      isDefault: data.isDefault,
       updatedAt: data.updatedAt,
+      organization: data.organization,
     };
   }
 
@@ -174,6 +175,7 @@ export class DtoMapper {
     return {
       id: data.id,
       action: data.action,
+      organizationId: data.organizationId,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
@@ -184,7 +186,6 @@ export class DtoMapper {
       id: data.id,
       name: data.name,
       organizationId: data.organizationId,
-      permissions: data.permissions,
     };
   }
 

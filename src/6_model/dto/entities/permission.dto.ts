@@ -19,6 +19,13 @@ export class PermissionDto implements Record<keyof PermissionSelectModel, any> {
   action!: string;
 
   @ApiProperty({
+    description: 'Organization ID',
+    type: String,
+    example: randomUUID(),
+  })
+  organizationId!: string;
+
+  @ApiProperty({
     description: 'Date created',
     type: Date,
     example: new Date(),

@@ -4,6 +4,7 @@ import { AccountVerificationDao } from './account-verification.dao';
 import { ActivityLogDao } from './activity-log.dao';
 import { ClientFingerprintDao } from './client-fingerprint.dao';
 import { MemberDao } from './member.dao';
+import { MemberToRoleDao } from './member-to-role.dao';
 import { OrganizationDao } from './organization.dao';
 import { PasswordResetRequestDao } from './password-reset-request.dao';
 import { PermissionDao } from './permission.dao';
@@ -21,6 +22,7 @@ import { UserDao } from './user.dao';
     ActivityLogDao,
     ClientFingerprintDao,
     MemberDao,
+    MemberToRoleDao,
     OrganizationDao,
     PasswordResetRequestDao,
     PermissionDao,
@@ -37,6 +39,7 @@ import { UserDao } from './user.dao';
     ActivityLogDao,
     ClientFingerprintDao,
     MemberDao,
+    MemberToRoleDao,
     OrganizationDao,
     PasswordResetRequestDao,
     PermissionDao,

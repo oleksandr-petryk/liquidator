@@ -3,6 +3,7 @@ export * from './activity-log';
 export * from './client-fingerprint';
 export * from './enums';
 export * from './member';
+export * from './member-to-role';
 export * from './organization';
 export * from './password-reset-request';
 export * from './permission';
