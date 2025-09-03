@@ -8,9 +8,10 @@ import {
 
 import { USER_PROPERTIES } from '../../../src/5_shared/config/const/user.const';
 import {
-  randomEmailGeneration,
-  randomPhoneNumberGeneration,
-  randomUsernameGeneration,
+  randomEmail,
+  randomPassword,
+  randomPhoneNumber,
+  randomUsername,
 } from '../../../src/5_shared/utils/e2e.util';
 
 class TestEmailDto {
@@ -27,16 +28,25 @@ class TestUsernameDto {
   username!: string;
 }
 
+class TestPasswordDto {
+  @Length(
+    USER_PROPERTIES.password.minLength!,
+    USER_PROPERTIES.password.maxLength!,
+  )
+  @IsString()
+  password!: string;
+}
+
 class TestPhoneNumberDto {
   @IsPhoneNumber()
   phoneNumber!: string;
 }
 
 test('random email generation', () => {
-  const randomEmail = randomEmailGeneration();
+  const email = randomEmail();
 
   const dto = new TestEmailDto();
-  dto.email = randomEmail;
+  dto.email = email;
 
   const errors = validateSync(dto);
 
@@ -44,10 +54,21 @@ test('random email generation', () => {
 });
 
 test('random username generation', () => {
-  const randomUsername = randomUsernameGeneration();
+  const username = randomUsername();
 
   const dto = new TestUsernameDto();
-  dto.username = randomUsername;
+  dto.username = username;
+
+  const errors = validateSync(dto);
+
+  expect(errors.length).toBe(0);
+});
+
+test('random username generation', () => {
+  const password = randomPassword();
+
+  const dto = new TestPasswordDto();
+  dto.password = password;
 
   const errors = validateSync(dto);
 
@@ -55,10 +76,10 @@ test('random username generation', () => {
 });
 
 test('random phone number generation', () => {
-  const randomPhoneNumber = randomPhoneNumberGeneration();
+  const phoneNumber = randomPhoneNumber();
 
   const dto = new TestPhoneNumberDto();
-  dto.phoneNumber = randomPhoneNumber;
+  dto.phoneNumber = phoneNumber;
 
   const errors = validateSync(dto);
   console.log(errors);
