@@ -3,7 +3,7 @@ import * as path from 'path';
 
 const config: Config.InitialOptions = {
   collectCoverage: true,
-  collectCoverageFrom: ['./src/shared/utils/**/*', '!**/*.test.ts'],
+  collectCoverageFrom: ['src/5_shared/utils/**/*', '!**/*.test.ts'],
   coverageDirectory: './test/unit/coverage',
   coverageThreshold: {
     global: {

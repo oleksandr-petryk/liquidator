@@ -1,15 +1,19 @@
-import { faker } from '@faker-js/faker';
 import axios from 'axios';
 
+import {
+  randomEmail,
+  randomPassword,
+  randomUsername,
+} from '../../src/5_shared/utils/e2e.util';
 import { API, expectApiError } from './helpers/api';
 
 describe('Auth Tests', () => {
   describe('Register', () => {
     test('/auth/register/ - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       const response = await API.post('/v1/auth/register', data);
@@ -19,9 +23,9 @@ describe('Auth Tests', () => {
 
     test('/v1/auth/register/ - NOK - email already exists', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -40,9 +44,9 @@ describe('Auth Tests', () => {
 
     test('/auth/register/ - NOK - username already exists', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -50,7 +54,7 @@ describe('Auth Tests', () => {
       try {
         await API.post('/v1/auth/register', {
           ...data,
-          email: faker.internet.email(),
+          email: randomEmail(),
         });
 
         throw new Error('Error expected');
@@ -66,9 +70,9 @@ describe('Auth Tests', () => {
   describe('Login', () => {
     test('/v/1auth/log-in/ - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -83,9 +87,9 @@ describe('Auth Tests', () => {
 
     test('/v/1auth/log-in/ - NOK - wrong password', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -107,9 +111,9 @@ describe('Auth Tests', () => {
 
     test('/v/1auth/log-in/ - NOK - user not exists', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -133,9 +137,9 @@ describe('Auth Tests', () => {
   describe('Sessions', () => {
     test('Get - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -159,9 +163,9 @@ describe('Auth Tests', () => {
 
     test('Get thisDevice - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -188,9 +192,9 @@ describe('Auth Tests', () => {
 
     test('Pagination - OK - default pagination', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -226,9 +230,9 @@ describe('Auth Tests', () => {
 
     test('Pagination - OK - custom pagination', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -269,9 +273,9 @@ describe('Auth Tests', () => {
 
     test('Update - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -313,9 +317,9 @@ describe('Auth Tests', () => {
 
     test('Delete - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -371,9 +375,9 @@ describe('Auth Tests', () => {
   describe('Account verification', () => {
     test('Account verification - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -404,9 +408,9 @@ describe('Auth Tests', () => {
 
     test('Account verification email resending - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -440,9 +444,9 @@ describe('Auth Tests', () => {
   describe('Get user', () => {
     test('Get user - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -477,9 +481,9 @@ describe('Auth Tests', () => {
   describe('Password reset', () => {
     test('Send password reset email - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -502,9 +506,9 @@ describe('Auth Tests', () => {
 
     test('Password reset - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -538,9 +542,9 @@ describe('Auth Tests', () => {
   describe('Password change', () => {
     test('Password change valid old password - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -579,9 +583,9 @@ describe('Auth Tests', () => {
 
     test('Password change invalid old password - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
@@ -625,9 +629,9 @@ describe('Auth Tests', () => {
   describe('Refresh token', () => {
     test('Refresh token - OK', async () => {
       const data = {
-        email: faker.internet.email(),
-        username: faker.internet.username(),
-        password: faker.internet.password(),
+        email: randomEmail(),
+        username: randomUsername(),
+        password: randomPassword(),
       };
 
       await API.post('/v1/auth/register', data);
