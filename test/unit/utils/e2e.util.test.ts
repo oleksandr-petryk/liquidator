@@ -125,7 +125,6 @@ describe('Random phone number generation', () => {
     dto.phoneNumber = phoneNumber;
 
     const errors = validateSync(dto);
-    console.log(errors);
 
     expect(errors.length).toBe(0);
   });
