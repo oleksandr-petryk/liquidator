@@ -1,11 +1,14 @@
 import axios from 'axios';
 
+import { APITesting } from '../../src/5_shared/utils/api.wrapper';
 import {
   randomEmail,
   randomPassword,
   randomUsername,
 } from '../../src/5_shared/utils/e2e.util';
-import { API, expectApiError } from './helpers/api';
+import { expectApiError } from './helpers/api';
+
+const apiTesting = new APITesting();
 
 describe('Auth Tests', () => {
   describe('Register', () => {
@@ -16,7 +19,7 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      const response = await API.post('/v1/auth/register', data);
+      const response = await apiTesting.post('/v1/auth/register', { data });
 
       expect(response.status).toEqual(201);
     });
@@ -28,18 +31,16 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data }, false);
 
-      try {
-        await API.post('/v1/auth/register', data);
+      const response = await apiTesting.post(
+        '/v1/auth/register',
+        { data },
+        false,
+      );
 
-        throw new Error('Error expected');
-      } catch (e: any) {
-        expect(e?.response?.status).toBe(400);
-        expect(e?.response?.data?.message).toBe(
-          'User with that email already exist',
-        );
-      }
+      expect(response.status).toBe(400);
+      expect(response.data.message).toBe('User with that email already exist');
     });
 
     test('/auth/register/ - NOK - username already exists', async () => {
@@ -49,21 +50,23 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      try {
-        await API.post('/v1/auth/register', {
-          ...data,
-          email: randomEmail(),
-        });
+      const response = await apiTesting.post(
+        '/v1/auth/register',
+        {
+          data: {
+            ...data,
+            email: randomEmail(),
+          },
+        },
+        false,
+      );
 
-        throw new Error('Error expected');
-      } catch (e: any) {
-        expect(e?.response?.status).toBe(400);
-        expect(e?.response?.data?.message).toBe(
-          'User with that username already exist',
-        );
-      }
+      expect(response.status).toBe(400);
+      expect(response.data.message).toBe(
+        'User with that username already exist',
+      );
     });
   });
 
@@ -75,9 +78,9 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const response = await API.post('/v1/auth/log-in', data);
+      const response = await apiTesting.post('/v1/auth/log-in', { data });
 
       expect(response.status).toBe(201);
       expect(response.data.payload).toBeTruthy();
@@ -92,21 +95,23 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      try {
-        await API.post('/v1/auth/log-in', {
-          ...data,
-          password: '--------',
-        });
+      const response = await apiTesting.post(
+        '/v1/auth/log-in',
+        {
+          data: {
+            ...data,
+            password: '--------',
+          },
+        },
+        false,
+      );
 
-        throw new Error('Error expected');
-      } catch (e: any) {
-        expect(e?.response?.status).toBe(400);
-        expect(e?.response?.data?.message).toBe(
-          'User not exists or password is wrong',
-        );
-      }
+      expect(response.status).toBe(400);
+      expect(response.data.message).toBe(
+        'User not exists or password is wrong',
+      );
     });
 
     test('/v/1auth/log-in/ - NOK - user not exists', async () => {
@@ -116,21 +121,23 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      try {
-        await API.post('/v1/auth/log-in', {
-          ...data,
-          email: 'a@mail.com',
-        });
+      const response = await apiTesting.post(
+        '/v1/auth/log-in',
+        {
+          data: {
+            ...data,
+            email: 'a@mail.com',
+          },
+        },
+        false,
+      );
 
-        throw new Error('Error expected');
-      } catch (e: any) {
-        expect(e?.response?.status).toBe(400);
-        expect(e?.response?.data?.message).toBe(
-          'User not exists or password is wrong',
-        );
-      }
+      expect(response.status).toBe(400);
+      expect(response.data.message).toBe(
+        'User not exists or password is wrong',
+      );
     });
   });
 
@@ -142,13 +149,13 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      await API.post('/v1/auth/log-in', data);
-      await API.post('/v1/auth/log-in', data);
-      const tokens = await API.post('/v1/auth/log-in', data);
+      await apiTesting.post('/v1/auth/log-in', { data });
+      await apiTesting.post('/v1/auth/log-in', { data });
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const response = await API.get('/v1/auth/sessions', {
+      const response = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -168,12 +175,12 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      await API.post('/v1/auth/log-in', data);
-      const tokens = await API.post('/v1/auth/log-in', data);
+      await apiTesting.post('/v1/auth/log-in', { data });
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const response = await API.get('/v1/auth/sessions', {
+      const response = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -197,14 +204,14 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
       for (let i = 0; i < 12; i++) {
-        await API.post('/v1/auth/log-in', data);
+        await apiTesting.post('/v1/auth/log-in', { data });
       }
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const response_1 = await API.get('/v1/auth/sessions', {
+      const response_1 = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -216,7 +223,7 @@ describe('Auth Tests', () => {
         id: expect.any(String),
       });
 
-      const response_2 = await API.get('/v1/auth/sessions', {
+      const response_2 = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -235,14 +242,14 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
       for (let i = 0; i < 12; i++) {
-        await API.post('/v1/auth/log-in', data);
+        await apiTesting.post('/v1/auth/log-in', { data });
       }
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const response_1 = await API.get('/v1/auth/sessions', {
+      const response_1 = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -258,7 +265,7 @@ describe('Auth Tests', () => {
         id: expect.any(String),
       });
 
-      const response_2 = await API.get('/v1/auth/sessions', {
+      const response_2 = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -278,11 +285,11 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const session = await API.get('/v1/auth/sessions', {
+      const session = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -290,16 +297,17 @@ describe('Auth Tests', () => {
 
       const id = session.data.payload.items[0].id;
 
-      const response = await API.patch(
+      const response = await apiTesting.patch(
         `/v1/auth/sessions/${id}`,
         {
-          name: 'john',
-        },
-        {
+          data: {
+            name: 'john',
+          },
           headers: {
             Authorization: 'Bearer ' + tokens.data.payload.accessToken,
           },
         },
+        false,
       );
 
       expect(response.status).toEqual(200);
@@ -322,13 +330,13 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const tokens_1 = await API.post('/v1/auth/log-in', data);
-      const tokens_2 = await API.post('/v1/auth/log-in', data);
-      await API.post('/v1/auth/log-in', data);
+      const tokens_1 = await apiTesting.post('/v1/auth/log-in', { data });
+      const tokens_2 = await apiTesting.post('/v1/auth/log-in', { data });
+      await apiTesting.post('/v1/auth/log-in', { data });
 
-      const session = await API.get('/v1/auth/sessions', {
+      const session = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
         },
@@ -336,33 +344,37 @@ describe('Auth Tests', () => {
 
       const id = session.data.payload.items[2].id;
 
-      await API.delete(`/v1/auth/sessions/${id}`, {
+      await apiTesting.delete(`/v1/auth/sessions/${id}`, {
         headers: {
           Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
         },
       });
 
-      const response_1 = await expectApiError(() =>
-        API.delete(`/v1/auth/sessions/${id}`, {
+      const response_1 = await apiTesting.delete(
+        `/v1/auth/sessions/${id}`,
+        {
           headers: {
             Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
           },
-        }),
+        },
+        false,
       );
 
       expect(response_1.status).toEqual(401);
 
-      const response_2 = await expectApiError(() =>
-        API.get('/v1/auth/sessions', {
+      const response_2 = await apiTesting.get(
+        '/v1/auth/sessions',
+        {
           headers: {
             Authorization: 'Bearer ' + tokens_1.data.payload.accessToken,
           },
-        }),
+        },
+        false,
       );
 
       expect(response_2.status).toEqual(401);
 
-      const response_3 = await API.get('/v1/auth/sessions', {
+      const response_3 = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + tokens_2.data.payload.accessToken,
         },
@@ -380,7 +392,7 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
       const mail = await axios.get(
         `http://localhost:9000/api/v1/mailbox/${data.email}/1`,
@@ -388,17 +400,14 @@ describe('Auth Tests', () => {
 
       expect(mail.status).toEqual(200);
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const response = await API.post(
-        '/v1/auth/verify',
-        { code: mail.data.body.text.match(/\b\d{6}\b/)[0] },
-        {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
+      const response = await apiTesting.post('/v1/auth/verify', {
+        data: { code: mail.data.body.text.match(/\b\d{6}\b/)[0] },
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
-      );
+      });
 
       expect(response.status).toEqual(201);
       expect(response.data.payload.message).toEqual(
@@ -413,7 +422,7 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
       const mail_1 = await axios.get(
         `http://localhost:9000/api/v1/mailbox/${data.email}/1`,
@@ -421,17 +430,14 @@ describe('Auth Tests', () => {
 
       expect(mail_1.status).toEqual(200);
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      await API.post(
-        '/v1/auth/verify/send',
-        {},
-        {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
+      await apiTesting.post('/v1/auth/verify/send', {
+        data: {},
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
-      );
+      });
 
       const mail_2 = await axios.get(
         `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
@@ -449,11 +455,11 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const response = await API.get('/v1/user', {
+      const response = await apiTesting.get('/v1/user', {
         headers: {
           Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
@@ -486,9 +492,9 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      await API.post('/v1/auth/password-reset/send/', data);
+      await apiTesting.post('/v1/auth/password-reset/send/', { data });
 
       const mail_1 = await axios.get(
         `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
@@ -511,9 +517,9 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      await API.post('/v1/auth/password-reset/send/', data);
+      await apiTesting.post('/v1/auth/password-reset/send/', { data });
 
       const mail = await axios.get(
         `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
@@ -524,15 +530,19 @@ describe('Auth Tests', () => {
 
       const newPassword = 'testPassword';
 
-      await API.patch('/v1/auth/password-reset', {
-        email: data.email,
-        code: mail.data.body.text.match(/\b\d{6}\b/)[0],
-        newPassword: newPassword,
+      await apiTesting.patch('/v1/auth/password-reset', {
+        data: {
+          email: data.email,
+          code: mail.data.body.text.match(/\b\d{6}\b/)[0],
+          newPassword: newPassword,
+        },
       });
 
-      const response = await API.post('/v1/auth/log-in', {
-        email: data.email,
-        password: newPassword,
+      const response = await apiTesting.post('/v1/auth/log-in', {
+        data: {
+          email: data.email,
+          password: newPassword,
+        },
       });
 
       expect(response.status).toEqual(201);
@@ -547,24 +557,21 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
       const newPassword = 'testPassword';
 
-      await API.patch(
-        '/v1/auth/password-change',
-        {
+      await apiTesting.patch('/v1/auth/password-change', {
+        data: {
           oldPassword: data.password,
           newPassword: newPassword,
         },
-        {
-          headers: {
-            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-          },
+        headers: {
+          Authorization: 'Bearer ' + tokens.data.payload.accessToken,
         },
-      );
+      });
 
       const mail = await axios.get(
         `http://localhost:9000/api/v1/mailbox/${data.email}/2`,
@@ -573,9 +580,11 @@ describe('Auth Tests', () => {
       expect(mail.status).toEqual(200);
       expect(mail.data.subject).toEqual('Password changed');
 
-      const response = await API.post('/v1/auth/log-in', {
-        email: data.email,
-        password: newPassword,
+      const response = await apiTesting.post('/v1/auth/log-in', {
+        data: {
+          email: data.email,
+          password: newPassword,
+        },
       });
 
       expect(response.status).toEqual(201);
@@ -588,25 +597,25 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
       const newPassword = 'testPassword';
 
-      await expectApiError(() =>
-        API.patch(
-          '/v1/auth/password-change',
-          {
+      await apiTesting.patch(
+        '/v1/auth/password-change',
+        {
+          data: {
             oldPassword: 'invalid password',
             newPassword: newPassword,
           },
-          {
-            headers: {
-              Authorization: 'Bearer ' + tokens.data.payload.accessToken,
-            },
+
+          headers: {
+            Authorization: 'Bearer ' + tokens.data.payload.accessToken,
           },
-        ),
+        },
+        false,
       );
 
       const mail = await expectApiError(() =>
@@ -615,11 +624,15 @@ describe('Auth Tests', () => {
 
       expect(mail.status).toEqual(404);
 
-      const response = await expectApiError(() =>
-        API.post('/v1/auth/log-in', {
-          email: data.email,
-          password: newPassword,
-        }),
+      const response = await apiTesting.post(
+        '/v1/auth/log-in',
+        {
+          data: {
+            email: data.email,
+            password: newPassword,
+          },
+        },
+        false,
       );
 
       expect(response.status).toEqual(400);
@@ -634,23 +647,29 @@ describe('Auth Tests', () => {
         password: randomPassword(),
       };
 
-      await API.post('/v1/auth/register', data);
+      await apiTesting.post('/v1/auth/register', { data });
 
-      const tokens = await API.post('/v1/auth/log-in', data);
+      const tokens = await apiTesting.post('/v1/auth/log-in', { data });
 
-      const newAccessToken = await API.post('/v1/auth/refresh', {
-        refreshToken: tokens.data.payload.refreshToken,
+      const newAccessToken = await apiTesting.post('/v1/auth/refresh', {
+        data: {
+          refreshToken: tokens.data.payload.refreshToken,
+        },
       });
 
-      const response_1 = await expectApiError(() =>
-        API.post('/v1/auth/refresh', {
-          refreshToken: tokens.data.payload.refreshToken,
-        }),
+      const response_1 = await apiTesting.post(
+        '/v1/auth/refresh',
+        {
+          data: {
+            refreshToken: tokens.data.payload.refreshToken,
+          },
+        },
+        false,
       );
 
       expect(response_1.status).toEqual(400);
 
-      const response_2 = await API.get('/v1/user', {
+      const response_2 = await apiTesting.get('/v1/user', {
         headers: {
           Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
         },
@@ -658,17 +677,19 @@ describe('Auth Tests', () => {
 
       expect(response_2.status).toEqual(200);
 
-      const response_3 = await expectApiError(() =>
-        API.get('/v1/user', {
+      const response_3 = await apiTesting.get(
+        '/v1/user',
+        {
           headers: {
             Authorization: 'Bearer ' + tokens.data.payload.accessToken,
           },
-        }),
+        },
+        false,
       );
 
       expect(response_3.status).toEqual(401);
 
-      const session = await API.get('/v1/auth/sessions', {
+      const session = await apiTesting.get('/v1/auth/sessions', {
         headers: {
           Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
         },
@@ -676,18 +697,20 @@ describe('Auth Tests', () => {
 
       const id = session.data.payload.items[0].id;
 
-      await API.delete(`/v1/auth/sessions/${id}`, {
+      await apiTesting.delete(`/v1/auth/sessions/${id}`, {
         headers: {
           Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
         },
       });
 
-      const response_4 = await expectApiError(() =>
-        API.get('/v1/user', {
+      const response_4 = await apiTesting.get(
+        '/v1/user',
+        {
           headers: {
             Authorization: 'Bearer ' + newAccessToken.data.payload.accessToken,
           },
-        }),
+        },
+        false,
       );
 
       expect(response_4.status).toEqual(401);
